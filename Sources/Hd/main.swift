@@ -19,7 +19,7 @@ struct Hd: Website {
     // Update these properties to configure your website:
     var url = URL(string: "http://shtickerz.com")!
     var name = "About Half Dead"
-    var description = "The Greatest Band In A Very Small Land"
+    var description = "The Greatest Band In A Very Small Land " + "\(Date())".dropLast(9)
     var language: Language { .english }
     var imagePath: Path? { "https://billdonner.com/images/austinmay2019.jpg" }
 }
