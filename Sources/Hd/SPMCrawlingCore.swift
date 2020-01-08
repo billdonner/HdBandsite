@@ -25,6 +25,11 @@ public enum CrawlOptions {
     case none
     case verbose
 }
+public enum ExportOptions {
+    case csv
+    case json
+    case md
+}
 
 //public struct CrawlResult:Equatable {
 //    var status: Int
@@ -51,7 +56,7 @@ public struct CrawlerStatsBlock:Codable {
     var status: Int
 }
 public protocol CrawlMeister {
-    func bootCrawlMeister(name:String, baseURL:URL,configURL: URL, opath:String,options:CrawlOptions,whenDone:@escaping ReturnsCrawlResults) throws -> (Void)
+    func bootCrawlMeister(name:String, baseURL:URL,configURL: URL, opath:String,options:CrawlOptions,xoptions:ExportOptions,whenDone:@escaping ReturnsCrawlResults) throws -> (Void)
 }
 
 // global, actually
@@ -172,7 +177,7 @@ public protocol Configable:class, Decodable {
 public protocol CustomRunnable {
     var config:Configable {get set}
     var outputFilePath:LocalFilePath {get set}
-    var outputType:OutputType  {get set}
+    var outputType:ExportOptions  {get set}
     var runOptions:RunManagerOptions  {get set}
     var custom:CustomControllable {get set}
     var crawlerContext:CrawlerContext {get set}
@@ -276,13 +281,13 @@ public enum OutputType: String {
     }
 }
 public struct ReportParams {
-    public var style:OutputType
+    public var style:ExportOptions
     public var reportTitle:String
     public var outputFilePath:String
     public var traceFilePath:String
     public init(r:String = "reportTitle",
                 o:String =  "outputFilePath",
-                f:OutputType = OutputType.csv ,
+                f:ExportOptions = ExportOptions.csv ,
                 t:String = "traceFilePath") {
         reportTitle = r
         outputFilePath = o
@@ -332,9 +337,10 @@ public final class CrawlingBeast {
         baseURL: URL ,
         configURL: URL ,
         options:CrawlOptions = .none,
+        xoptions:ExportOptions = .json,
         whenDone:@escaping ReturnsCrawlResults) throws {
         
-        let xpr = SingleRecordExporter(outputStream: outputStream, exportType: RecordExportType.json, runman: runman)
+        let xpr = SingleRecordExporter(outputStream: outputStream, exportType:xoptions, runman: runman)
         runman.custom.setupController(runman: runman, context: context, exporter: xpr)
         runman.custom.startCrawling(baseURL:baseURL, configurl:configURL,options: options,whenDone:whenDone )
         
@@ -887,34 +893,33 @@ public final class ScrapingMachine:NSObject {
  
  inside SingleRecordExport we'll switch on export type to decide what to dump into the output stream
  */
-public enum RecordExportType {
-    case csv
-    case json
-}
+
 public final class SingleRecordExporter {
-    private(set) var recordExportType:RecordExportType
+    private(set) var xoptions:ExportOptions
     private var rg:CustomRunnable
     var outputStream:FileHandlerOutputStream
     private var first = true
-    public init(outputStream:FileHandlerOutputStream, exportType: RecordExportType, runman:CustomRunnable) {
+    public init(outputStream:FileHandlerOutputStream, exportType: ExportOptions, runman:CustomRunnable) {
         self.outputStream = outputStream
         self.rg = runman
-        self.recordExportType = exportType
+        self.xoptions = exportType
     }
     
     
     private func emitToOutputStream(_ s:String) {
-        switch recordExportType {
+        switch xoptions {
         case .csv,.json:
             
             print(s , to: &outputStream )// dont add extra
             
+        case .md:
+            break
         }
     }
     
     public func addHeaderToExportStream( ) {
         
-        switch recordExportType {
+        switch xoptions {
         case .csv:
             
             emitToOutputStream(rg.custom.makeheader())
@@ -925,12 +930,13 @@ public final class SingleRecordExporter {
             emitToOutputStream("""
 [
 """)
-            
+            case .md:
+                break
         }
     }
     public func addTrailerToExportStream( ) {
         
-        switch recordExportType {
+        switch xoptions {
             
         case .csv:
             if let trailer = rg.custom.maketrailer() {
@@ -940,11 +946,12 @@ public final class SingleRecordExporter {
             emitToOutputStream("""
 ]
 """)
-            
+            case .md:
+                break
         }
     }
     public  func addRowToExportStream( ) {
-        switch recordExportType {
+        switch xoptions {
             
         case .csv:
             let stuff = rg.custom.makerow( )
@@ -975,6 +982,8 @@ public final class SingleRecordExporter {
                 }
                 
             }
+        case .md:
+            break
         }
         first =  false
     }
@@ -985,12 +994,12 @@ public final class RunnableStream : NSObject,CustomRunnable {
     // all of these variables are rquired by RunManager Protocol
     public   var recordExporter: SingleRecordExporter!
     public   var outputFilePath:LocalFilePath
-    public   var outputType:OutputType
+    public   var outputType:ExportOptions
     public   var runOptions:RunManagerOptions
     public   var custom:CustomControllable
     public   var crawlerContext:CrawlerContext
     
-    required public init (config:Configable, custom:CustomControllable, outputFilePath:LocalFilePath, outputType:OutputType,runOptions:RunManagerOptions) {
+    required public init (config:Configable, custom:CustomControllable, outputFilePath:LocalFilePath, outputType:ExportOptions,runOptions:RunManagerOptions) {
         self.outputFilePath = outputFilePath
         self.outputType = outputType
         self.custom = custom
@@ -1011,9 +1020,9 @@ public final class RunnableStream : NSObject,CustomRunnable {
             outputStream = FileHandlerOutputStream(fileHandle)
             
             super.init()
-            let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
+            //let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
             
-            self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportType: exporttype, runman: self)
+            self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportType: outputType, runman: self)
             
         }
         catch {
