@@ -7,18 +7,20 @@ struct Hd: Website {
     enum SectionID: String, WebsiteSectionID {
         // Add the sections that you want your website to contain here:
         
+        case links
         case about
         case posts
-        case links
     }
     
     struct ItemMetadata: WebsiteItemMetadata {
         // Add any site-specific metadata that you want to use here.
+        var players: [String] = ["Bill","Mark","Marty","Anthony","Brian"]
+        var flotsam : TimeInterval = 0
     }
     
     // Update these properties to configure your website:
     var url = URL(string: "http://shtickerz.com")!
-    var name = "About Half Dead"
+    var name = "About Half Dead " + "\(Date())".dropLast(14)
     var description = "The Greatest Band In A Very Small Land " + "\(Date())".dropLast(9)
     var language: Language { .english }
     var imagePath: Path? { "https://billdonner.com/images/austinmay2019.jpg" }
@@ -32,11 +34,11 @@ extension PublishingStep where Site == Hd {
 
                 switch section.id {
                 case .posts:
-                    section.title = "Audio"
+                    section.title = "Audio from ABHD"
                 case .links:
                     section.title = "External links"
                 case .about:
-                    section.title = "About Half Ded"
+                    section.title = "About Half Dead"
                 }
             }
         }
@@ -88,9 +90,8 @@ func command_main() {
         
     }
     
-    
-     var verbosity:Bool = false
-   var baseURL:URL? = nil
+    var verbosity:Bool = false
+    var baseURL:URL? = nil
     var opath:String!
     
     // -json and -csv go to adforum for now, -text goes to manifezz
@@ -114,13 +115,50 @@ func command_main() {
         
         do {
             try  ManifezzClass().bootCrawlMeister (name: opath.components(separatedBy: ".-").first ?? opath, baseURL:baseURL!,configURL:configurl,opath:opath,options:options,whenDone: {crawlResults in
-                print("[crawler] scanned \(crawlResults.count1) pages,  \(crawlResults.secsPerCycle*1000) ms per page")
+                print("[crawler] scanned \(crawlResults.count1) pages,  \(String(format:"%5.2f",crawlResults.secsPerCycle*1000)) ms per page")
                 // at this point we've plunked files into the designated directory
-                
+                let start = Date()
                 
                 // This will generate your website using the built-in Foundation theme:
-                try! Hd().publish(withTheme: .foundation)
                 
+                let step1 =      PublishingStep<Hd>.addItem(Item(
+                                                 path: "my-favorite-recipe",
+                                                 sectionID: .links,
+                                                 metadata: Hd.ItemMetadata(
+                                                     players: ["XBill","Mark","Marty","Anthony","Brian"],
+                                                    flotsam: 10 * 60
+                                                 ),
+                                                 tags: ["favorite", "featured"],
+                                                 content: Content(
+                                                     title: "Check out my favorite recipe!",
+                                                     description:"some short description",
+                                                     body: "<h2>E pluribus unim</h2><p>foobar</p>")
+                                                 )
+                                             )
+                
+                let step2 =      PublishingStep<Hd>.addItem(Item(
+                                                           path: "my-favorite-recipe2",
+                                                           sectionID: .links,
+                                                           metadata: Hd.ItemMetadata(
+                                                               players: ["XBill","Mark","Marty","Anthony","Brian"],
+                                                              flotsam: 10 * 60
+                                                           ),
+                                                           tags: ["favorite", "featured"],
+                                                           content: Content(
+                                                               title: "Check out my favorite recipe!2",
+                                                               description:"some short description2",
+                                                               body: "<h2>E pluribus unim2</h2><p>foobar2</p>")
+                                                           )
+                                                       )
+                try! Hd().publish(withTheme: .foundation,
+                
+                additionalSteps: [
+                                  // Add an item programmatically
+                    step1,step2
+                             ]
+                )
+                let elapsed = Date().timeIntervalSince(start) / Double(crawlResults.count1)
+                 print("[crawler] published \(crawlResults.count1) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
                 //            try! Hd().publish(using: [
                 //                .addMarkdownFiles(),
                 //                .copyResources(),
@@ -141,7 +179,3 @@ func command_main() {
 // really starts here
 
 command_main()
-
-
-
-
