@@ -56,7 +56,7 @@ func createMarkDown(_ aurl: String,name:String?,links:[(String,String)] ) {
             // print("createMdFile \(s)  bonustags:\(Array(moretags))")
             
             
-            let stuff = renderMarkdown(s,tags:Array(moretags) + tags ,links:links)
+            let stuff = Hd.renderMarkdown(s,tags:Array(moretags) + tags ,links:links)
             
             let markdownData: Data? = stuff.data(using: .utf8)
             // create md file with temp
@@ -305,9 +305,12 @@ extension Transformer {
             }
             
             if hasextension {
-                guard pextension == "mp3" || pextension == "wav" || pextension == "jpg" || pextension == "jpeg" || pextension == "png" else {
+                guard pextension == "mp3" || pextension == "wav" || pextension == "jpg" || pextension == "jpeg" || pextension == "png" ||  pextension == "md" else {
                     return
                     
+                }
+                if pextension == "jpg" || pextension == "jpeg" || pextension == "png" || pextension == "md"  {
+                    print("Processing \(pextension) file from \(url)")
                 }
             } else
             {

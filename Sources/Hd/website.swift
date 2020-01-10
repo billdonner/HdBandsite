@@ -6,7 +6,8 @@
 //
 
 import Foundation
-
+import Publish
+import Plot
 
 // This type acts as the configuration for your website.
 
@@ -25,8 +26,7 @@ struct Hd: Website {
     
     struct ItemMetadata: WebsiteItemMetadata {
         // Add any site-specific metadata that you want to use here.
-        var players: [String] = ["Bill","Mark","Marty","Anthony","Brian"]
-        var flotsam : TimeInterval = 0
+       // var flotsam : TimeInterval = 0
     }
     
     // Update these properties to configure your website:
@@ -41,27 +41,52 @@ struct Hd: Website {
 extension Hd {
     // this is an exmple what dates shoud look like
     // date: 2020-01-05 17:42
-    func renderMarkdown(_ s:String,tags:[String]=[],links:[(String,String)]=[] )->String {
+    static func renderMarkdown(_ s:String,tags:[String]=[],links:[(String,String)]=[] )->String {
         let date = "\(Date())".dropLast(9)
         let tagstring = tags.joined(separator: ",")
-        var mdbuf : String = """
+        var buf = ""
+        var mdbuf = ""
+        for(_,alink) in links.enumerated() {
+            let (_,url) = alink
+            let pext = (url.components(separatedBy: ".").last ?? "fail").lowercased()
+            if (pext=="md") {
+                // copy the bytes inline
+                do {
+                mdbuf += try String(contentsOfFile: url)
+                }
+                catch {
+                    print("Couldnt read bytes from \(url) \(error)")
+                }
+                
+            } else
+            if !(pext=="mp3" || pext=="wav"){
+                print("Handling pic file \(url)")
+                buf += "<img src='\(url)' height='300' />"
+            }
+        }
+        if buf=="" { buf = "<img src='/images/abhdlogo300.jpg' />" }
+                
+       mdbuf += """
         
         ---
         date: \(date)
         description: \(s)
         tags: \(tagstring)
-        players: "XBill","XMark","Marty","Anthony","Brian"
-        flotsam: 600
+
         ---
-        <img src="/images/abhdlogo300.jpg" />
+    
         
         # \(s)
         
-        tunes played:
+        \(buf)
         
-        """ // copy
+        tunes played:
+
+""" // copy
         for(idx,alink) in links.enumerated() {
             let (name,url) = alink
+            let pext = (url.components(separatedBy: ".").last ?? "fail").lowercased()
+            if (pext=="mp3" || pext=="wav"){
             mdbuf += """
             \n\(String(format:"%02d",idx+1))    [\(name)](\(url))\n
             <figure>
@@ -75,7 +100,7 @@ extension Hd {
             </figure>
             
             """
-        }
+            }}
         return mdbuf
     }
 }
@@ -118,11 +143,11 @@ extension PublishingStep where Site == Hd {
         let   b = html.render(indentedBy: .tabs(1))
         return PublishingStep<Hd>.addItem(Item(
             path: "Members of ABHD",
-            sectionID: .about,
-            metadata: Hd.ItemMetadata(
-                players: ["Bill","Mark","Marty","Anthony","Brian"],
-                flotsam: 10 * 60
-            ),
+            sectionID: .about, metadata: Hd.ItemMetadata(),
+//            metadata: Hd.ItemMetadata(
+//                players: ["Bill","Mark","Marty","Anthony","Brian"],
+//                flotsam: 10 * 60
+//            ),
             tags: [ "featured"],
             content: Content(
                 title: "About Us",
@@ -179,11 +204,11 @@ extension PublishingStep where Site == Hd {
         
         return   PublishingStep<Hd>.addItem(Item(
             path: "Book ABHD",
-            sectionID: .about,
-            metadata: Hd.ItemMetadata(
-                players: ["XBill","Mark","Marty","Anthony","Brian"],
-                flotsam: 10 * 60
-            ),
+            sectionID: .about, metadata: Hd.ItemMetadata(),
+//            metadata: Hd.ItemMetadata(
+//                players: ["XBill","Mark","Marty","Anthony","Brian"],
+//                flotsam: 10 * 60
+//            ),
             tags: ["favorite", "featured"],
             content: Content(
                 title: "Book Us For Your Next Party",

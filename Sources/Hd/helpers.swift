@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Kanna
 
 var outputStream : FileHandlerOutputStream!
 var traceStream : FileHandlerOutputStream!
@@ -114,67 +115,6 @@ public final class SingleRecordExporter {
     }
 }
 
-public protocol CustomControllable : class  {
-    var runman: CustomRunnable! { get set }
-    var recordExporter : SingleRecordExporter!{ get set }
-    func makerow() -> String
-    func makeheader()->String
-    func maketrailer()->String?
-    
-   // var context : Crowdable!{ get set }
-    func setupController(runman: CustomRunnable,// context  :Crowdable,
-                         exporter:SingleRecordExporter) 
-    func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
-    func scraper(_ technique: ParseTechnique, url:URL,  baseURL:URL?, html: String)->ParseResults?
-    func incorporateParseResults(pr:ParseResults)
-    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString
-    func kleenex(_ f:String)->String
-    func kleenURLString(_ url:URLFromString )->URLFromString?
-    func absorbLink(_ link: Kanna.XMLElement , relativeTo: URL?, tag: String, links: inout [LinkElement])
-    
-}
-extension CustomControllable {
-    public func setupController(runman: CustomRunnable, //context  :Crowdable,
-                                exporter:SingleRecordExporter) {
-        self.runman = runman
-        self.recordExporter = exporter
-       // self.context = context
-    }
-
-    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString {
-        return urlstr//URLFromString(urlstr.url?.lastPathComponent ?? "partfromurlstr failure")
-    }
-    func kleenex(_ f:String)->String {
-        return f.replacingOccurrences(of: ",", with: "!")
-    }
-    func kleenURLString(_ url: URLFromString) -> URLFromString?{
-        let original = url.string
-        let newer = original.replacingOccurrences(of: "%20", with: "+")
-        return URLFromString(newer)
-    }
-
-    
-    public func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
-        let (roots,reportParams)  = runman.config.load(url: configURL)
-        
-        do {
-            let lk = ScrapingMachine(scraper:runman.custom.scraper)
-            let icrawler = try InnerCrawler(roots:roots,baseURL:baseURL, grubber:lk,logLevel:loggingLevel)
-            let _ = try CrawlingMac (roots: roots, reportParams:reportParams,      icrawler:icrawler,   runman: runman)
-            { crawlResult in
-                // here we are done, reflect it back upstream
-                // print(crawlResult)
-                // now here must unwind back to original caller
-                finally(crawlResult)
-            }
-            
-        }
-        catch {
-            invalidCommand(444);exit(0)
-        }
-    }
-}
-
 
 public final class RunnableStream : NSObject,CustomRunnable {
     
@@ -219,68 +159,7 @@ public final class RunnableStream : NSObject,CustomRunnable {
         }
     }
 }
-// public only for testing
-final class CrawlTable {
-    public init() {
-    }
-    
-    private  var crawlCountPeak: Int = 0
-    private  var crawlCount = 0 //    var urlstouched: Int = 0
-    private  var crawlState :  CrawlState = .crawling
-    
-    func crawlStats() -> (Int,Int) {
-        return (crawlCount,crawlCountPeak)
-    }
-    //
-    // urls serviced from the top of this list
-    // urls are added to the bottom
-    //
-    private(set)  var  items:[URL] = []
-    private var touched:Set<String> = [] // optimization to see if item on either list
-    
-    
-    func addToListUnquely(_ url:URL) {
-        let urlstr = url.absoluteString
-        if !touched.contains(urlstr){
-            
-            items.append(url)
-            touched.insert( urlstr)
-            crawlCount += 1
-            let now = items.count
-            if now > crawlCountPeak { crawlCountPeak = now }
-            //print("----added \(crawlCount) -  \(urlstr) to crawllist \(now) \(crawlCountPeak)")
-            
-        }
-    }
-    
-    func popFromTop() -> URL?{
-        if items.count == 0 {return nil}
-        let topurl =  items.removeFirst() // get next to process
-        return topurl
-    }
-    
-    
-  fileprivate  func crawlMeUp (whenDone:  ReturnsCrawlerContext, baseURL:URL?, stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
-        while crawlState == .crawling {
-            if items.count == 0 {
-                crawlState = .done
-                
-                innerCrawler.crawlDone( stats, &didFinishUserCall,whenDone)
-                return // ends here
-            }
-            // get next to process
-            guard  let rootStart = popFromTop() else {
-                return
-            }
-            // squeeze down before crawling to keep memory reasonable
-            autoreleasepool {
-                innerCrawler.crawlOne(rootURL: rootStart, technique:.parseTop ,stats:stats,exportone:savedExportOne)
-            }
-        }
-    }
-}
 
-////////
 ////////
 ///MARK- : STREAM IO STUFF
 
