@@ -122,18 +122,18 @@ public final class RunnableStream : NSObject,CustomRunnable {
     // all of these variables are rquired by RunManager Protocol
     private   var recordExporter: SingleRecordExporter!
     public   var outputFilePath:LocalFilePath
-    public   var outputType:ExportMode
-    public   var runOptions:LoggingLevel
+    public   var exportMode:ExportMode
+    public   var logLevel:LoggingLevel
     public   var custom:CustomControllable
-    public   var crawlerContext:CrawlStats
+    public   var crawlStats:CrawlStats
     
-    required public init (config:Configable, custom:CustomControllable, outputFilePath:LocalFilePath, outputType:ExportMode,runOptions:LoggingLevel) {
+    required public init (config:Configable, custom:CustomControllable, outputFilePath:LocalFilePath, exportMode:ExportMode,logLevel:LoggingLevel) {
         self.outputFilePath = outputFilePath
-        self.outputType = outputType
+        self.exportMode = exportMode
         self.custom = custom
         self.config = config
-        self.runOptions = runOptions
-        self.crawlerContext = CrawlStats(partCustomizer: self.custom)
+        self.logLevel = logLevel
+        self.crawlStats = CrawlStats(partCustomizer: self.custom)
         bootstrapExportDir()
         
         do {
@@ -150,7 +150,7 @@ public final class RunnableStream : NSObject,CustomRunnable {
             super.init()
             //let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
             
-            self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportMode: outputType, runman: self)
+            self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportMode: exportMode, runman: self)
             
         }
         catch {
@@ -184,16 +184,15 @@ public struct FileHandlerOutputStream: TextOutputStream {
     }
 }
 
-
-
-
 public class ConsoleIO {
-    public init() {
-    }
+
     public  enum StreamOutputType {
         case error
         case standard
     }
+    public init() {
+    }
+    
     public func writeMessage(_ message: String, to: StreamOutputType = .standard, terminator: String = "\n") {
         switch to {
         case .standard:
@@ -205,15 +204,18 @@ public class ConsoleIO {
 }
 
 public final  class ConfigurationProcessor :Configable {
-    public var baseurlstr:String? = nil
-    public var comment: String
-    var roots:[String]
-    var crawlStarts:[RootStart] = []
     
     enum CodingKeys: String, CodingKey {
         case comment
         case roots
     }
+    
+    public var baseurlstr:String? = nil
+    public var comment: String
+    var roots:[String]
+    var crawlStarts:[RootStart] = []
+    
+
     
     init(_ baseURL:URL?) {
         baseurlstr = baseURL?.absoluteString
@@ -258,5 +260,40 @@ public final  class ConfigurationProcessor :Configable {
         crawlStarts = toots
         let r = ReportParams(r: obj.comment)
         return (toots,r)
+    }
+}
+// was runstats
+public final class CrawlStats:NSObject {
+    
+    var partCustomizer:CustomControllable!
+    var keyCounts:NSCountedSet!
+    var goodurls :Set<URLFromString>!
+    var badurls :Set<URLFromString>!
+    
+    // dont let an item get on both lists
+    func addBonusKey(_ s:String) {
+        keyCounts.add(s)
+    }
+    func addStatsGoodCrawlRoot(urlstr:URLFromString) {
+        guard let part  = partCustomizer?.partFromUrlstr(urlstr) else { fatalError();
+        }
+        goodurls.insert(part )
+        if badurls.contains(part)   { badurls.remove(part) }
+    }
+    func addStatsBadCrawlRoot(urlstr:URLFromString) {
+        guard let part  = partCustomizer?.partFromUrlstr(urlstr) else { fatalError();
+        }
+        if goodurls.contains(part)   { return }
+        badurls.insert(part)
+    }
+    func reset() {
+        goodurls = Set<URLFromString>()
+        badurls = Set<URLFromString>()
+        keyCounts = NSCountedSet()
+    }
+    init(partCustomizer :CustomControllable) {
+        self.partCustomizer = partCustomizer
+        super.init()
+        reset()
     }
 }

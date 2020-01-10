@@ -13,7 +13,7 @@ func cleanOuputs(outpath:String) {
     do {
         // clear the output directory
         let fm = FileManager.default
-        let dir = URL(fileURLWithPath:outpath)
+        let dir = URL(fileURLWithPath:outpath+"/audiosessions")
         var counter = 0
         let furls = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
         for furl in furls {
@@ -62,7 +62,7 @@ func createMarkDown(_ aurl: String,name:String?,links:[(String,String)] ) {
             // create md file with temp
             do {
                 let mdseqnum = Int(Date().timeIntervalSinceReferenceDate*1000)
-                let spec = "\(crawlerMarkDownOutputPath)/session\(String(format:"%011d",mdseqnum)).md"
+                let spec = "\(crawlerMarkDownOutputPath)/audiosessions/session\(String(format:"%011d",mdseqnum)).md"
                 try markdownData!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))
                 
             } catch {
@@ -97,6 +97,72 @@ func createMarkDown(_ aurl: String,name:String?,links:[(String,String)] ) {
         // print("cant \(String(describing: cont.albumurl))")
     }
 }
+
+
+
+public protocol CustomControllable : class  {
+    var runman: CustomRunnable! { get set }
+    var recordExporter : SingleRecordExporter!{ get set }
+    func makerow() -> String
+    func makeheader()->String
+    func maketrailer()->String?
+    
+   // var context : Crowdable!{ get set }
+    func setupController(runman: CustomRunnable,// context  :Crowdable,
+                         exporter:SingleRecordExporter)
+    func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
+    func scraper(_ technique: ParseTechnique, url:URL,  baseURL:URL?, html: String)->ParseResults?
+    func incorporateParseResults(pr:ParseResults)
+    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString
+    func kleenex(_ f:String)->String
+    func kleenURLString(_ url:URLFromString )->URLFromString?
+    func absorbLink(_ link: Kanna.XMLElement , relativeTo: URL?, tag: String, links: inout [LinkElement])
+    
+}
+extension CustomControllable {
+    public func setupController(runman: CustomRunnable, //context  :Crowdable,
+                                exporter:SingleRecordExporter) {
+        self.runman = runman
+        self.recordExporter = exporter
+       // self.context = context
+    }
+
+    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString {
+        return urlstr//URLFromString(urlstr.url?.lastPathComponent ?? "partfromurlstr failure")
+    }
+    func kleenex(_ f:String)->String {
+        return f.replacingOccurrences(of: ",", with: "!")
+    }
+    func kleenURLString(_ url: URLFromString) -> URLFromString?{
+        let original = url.string
+        let newer = original.replacingOccurrences(of: "%20", with: "+")
+        return URLFromString(newer)
+    }
+
+    
+    public func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
+        let (roots,reportParams)  = runman.config.load(url: configURL)
+        
+        do {
+            let lk = ScrapingMachine(scraper:runman.custom.scraper)
+            let icrawler = try InnerCrawler(roots:roots,baseURL:baseURL, grubber:lk,logLevel:loggingLevel)
+            let _ = try CrawlingMac (roots: roots, reportParams:reportParams,      icrawler:icrawler,   runman: runman)
+            { crawlResult in
+                // here we are done, reflect it back upstream
+                // print(crawlResult)
+                // now here must unwind back to original caller
+                finally(crawlResult)
+            }
+            
+        }
+        catch {
+            invalidCommand(444);exit(0)
+        }
+    }
+}
+
+
+
 
 private final class  CrawlingElement:Codable {
     
@@ -260,8 +326,8 @@ final public class KrawlMaster: CrawlMeister
                                                     defaultArtUrl: "booly",
                                                     exportOptions: exportMode),
                                 outputFilePath: LocalFilePath(fixedPath),
-                                outputType: exportMode,
-                                runOptions: logLevel )
+                                exportMode: exportMode,
+                                logLevel: logLevel )
         
         let _ = try  CrawlingBeast( runman: rm,baseURL: baseURL,  configURL: configURL,options:logLevel,xoptions:exportMode,whenDone:finally)
     }

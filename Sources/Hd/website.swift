@@ -18,10 +18,11 @@ struct Hd: Website {
     enum SectionID: String, WebsiteSectionID {
         // Add the sections that you want your website to contain here:
         
+          case about
+        
         case specialpages
-        case about
+      
         case audiosessions
-        case home
     }
     
     struct ItemMetadata: WebsiteItemMetadata {
@@ -44,7 +45,7 @@ extension Hd {
     static func renderMarkdown(_ s:String,tags:[String]=[],links:[(String,String)]=[] )->String {
         let date = "\(Date())".dropLast(9)
         let tagstring = tags.joined(separator: ",")
-        var buf = ""
+        var imagesbuf = ""
         var pmdbuf = ""
         for(_,alink) in links.enumerated() {
             let (_,url) = alink
@@ -53,7 +54,7 @@ extension Hd {
                 // copy the bytes inline
                 if let surl = URL(string:url) {
                     do {
-                        pmdbuf += try String(contentsOf: surl)
+                        pmdbuf += try String(contentsOf: surl) + "\n"
                     }
                     catch {
                         print("Couldnt read bytes from \(url) \(error)")
@@ -61,11 +62,11 @@ extension Hd {
                 }
             } else
                 if !(pext=="mp3" || pext=="wav"){
-                    print("Handling pic file \(url)")
-                    buf += "<img src='\(url)' height='300' />"
+                    //print("Handling pic file \(url)")
+                    imagesbuf += "<img src='\(url)' height='300' />"
             }
         }
-        if buf=="" { buf = "<img src='/images/abhdlogo300.jpg' />" }
+        if imagesbuf=="" { imagesbuf = "<img src='/images/abhdlogo300.jpg' />" }
         
         var mdbuf = """
         
@@ -76,11 +77,11 @@ extension Hd {
         
         ---
         
-
+        
         
         # \(s)
         
-        \(buf)
+        \(imagesbuf)
         
         \(pmdbuf)
         
@@ -92,16 +93,16 @@ extension Hd {
             let (name,url) = alink
             let pext = (url.components(separatedBy: ".").last ?? "fail").lowercased()
             if (pext=="mp3" || pext=="wav"){
+                //
+                //  .audio(.controls(true), .source(.src("b.wav"), .type(.wav))),
+                //
+                
+                let htype = (pext == "mp3") ? "audio/mpeg" : "audio/wav"
                 mdbuf += """
                 \n\(String(format:"%02d",idx+1))    [\(name)](\(url))\n
                 <figure>
                 <figcaption> </figcaption>
-                <audio
-                controls
-                src="\(url)">
-                Your browser does not support the
-                <code>audio</code> element.
-                </audio>
+                <audio  controls><source src="\(url)" type="\(htype)"/></audio>
                 </figure>
                 
                 """
@@ -118,14 +119,13 @@ extension PublishingStep where Site == Hd {
                 
                 switch section.id {
                 case .audiosessions:
-                    section.title = "* Audio Sessions *"
-                case .specialpages:
-                    section.title = "* Greaatest Hits *"
-                case .about:
-                    section.title = "* About ABHD *"
+                    section.title = "º Audio º"
                     
-                case .home:
-                    section.title = "* Home *"
+                case .specialpages:
+                    section.title = "º Favorites º"
+                case .about:
+                    section.title = "º About º"
+                    
                 }
             }
         }
@@ -134,25 +134,79 @@ extension PublishingStep where Site == Hd {
 
 extension PublishingStep where Site == Hd {
     static func makeMembersPage()->PublishingStep<Hd> {
-        let html = HTML(.body(
-            .h2("Who Are We?"),
-            .img(.src("/images/roseslogo.png")),
-            .ul(
-                .li("Anthony"),
-                .li("Bill"),
-                .li("Brian"),
-                .li("Mark"),
-                .li("Marty")
-            )
-            ))
-        let   b = html.render(indentedBy: .tabs(1))
-        return PublishingStep<Hd>.addItem(Item(
-            path: "Members of ABHD",
+//        let html = HTML(.comment("We Need Contributions From Band Members"),
+//                        .head(.style("header nav a { color: #cb3018; padding: 10px 10px; }; dd {font-size:.6em}"),
+//                                     .title("ABHD Members"),
+//                                     .description("We can play cover tunes and jam tunes"),
+//                                     .socialImageLink("/images/roseslogo.png"),
+//                                     .twitterCardType(.summaryLargeImage),
+//                            .viewport(.accordingToDevice)),
+                       
+            let bod =             Node.body(
+                            .style("header nav a { color: #cb3018; padding: 10px 10px; };  color: #3ff; dd {font-size:.6em}"),
+                            .h2("Who Are We?"),
+                            .img(.src("/images/roseslogo.png")),
+                            .ul(
+                                .li(.dl(
+                                    .dt("Anthony"),
+                                    .dd("Rhythm Guitar and ",.strong( "Vocals"))
+                                    )),
+                                .li(.dl(
+                                    .dt("Bill"),
+                                    .dd("Keyboards")
+                                    )),
+                                .li(.dl(
+                                    .dt("Brian"),
+                                    .dd("Drums ", .s("and Vocals"))
+                                    )),
+                                
+                                .li(.dl(
+                                    .dt("Mark"),
+                                    .dd("Lead Guitar and ", .ins("Vocals"))
+                                    )),
+                                
+                                .li(.dl(
+                                    .dt("Marty"),
+                                    .dd("Bass")
+                                    ))),
+                            .form(
+                                      .action("mailto:bildonner@gmail.com"),
+                                      
+                                      .h2( "Hire Us"),
+                                      
+                                      .p("We Don't Play For Free"),
+                                      
+                                      .fieldset(
+                                          .label(.for("name"), "Name"),
+                                          .input(.name("name"), .type(.text), .autofocus(false), .required(true))
+                                      ),
+                                      .fieldset(
+                                          .label(.for("email"), "Email"),
+                                          .input(.name("email"), .type(.email), .autocomplete(true), .required(true)),
+                                          .textarea(.name("comments"), .cols(50), .rows(10), .required(false), .text("Tell us about your party"))
+                                      ),
+                                      
+                                      .input(.type(.submit), .value("Send")),
+                                      .input(.type(.reset), .value("Clear"))
+                                  )
+                            )
+                            // ,.a(.href("/index.html"), .rel(.nofollow), .text("HOMETOP"))
+       let   b = bod.render(indentedBy: .tabs(1))
+//        let p = Page(path:"/foo",content:Content(
+//            title: "About Us",
+//            description:"Members of the Band",
+//            body:"""
+//        \(bod)
+//""")
+//        )
+//        return PublishingStep<Hd>.addPage(p)
+        
+        
+        
+//        
+         return PublishingStep<Hd>.addItem(Item(
+            path: "/",
             sectionID: .about, metadata: Hd.ItemMetadata(),
-            //            metadata: Hd.ItemMetadata(
-            //                players: ["Bill","Mark","Marty","Anthony","Brian"],
-            //                flotsam: 10 * 60
-            //            ),
             tags: [ "featured"],
             content: Content(
                 title: "About Us",
@@ -165,64 +219,66 @@ extension PublishingStep where Site == Hd {
         )
     }
 }
-extension PublishingStep where Site == Hd {
-    static  func makeBookUsPage()->PublishingStep<Hd> {
-        let _ =  """
-                    <img src="/images/roseslogo.png">
-                    <h2>Hire Us</h2>
-                    <form action="mailto:bildonner@gmail.com" method="get" enctype="text/plain">
-                      <p>Name: <input type="text" name="name"/></p>
-                      <p>Email: <input type="text" name="email"/></p>
-                      <p>Comments:
-                        <br />
-                        <textarea name="comments" rows = "12" cols = "35">Tell Us About Your Party</textarea>
-                        <br>
-                      <p><input type="submit" name="submit" value="Send" />
-                        <input type="reset" name="reset" value="Clear Form" />
-                      </p>
-                    </form>
-    """
-        
-        let html = HTML(.body(
-            .img(.src("/images/roseslogo.png")),
-            .form(
-                .action("mailto:bildonner@gmail.com"),
-                
-                .h2( "Hire Us"),
-                
-                .p("We Don't Play For Free"),
-                
-                .fieldset(
-                    .label(.for("name"), "Name"),
-                    .input(.name("name"), .type(.text), .autofocus(false), .required(true))
-                ),
-                .fieldset(
-                    .label(.for("email"), "Email"),
-                    .input(.name("email"), .type(.email), .autocomplete(true), .required(true))
-                ),
-                .textarea(.name("comment"), .cols(50), .rows(10), .required(false), .text("Tell us about your party")),
-                
-                .input(.type(.submit), .value("Send"))
-            )
-            ))
-        let   b = html.render(indentedBy: .tabs(1))
-        
-        return   PublishingStep<Hd>.addItem(Item(
-            path: "Book ABHD",
-            sectionID: .about, metadata: Hd.ItemMetadata(),
-            //            metadata: Hd.ItemMetadata(
-            //                players: ["XBill","Mark","Marty","Anthony","Brian"],
-            //                flotsam: 10 * 60
-            //            ),
-            tags: ["favorite", "featured"],
-            content: Content(
-                title: "Book Us For Your Next Party",
-                description:"Book Us For Your Next Party, we play all over Westchester",
-                body:"""
-                \(b)
-                """
-            )
-            )
-        )
-    }
-}
+//extension PublishingStep where Site == Hd {
+//    static  func makeBookUsPage()->PublishingStep<Hd> {
+//        
+//        let html = HTML(.body(
+//            .img(.src("/images/roseslogo.png"),.class("image"),.alt("ABHD LOGO")),
+//            .form(
+//                .action("mailto:bildonner@gmail.com"),
+//                
+//                .h2( "Hire Us"),
+//                
+//                .p("We Don't Play For Free"),
+//                
+//                .fieldset(
+//                    .label(.for("name"), "Name"),
+//                    .input(.name("name"), .type(.text), .autofocus(false), .required(true))
+//                ),
+//                .fieldset(
+//                    .label(.for("email"), "Email"),
+//                    .input(.name("email"), .type(.email), .autocomplete(true), .required(true)),
+//                    .textarea(.name("comments"), .cols(50), .rows(10), .required(false), .text("Tell us about your party"))
+//                ),
+//                
+//                .input(.type(.submit), .value("Send")),
+//                .input(.type(.reset), .value("Clear"))
+//            )
+//            ))
+//        let   b = html.render(indentedBy: .tabs(1))
+//        
+//        return   PublishingStep<Hd>.addItem(Item(
+//            path: "Book ABHD",
+//            sectionID: .about, metadata: Hd.ItemMetadata(),
+//            //            metadata: Hd.ItemMetadata(
+//            //                players: ["XBill","Mark","Marty","Anthony","Brian"],
+//            //                flotsam: 10 * 60
+//            //            ),
+//            tags: ["favorite", "featured"],
+//            content: Content(
+//                title: "Book Us For Your Next Party",
+//                description:"Book Us For Your Next Party, we play all over Westchester",
+//                body:"""
+//                \(b)
+//                """
+//            )
+//            )
+//        )
+//    }
+//}
+////        let _ =  """
+////                    <img src="/images/roseslogo.png">
+////                    <h2>Hire Us</h2>
+////                    <form action="mailto:bildonner@gmail.com" method="get" enctype="text/plain">
+////                      <p>Name: <input type="text" name="name"/></p>
+////                      <p>Email: <input type="text" name="email"/></p>
+////                      <p>Comments:
+////                        <br />
+////                        <textarea name="comments" rows = "12" cols = "35">Tell Us About Your Party</textarea>
+////                        <br>
+////                      <p><input type="submit" name="submit" value="Send" />
+////                        <input type="reset" name="reset" value="Clear Form" />
+////                      </p>
+////                    </form>
+////    """
+//

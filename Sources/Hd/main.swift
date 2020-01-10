@@ -5,7 +5,7 @@ import Plot
 // extra properties for crawling
 
 
-let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content/audiosessions" // NSTemporaryDirectory()
+let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content" // NSTemporaryDirectory()
 
 func command_main() {
     
@@ -98,8 +98,7 @@ func command_main() {
                 let start = Date()
                 
                 // This will generate your website using the built-in Foundation theme:
-                let additionalSteps:[PublishingStep<Hd>] =  [PublishingStep<Hd>.makeMembersPage(),
-                                                             PublishingStep<Hd>.makeBookUsPage(),
+                let additionalSteps:[PublishingStep<Hd>] =  [PublishingStep<Hd>.makeMembersPage(), 
                                                              PublishingStep<Hd>.addDefaultSectionTitles()]
                 do {
                 try Hd().publish(withTheme: .foundation,
