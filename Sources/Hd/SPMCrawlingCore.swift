@@ -208,7 +208,18 @@ extension CustomControllable {
        // self.context = context
     }
 
-    
+    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString {
+        return urlstr//URLFromString(urlstr.url?.lastPathComponent ?? "partfromurlstr failure")
+    }
+    func kleenex(_ f:String)->String {
+        return f.replacingOccurrences(of: ",", with: "!")
+    }
+    func kleenURLString(_ url: URLFromString) -> URLFromString?{
+        let original = url.string
+        let newer = original.replacingOccurrences(of: "%20", with: "+")
+        return URLFromString(newer)
+    }
+
     
     public func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
         let (roots,reportParams)  = runman.config.load(url: configURL)
@@ -305,32 +316,7 @@ public func invalidCommand(_ code:Int) {
     exit(0)
 }
 
-// this is where main calls in
-public final class CrawlingBeast {
-    
-    
-    public init(
-       // context:Crowdable,
-        runman:CustomRunnable,
-        baseURL: URL ,
-        configURL: URL ,
-        options:LoggingLevel = .none,
-        xoptions:ExportMode = .json,
-        whenDone:@escaping ReturnsCrawlResults) throws {
-        
-        let xpr = SingleRecordExporter(outputStream: outputStream, exportMode:xoptions, runman: runman)
-        runman.custom.setupController(runman: runman, //context: context,
-            exporter: xpr)
-        runman.custom.startCrawling(baseURL:baseURL, configURL:configURL,loggingLevel: options,finally:whenDone )
-        
-    }
-    
-    enum Error: Swift.Error {
-        case missingFileName
-        case failedToCreateFile
-        case badFilePath
-    }
-}
+
 
 private enum ScrapeTechnique {
     case forcedFail
@@ -861,151 +847,7 @@ public final class ScrapingMachine:NSObject {
     }
 }
 
-/*
- 
- build either csv or json export stream
- 
- inside SingleRecordExport we'll switch on export type to decide what to dump into the output stream
- */
 
-public final class SingleRecordExporter {
-    private(set) var exportMode:ExportMode
-    private var rg:CustomRunnable
-    var outputStream:FileHandlerOutputStream
-    private var first = true
-    public init(outputStream:FileHandlerOutputStream, exportMode: ExportMode, runman:CustomRunnable) {
-        self.outputStream = outputStream
-        self.rg = runman
-        self.exportMode = exportMode
-    }
-    
-    
-    private func emitToOutputStream(_ s:String) {
-        switch exportMode {
-        case .csv,.json:
-            
-            print(s , to: &outputStream )// dont add extra
-            
-        case .md:
-            break
-        }
-    }
-    
-    public func addHeaderToExportStream( ) {
-        
-        switch exportMode {
-        case .csv:
-            
-            emitToOutputStream(rg.custom.makeheader())
-            
-            
-        case .json:
-            
-            emitToOutputStream("""
-[
-""")
-            case .md:
-                break
-        }
-    }
-    public func addTrailerToExportStream( ) {
-        print("adding trailer!!!")
-        
-        switch exportMode {
-            
-        case .csv:
-            if let trailer = rg.custom.maketrailer() {
-                emitToOutputStream(trailer)
-            }
-        case .json:
-            emitToOutputStream("""
-]
-""")
-            case .md:
-                break
-        }
-    }
-    public  func addRowToExportStream( ) {
-        switch exportMode {
-            
-        case .csv:
-            let stuff = rg.custom.makerow( )
-            emitToOutputStream(stuff)
-            
-        case .json:
-            let stuff = rg.custom.makerow( )
-            let parts = stuff.components(separatedBy: ",")
-            if first {
-                emitToOutputStream("""
-{
-""")
-            } else {
-                emitToOutputStream("""
-,{
-""")
-            }
-            for (idx,part) in parts.enumerated() {
-                emitToOutputStream("""
-                    "\(idx)":"\(part)"
-                    """)
-                if idx == parts.count - 1 {
-                    emitToOutputStream("""
-}
-""")
-                } else {
-                    emitToOutputStream(",")
-                }
-                
-            }
-        case .md:
-            break
-        }
-        first =  false
-    }
-}
-public final class RunnableStream : NSObject,CustomRunnable {
-    
-    public var config: Configable
-    // all of these variables are rquired by RunManager Protocol
-    private   var recordExporter: SingleRecordExporter!
-    public   var outputFilePath:LocalFilePath
-    public   var outputType:ExportMode
-    public   var runOptions:LoggingLevel
-    public   var custom:CustomControllable
-    public   var crawlerContext:CrawlStats
-    
-    required public init (config:Configable, custom:CustomControllable, outputFilePath:LocalFilePath, outputType:ExportMode,runOptions:LoggingLevel) {
-        self.outputFilePath = outputFilePath
-        self.outputType = outputType
-        self.custom = custom
-        self.config = config
-        self.runOptions = runOptions
-        self.crawlerContext = CrawlStats(partCustomizer: self.custom)
-        bootstrapExportDir()
-        
-        do {
-            // Some of the APIs that we use below are available in macOS 10.13 and above.
-            guard #available(macOS 10.13, *) else {
-                consoleIO.writeMessage("need at least 10.13",to:.error)
-                exit(0)
-            }
-            let url = URL(fileURLWithPath: self.outputFilePath.path,relativeTo: ExportDirectoryURL)
-            try  "".write(to: url, atomically: true, encoding: .utf8)
-            let fileHandle = try FileHandle(forWritingTo: url)
-            outputStream = FileHandlerOutputStream(fileHandle)
-            
-            super.init()
-            //let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
-            
-            self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportMode: outputType, runman: self)
-            
-        }
-        catch {
-            consoleIO.writeMessage("Could not initialize RunnableStream \(outputFilePath) \(error)",to:.error)
-            exit(0)
-        }
-    }
-}
 ////////
 ////////
 ///MARK- : STREAM IO STUFF
