@@ -3,6 +3,8 @@
 
 ## How It Works
 
+Here's the basic plan:
+
 ### After a Recording Session, The Music Files are Uploaded Via FTP
 The Audio Engineer uploads them into http://AboutHalfDead.com/audio/YEAR/MM-DD-YY
 Custom images and text can also be placed in these directories to affect the visuals for the playback page of the session.

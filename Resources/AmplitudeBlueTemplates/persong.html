@@ -1,0 +1,23 @@
+<!-- Template for Per Tune HTML -->
+
+<!--  in the Blue Playlist, this is the Right Side Player
+     uncomment this:         <div id="amplitude-right">
+the $1 variable is an incrmenting song index, starting at "0"
+-->
+<div class="song amplitude-song-container amplitude-play-pause" data-amplitude-song-index="$1">
+    <div class="song-now-playing-icon-container">
+        <div class="play-button-container">
+
+        </div>
+        <img class="now-playing" src="https://521dimensions.com/img/open-source/amplitudejs/blue-player/now-playing.svg"/>
+    </div>
+    <div class="song-meta-data">
+        <span class="song-title">$2</span>
+        <span class="song-artist">$3</span>
+    </div>
+    <a href="https://russiancircles.bandcamp.com/track/vorel" class="bandcamp-link" target="_blank">
+        <img class="bandcamp-grey" src="https://521dimensions.com/img/open-source/amplitudejs/blue-player/bandcamp-grey.svg"/>
+        <img class="bandcamp-white" src="https://521dimensions.com/img/open-source/amplitudejs/blue-player/bandcamp-white.svg"/>
+    </a>
+    <span class="song-duration">$4</span>
+</div>
