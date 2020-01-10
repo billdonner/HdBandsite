@@ -138,8 +138,6 @@ public func makesafe(error:Error) -> String {
     
 }
 
-
-
 public  struct LocalFilePath {
     private(set) var p : String
     public var path :String {
@@ -177,71 +175,6 @@ public protocol CustomRunnable {
     var custom:CustomControllable {get set}
     var crawlerContext:CrawlStats {get set}
 }
-
-public protocol CustomControllable : class  {
-    var runman: CustomRunnable! { get set }
-    var recordExporter : SingleRecordExporter!{ get set }
-    func makerow() -> String
-    func makeheader()->String
-    func maketrailer()->String?
-    
-   // var context : Crowdable!{ get set }
-    func setupController(runman: CustomRunnable,// context  :Crowdable,
-                         exporter:SingleRecordExporter)
-    
-    func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
-    
-    func scraper(_ technique: ParseTechnique, url:URL,  baseURL:URL?, html: String)->ParseResults?
-    func incorporateParseResults(pr:ParseResults)
-    
-    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString
-    func kleenex(_ f:String)->String
-    func kleenURLString(_ url:URLFromString )->URLFromString?
-    func absorbLink(_ link: Kanna.XMLElement , relativeTo: URL?, tag: String, links: inout [LinkElement])
-    
-}
-extension CustomControllable {
-    public func setupController(runman: CustomRunnable, //context  :Crowdable,
-                                exporter:SingleRecordExporter) {
-        self.runman = runman
-        self.recordExporter = exporter
-       // self.context = context
-    }
-
-    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString {
-        return urlstr//URLFromString(urlstr.url?.lastPathComponent ?? "partfromurlstr failure")
-    }
-    func kleenex(_ f:String)->String {
-        return f.replacingOccurrences(of: ",", with: "!")
-    }
-    func kleenURLString(_ url: URLFromString) -> URLFromString?{
-        let original = url.string
-        let newer = original.replacingOccurrences(of: "%20", with: "+")
-        return URLFromString(newer)
-    }
-
-    
-    public func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
-        let (roots,reportParams)  = runman.config.load(url: configURL)
-        
-        do {
-            let lk = ScrapingMachine(scraper:runman.custom.scraper)
-            let icrawler = try InnerCrawler(roots:roots,baseURL:baseURL, grubber:lk,logLevel:loggingLevel)
-            let _ = try CrawlingMac (roots: roots, reportParams:reportParams,      icrawler:icrawler,   runman: runman)
-            { crawlResult in
-                // here we are done, reflect it back upstream
-                // print(crawlResult)
-                // now here must unwind back to original caller
-                finally(crawlResult)
-            }
-            
-        }
-        catch {
-            invalidCommand(444);exit(0)
-        }
-    }
-}
-
 
 public struct  RootStart : Codable  {
     public let name: String
@@ -352,8 +285,6 @@ public typealias Crowdable = (Codable)
 
 typealias TraceFuncSig =  (String,String?,Bool,Bool) -> ()
 
-
-
 public enum Linktype {
     case leaf
     case hyperlink
@@ -424,9 +355,6 @@ enum CrawlState {
     case failed
 }
 
-
-
-
 struct TestResultsBlock:Codable {
     enum CodingKeys: String, CodingKey {
         case crawlStats    = "crawl-stats"
@@ -447,6 +375,24 @@ struct TestResultsBlock:Codable {
     
 }
 public  func exitWith( _ code:Int, error:Error) {
+
+    func emitResultsAsTrace(_ fb: TestResultsBlock){//}, _ trace: TraceFuncSig) {
+        // convert to json and put the whole chunk out
+        do {
+            let enc = JSONEncoder()
+            enc.outputFormatting = .prettyPrinted
+            let data = try enc.encode(fb)
+            if let json = String(data:data,encoding:.utf8) {
+                // trace(json,nil,true,false)
+                print(json)
+            }
+        }
+        catch {
+            print("Could  not encode fullparseblock ", error)
+        }
+    }
+
+    
     var trb = TestResultsBlock()
     trb.status = code
     trb.reportTitle = "-- config couldnt open \(safeError(error: error))"
@@ -456,66 +402,7 @@ public  func exitWith( _ code:Int, error:Error) {
 
 
 
-// public only for testing
-final class CrawlTable {
-    public init() {
-    }
-    
-    private  var crawlCountPeak: Int = 0
-    private  var crawlCount = 0 //    var urlstouched: Int = 0
-    private  var crawlState :  CrawlState = .crawling
-    
-    func crawlStats() -> (Int,Int) {
-        return (crawlCount,crawlCountPeak)
-    }
-    //
-    // urls serviced from the top of this list
-    // urls are added to the bottom
-    //
-    private(set)  var  items:[URL] = []
-    private var touched:Set<String> = [] // optimization to see if item on either list
-    
-    
-    func addToListUnquely(_ url:URL) {
-        let urlstr = url.absoluteString
-        if !touched.contains(urlstr){
-            
-            items.append(url)
-            touched.insert( urlstr)
-            crawlCount += 1
-            let now = items.count
-            if now > crawlCountPeak { crawlCountPeak = now }
-            //print("----added \(crawlCount) -  \(urlstr) to crawllist \(now) \(crawlCountPeak)")
-            
-        }
-    }
-    
-    func popFromTop() -> URL?{
-        if items.count == 0 {return nil}
-        let topurl =  items.removeFirst() // get next to process
-        return topurl
-    }
-    
-    
-  fileprivate  func crawlMeUp (whenDone:  ReturnsCrawlerContext, baseURL:URL?, stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
-        while crawlState == .crawling {
-            if items.count == 0 {
-                crawlState = .done
-                
-                innerCrawler.crawlDone( stats, &didFinishUserCall,whenDone)
-                return // ends here
-            }
-            // get next to process
-            guard  let rootStart = popFromTop() else {
-                return
-            }
-            // squeeze down before crawling to keep memory reasonable
-            autoreleasepool {
-                innerCrawler.crawlOne(rootURL: rootStart, technique:.parseTop ,stats:stats,exportone:savedExportOne)
-            }
-        }
-    }
-}
+
 // public, inner
 //public
 private final class InnerCrawler : NSObject {
@@ -613,9 +500,6 @@ private final class InnerCrawler : NSObject {
         }
     }
     
-    
-    
-    
     func bigCrawlLoop(crawlerContext:CrawlStats, exportOnePageWorth:@escaping ReturnsParseResults, whenDone:@escaping ReturnsCrawlerContext) {
         
         var didFinishUserCall = false
@@ -626,10 +510,7 @@ private final class InnerCrawler : NSObject {
             // if we are ever really ever gonna leave via return, perhaps with out calling when done, it means WE ARE NOT DONE, just gonna a set a tiny timer to let things unwind then call the loope again
             if didFinishUserCall == false {
                 // we never returned to the user and we are not going to do that instead, delay a bit to let closures unwind?
-                //                delay(0.001){
-                //                    consoleIO.writeMessage("> restarting the BigCrawlLoop",to:.error)
-                //                    self.bigCrawlLoop(stats:stats, exportOnePageWorth:savedExportOne, whenDone: savedWhenDone)
-                //                }
+
             }
         }
         
@@ -728,17 +609,13 @@ private final class CrawlingMac {
             
             let crawlResults = CrawlerStatsBlock(added:count,peak:peak,elapsedSecs:crawltime,secsPerCycle:crawltime/Double(count), count1: self.runman.crawlerContext.goodurls.count, count2:self.runman.crawlerContext.badurls.count, status:200)
             /// this is where we will finally wind up, need to call the user routine that was i
-            
-            
+              
             self.returnsCrawlResults(crawlResults)
             
             // print("***** Returning CrawlResults \(crawlResults)")
         }
     }
-    
-    
-    
-    
+
     private   func finalSummary (stats:CrawlStats,reportParams:ReportParams,count:Int,peak:Int,crawltime:TimeInterval) {
         // copy into  TestResultsBlock
         var fb = TestResultsBlock()
@@ -762,22 +639,6 @@ private final class CrawlingMac {
     }
 }
 
-
-func emitResultsAsTrace(_ fb: TestResultsBlock){//}, _ trace: TraceFuncSig) {
-    // convert to json and put the whole chunk out
-    do {
-        let enc = JSONEncoder()
-        enc.outputFormatting = .prettyPrinted
-        let data = try enc.encode(fb)
-        if let json = String(data:data,encoding:.utf8) {
-            // trace(json,nil,true,false)
-            print(json)
-        }
-    }
-    catch {
-        print("Could  not encode fullparseblock ", error)
-    }
-}
 
 // public only for testing
 public final class ScrapingMachine:NSObject {
@@ -844,110 +705,5 @@ public final class ScrapingMachine:NSObject {
                 return
             }
         }
-    }
-}
-
-
-////////
-////////
-///MARK- : STREAM IO STUFF
-
-struct StderrOutputStream: TextOutputStream {
-    mutating func write(_ string: String) {
-        fputs(string, stderr)
-    }
-}
-public struct FileHandlerOutputStream: TextOutputStream {
-    private let fileHandle: FileHandle
-    let encoding: String.Encoding
-    
-    public init(_ fileHandle: FileHandle, encoding: String.Encoding = .utf8) {
-        self.fileHandle = fileHandle
-        self.encoding = encoding
-    }
-    
-    mutating public func write(_ string: String) {
-        if let data = string.data(using: encoding) {
-            fileHandle.write(data)
-        }
-    }
-}
-
-
-var outputStream : FileHandlerOutputStream!
-var traceStream : FileHandlerOutputStream!
-var consoleIO = ConsoleIO()
-
-public class ConsoleIO {
-    public init() {
-    }
-    public  enum StreamOutputType {
-        case error
-        case standard
-    }
-    public func writeMessage(_ message: String, to: StreamOutputType = .standard, terminator: String = "\n") {
-        switch to {
-        case .standard:
-            print("\(message)",terminator:terminator)
-        case .error:
-            fputs("\(message)\n", stderr)
-        }
-    }
-}
-
-public final  class ConfigurationProcessor :Configable {
-    public var baseurlstr:String? = nil
-    public var comment: String
-    var roots:[String]
-    var crawlStarts:[RootStart] = []
-    
-    enum CodingKeys: String, CodingKey {
-        case comment
-        case roots
-    }
-    
-    init(_ baseURL:URL?) {
-        baseurlstr = baseURL?.absoluteString
-        comment = ""
-        roots = []
-    }
-    
-    public func load (url:URL? = nil) -> ([RootStart],ReportParams) {
-        do {
-            let obj =    try configLoader(url!)
-            return (convertToRootStarts(obj: obj))
-        }
-        catch {
-            invalidCommand(550); exit(0)
-        }
-    }
-    func configLoader (_ configURL:URL) throws -> ConfigurationProcessor {
-        do {
-            let contents =  try Data.init(contentsOf: configURL)
-            // inner
-            do {
-                let    obj = try JSONDecoder().decode(ConfigurationProcessor.self, from: contents)
-                return obj
-            }
-            catch {
-                exitWith(503,error: error)
-            }
-            // end inner
-        }
-        catch {
-            exitWith(504,error: error)
-        }// outer
-        fatalError("should never get here")
-    }
-    func convertToRootStarts(obj:ConfigurationProcessor) -> ([RootStart], ReportParams){
-        var toots:[RootStart] = []
-        for root in obj.roots{
-            toots.append(RootStart(name:root.components(separatedBy: ".").last ?? "?root?",
-                                   urlstr:root,
-                                   technique: .parseTop))
-        }
-        crawlStarts = toots
-        let r = ReportParams(r: obj.comment)
-        return (toots,r)
     }
 }

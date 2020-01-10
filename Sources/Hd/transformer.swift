@@ -9,50 +9,6 @@
 import Foundation
 import Kanna
 
-
-
-//MARK: - pass thru the music and art files, only
-extension Transformer {
-func absorbLink(_ link: Kanna.XMLElement , relativeTo: URL?, tag: String, links: inout [LinkElement]) {
-    if let lk = link["href"] ,
-        let url = URL(string:lk,relativeTo:relativeTo) {
-        let pextension = url.pathExtension.lowercased()
-        let hasextension = pextension.count > 0
-        let linktype:Linktype = hasextension == false ? .hyperlink:.leaf
-        let txt = link.text ?? "-notext-"
-        guard url.absoluteString.hasPrefix(relativeTo!.absoluteString) else {
-            return
-        }
-        
-        if hasextension {
-            guard pextension == "mp3" || pextension == "wav" || pextension == "jpg" || pextension == "jpeg" || pextension == "png" else {
-                return
-                
-            }
-        } else
-        {
-            //  print("no ext: ", url)
-        }
-        
-        // strip exension if any off the title
-        let parts = txt.components(separatedBy: ".")
-        if let ext  = parts.last,  let front = parts.first , ext.count > 0
-        {
-            let subparts = front.components(separatedBy: "-")
-            if let titl = subparts.last {
-                let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
-                links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-            }
-            
-        } else {
-            // this is what happens upstream
-            links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-            
-        }
-    }
-}// end of absorbLink
-}
-
 func cleanOuputs(outpath:String) {
     do {
         // clear the output directory
@@ -104,7 +60,6 @@ func createMarkDown(_ aurl: String,name:String?,links:[(String,String)] ) {
             
             let markdownData: Data? = stuff.data(using: .utf8)
             // create md file with temp
-            //FileManager.default.createFile(atPath: "\(mdsequencenum).md", contents: cafe, attributes:nil)
             do {
                 let mdseqnum = Int(Date().timeIntervalSinceReferenceDate*1000)
                 let spec = "\(crawlerMarkDownOutputPath)/session\(String(format:"%011d",mdseqnum)).md"
@@ -165,9 +120,7 @@ private final class  CrawlingElement:Codable {
 }
 
 
- final class Transformer:NSObject,CustomControllable{
-
-    
+final class Transformer:NSObject,CustomControllable{
     
     var runman : CustomRunnable!
     var recordExporter : SingleRecordExporter!
@@ -177,9 +130,6 @@ private final class  CrawlingElement:Codable {
     var firstTime = true
     var coverArtUrl : String?
     var artist : String
-    
-    
-    var mdsequencenum = 9999
     
     func makeheader( ) -> String {
         return  "Name,Artist,Album,SongURL,AlbumURL,CoverArtURL"
@@ -317,11 +267,10 @@ final public class KrawlMaster: CrawlMeister
     }
 }
 // this is where main calls in
-private final class CrawlingBeast {
-    
+private final class CrawlingBeast { 
     
     public init(
-       // context:Crowdable,
+        // context:Crowdable,
         runman:CustomRunnable,
         baseURL: URL ,
         configURL: URL ,
@@ -341,4 +290,45 @@ private final class CrawlingBeast {
         case failedToCreateFile
         case badFilePath
     }
+}
+//MARK: - pass thru the music and art files, only
+extension Transformer {
+    func absorbLink(_ link: Kanna.XMLElement , relativeTo: URL?, tag: String, links: inout [LinkElement]) {
+        if let lk = link["href"] ,
+            let url = URL(string:lk,relativeTo:relativeTo) {
+            let pextension = url.pathExtension.lowercased()
+            let hasextension = pextension.count > 0
+            let linktype:Linktype = hasextension == false ? .hyperlink:.leaf
+            let txt = link.text ?? "-notext-"
+            guard url.absoluteString.hasPrefix(relativeTo!.absoluteString) else {
+                return
+            }
+            
+            if hasextension {
+                guard pextension == "mp3" || pextension == "wav" || pextension == "jpg" || pextension == "jpeg" || pextension == "png" else {
+                    return
+                    
+                }
+            } else
+            {
+                //  print("no ext: ", url)
+            }
+            
+            // strip exension if any off the title
+            let parts = txt.components(separatedBy: ".")
+            if let ext  = parts.last,  let front = parts.first , ext.count > 0
+            {
+                let subparts = front.components(separatedBy: "-")
+                if let titl = subparts.last {
+                    let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
+                    links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+                }
+                
+            } else {
+                // this is what happens upstream
+                links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+                
+            }
+        }
+    }// end of absorbLink
 }
