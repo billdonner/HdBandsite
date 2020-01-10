@@ -26,7 +26,7 @@ struct Hd: Website {
     
     struct ItemMetadata: WebsiteItemMetadata {
         // Add any site-specific metadata that you want to use here.
-       // var flotsam : TimeInterval = 0
+        // var flotsam : TimeInterval = 0
     }
     
     // Update these properties to configure your website:
@@ -45,61 +45,66 @@ extension Hd {
         let date = "\(Date())".dropLast(9)
         let tagstring = tags.joined(separator: ",")
         var buf = ""
-        var mdbuf = ""
+        var pmdbuf = ""
         for(_,alink) in links.enumerated() {
             let (_,url) = alink
             let pext = (url.components(separatedBy: ".").last ?? "fail").lowercased()
             if (pext=="md") {
                 // copy the bytes inline
-                do {
-                mdbuf += try String(contentsOfFile: url)
+                if let surl = URL(string:url) {
+                    do {
+                        pmdbuf += try String(contentsOf: surl)
+                    }
+                    catch {
+                        print("Couldnt read bytes from \(url) \(error)")
+                    }
                 }
-                catch {
-                    print("Couldnt read bytes from \(url) \(error)")
-                }
-                
             } else
-            if !(pext=="mp3" || pext=="wav"){
-                print("Handling pic file \(url)")
-                buf += "<img src='\(url)' height='300' />"
+                if !(pext=="mp3" || pext=="wav"){
+                    print("Handling pic file \(url)")
+                    buf += "<img src='\(url)' height='300' />"
             }
         }
         if buf=="" { buf = "<img src='/images/abhdlogo300.jpg' />" }
-                
-       mdbuf += """
+        
+        var mdbuf = """
         
         ---
         date: \(date)
         description: \(s)
         tags: \(tagstring)
-
+        
         ---
-    
+        
+
         
         # \(s)
         
         \(buf)
         
+        \(pmdbuf)
+        
+        
         tunes played:
-
-""" // copy
+        
+        """ // copy
         for(idx,alink) in links.enumerated() {
             let (name,url) = alink
             let pext = (url.components(separatedBy: ".").last ?? "fail").lowercased()
             if (pext=="mp3" || pext=="wav"){
-            mdbuf += """
-            \n\(String(format:"%02d",idx+1))    [\(name)](\(url))\n
-            <figure>
-            <figcaption> </figcaption>
-            <audio
-            controls
-            src="\(url)">
-            Your browser does not support the
-            <code>audio</code> element.
-            </audio>
-            </figure>
-            
-            """
+                mdbuf += """
+                \n\(String(format:"%02d",idx+1))    [\(name)](\(url))\n
+                <figure>
+                <figcaption> </figcaption>
+                <audio
+                controls
+                src="\(url)">
+                Your browser does not support the
+                <code>audio</code> element.
+                </audio>
+                </figure>
+                
+                """
             }}
         return mdbuf
     }
@@ -144,10 +149,10 @@ extension PublishingStep where Site == Hd {
         return PublishingStep<Hd>.addItem(Item(
             path: "Members of ABHD",
             sectionID: .about, metadata: Hd.ItemMetadata(),
-//            metadata: Hd.ItemMetadata(
-//                players: ["Bill","Mark","Marty","Anthony","Brian"],
-//                flotsam: 10 * 60
-//            ),
+            //            metadata: Hd.ItemMetadata(
+            //                players: ["Bill","Mark","Marty","Anthony","Brian"],
+            //                flotsam: 10 * 60
+            //            ),
             tags: [ "featured"],
             content: Content(
                 title: "About Us",
@@ -205,10 +210,10 @@ extension PublishingStep where Site == Hd {
         return   PublishingStep<Hd>.addItem(Item(
             path: "Book ABHD",
             sectionID: .about, metadata: Hd.ItemMetadata(),
-//            metadata: Hd.ItemMetadata(
-//                players: ["XBill","Mark","Marty","Anthony","Brian"],
-//                flotsam: 10 * 60
-//            ),
+            //            metadata: Hd.ItemMetadata(
+            //                players: ["XBill","Mark","Marty","Anthony","Brian"],
+            //                flotsam: 10 * 60
+            //            ),
             tags: ["favorite", "featured"],
             content: Content(
                 title: "Book Us For Your Next Party",
