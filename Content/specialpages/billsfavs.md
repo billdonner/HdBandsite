@@ -1,13 +1,13 @@
 
 ---
-date: 2020-01-08 17:22
-description: 2017 rehearsal 08-29-17
-tags: halfdead,2017,rehearsal
+date: 2020-01-09 12:00
+description: Bill's Favorite Tunes List
+tags: halfdead
 players: "XBill","XMark","Marty","Anthony","Brian"
 flotsam: 600
 ---
 
-# Bill's Favorites as of  07-01-19
+# Bill's Favorites as of  jan 9 2020
 
 This is stuff I like:
 

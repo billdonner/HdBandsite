@@ -10,46 +10,7 @@ import Foundation
 import Kanna
 
 
-
-//date: 2020-01-05 17:42
-func renderMarkdown(_ s:String,tags:[String]=[],links:[(String,String)]=[] )->String {
-    let date = "\(Date())".dropLast(9)
-    let tagstring = tags.joined(separator: ",")
-    var mdbuf : String = """
-    
-    ---
-    date: \(date)
-    description: \(s)
-    tags: \(tagstring)
-    players: "XBill","XMark","Marty","Anthony","Brian"
-    flotsam: 600
-    ---
-    
-    # \(s)
-    
-    tunes played:
-    
-    """ // copy
-    for(idx,alink) in links.enumerated() {
-        let (name,url) = alink
-        mdbuf += """
-        \n\(String(format:"%02d",idx+1))    [\(name)](\(url))\n
-        <figure>
-        <figcaption> </figcaption>
-        <audio
-        controls
-        src="\(url)">
-        Your browser does not support the
-        <code>audio</code> element.
-        </audio>
-        </figure>
-        
-        """
-    }
-    return mdbuf
-}
-
-private final class  ManifezzContext:Codable,Crawlable {
+private final class  CrawlingElement:Codable {
     
     //these are the only elements moved into the output stream
     
@@ -67,47 +28,54 @@ private final class  ManifezzContext:Codable,Crawlable {
         }
         return albumurl
     }
-    
-    func headerReport() -> String { return  "Name,Artist,Album,SongURL,AlbumURL,CoverArtURL" }
-    func trailerReport() -> String { return  "==ManifezzContext==" }
-    static  func cleanItUp(_ rr:(Crawlable&Codable), kleenex:(String)->(String)) -> String {
-        guard let r = rr as?  ManifezzContext  else {
-            fatalError()
-        }
-        let z =
-        """
-        \(kleenex(r.name ?? "")),\(kleenex(r.artist ?? "")),\(kleenex(r.album ?? "")),\(kleenex(r.songurl)),\(kleenex(r.albumurl ?? "")),\(kleenex(r.cover_art_url ?? ""))
-        """
-        return z
-    }
+
 }
 
 
 private final class Transformer:NSObject,CustomControllable {
     
     var runman : CustomRunnable!
-    var recordExporter : SingleRecordExporter!
-    var context : Crowdable!
-    var exportOptions:ExportOptions!
+    private var recordExporter : SingleRecordExporter!
+     var cont = CrawlingElement()
+    var exportOptions:ExportMode!
     
     var firstTime = true
     var coverArtUrl : String?
     var artist : String
     
-    let tunesTable:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
     
-    
-    var mdsequencenum = 0
+    var mdsequencenum = 9999
     
     var mdlinks : [(String,String)] = []
+    func makeheader( ) -> String {
+     return  "Name,Artist,Album,SongURL,AlbumURL,CoverArtURL"
+    }
+    func maketrailer( ) -> String?  {
+        return    "==CrawlingContext=="
+    }
     
-    let tempFolderPath =  "/Users/williamdonner/hd/Content/posts" // NSTemporaryDirectory()
-    
-    required  init(artist:String, defaultArtUrl:String? = nil, exportOptions:ExportOptions = .csv ) {
+    func cleanOuputs(outpath:String) {
+        do {
+              // clear the output directory
+              let fm = FileManager.default
+              let dir = URL(fileURLWithPath:outpath)
+            var counter = 0
+            let furls = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+              for furl in furls {
+                  try fm.removeItem(at: furl)
+                  counter += 1
+              }
+              print("[crawler] Cleaned \(counter) files from ", outpath )
+              }
+              catch {print("[crawler] Could not clean outputs \(error)")}
+    }
+    required  init(artist:String, defaultArtUrl:String? = nil, exportOptions:ExportMode = .csv ) {
         self.coverArtUrl = defaultArtUrl
         self.artist = artist
         self.exportOptions = exportOptions
         super.init()
+        cleanOuputs(outpath: crawlerMarkDownOutputPath)
+      
     }
     deinit  {
         recordExporter.addTrailerToExportStream()
@@ -117,7 +85,7 @@ private final class Transformer:NSObject,CustomControllable {
         
         if let songName = name {
             let shorter = songName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            for tuneTag in tunesTable {
+            for tuneTag in crawlerKeyTags {
                 // print("Checking \(String(describing: shorter)) -- \(tuneTag)")
                 if shorter.hasPrefix(tuneTag) {
                   //print("Checked \(String(describing: name)) ok")
@@ -139,22 +107,22 @@ private final class Transformer:NSObject,CustomControllable {
                 moretags.insert(bonustag)
             }
         }
-        
-        print("createMdFile \(s)  bonustags:\(Array(moretags))")
-        
-         
-        mdsequencenum += 1
+        if links.count == 0 { print("[crawler] no links for \(s) - check your music tree") } else {
+       // print("createMdFile \(s)  bonustags:\(Array(moretags))")
+
+        mdsequencenum -= 1
         let stuff = renderMarkdown(s,tags:Array(moretags) + tags ,links:links)
         
-        let cafe: Data? = stuff.data(using: .utf8)
+        let markdownData: Data? = stuff.data(using: .utf8)
         // create md file with temp
         //FileManager.default.createFile(atPath: "\(mdsequencenum).md", contents: cafe, attributes:nil)
         do {
-            let spec = "\(tempFolderPath)/\(String(format:"%04d",mdsequencenum)).md"
-            try cafe!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))
-            //print("Wrote to \(spec)")
+            let spec = "\(crawlerMarkDownOutputPath)/\(String(format:"%04d",mdsequencenum)).md"
+            try markdownData!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))
+            
         } catch {
             print("Cant write file \(error)")
+        }
         }
     }
 
@@ -192,48 +160,48 @@ private final class Transformer:NSObject,CustomControllable {
     func  incorporateParseResults(pr:ParseResults) {
         
         // move the props into a record
-        guard let url = pr.url else { fatalError() }
-        
-        guard  let cont = context as? ManifezzContext
-            else { fatalError() }
-        
+        guard let url = pr.url else { fatalError() } 
         mdlinks = []  // must reset each time !!
         
         // regardless of the type of export
-        
-        for link in pr.links {
-            let href =  link.href!.absoluteString
-            if !href.hasSuffix("/" ) {
-                cont.albumurl = url.absoluteString
-                cont.name = link.title
-                cont.songurl = href
-                cont.artist = artist
-                cont.cover_art_url = self.coverArtUrl
-                mdlinks.append((cont.name ?? "??",cont.songurl))
-                recordExporter.addRowToExportStream()
-            }
-        }
-        
-        // if we are writing md files for Publish
-        if let aurl = cont.albumurl,
-            exportOptions == .md {
-            createMarkDown(aurl, name: cont.name?.lowercased())
+       // var name:String = "no links!"
+   
+      
+               for link in pr.links {
+                   let href =  link.href!.absoluteString
+                   if !href.hasSuffix("/" ) {
+                       cont.albumurl = url.absoluteString
+                       cont.name = link.title
+                       cont.songurl = href
+                       cont.artist = artist
+                       cont.cover_art_url = self.coverArtUrl
+                       mdlinks.append((cont.name ?? "??",cont.songurl))
+                       recordExporter.addRowToExportStream()
+                   }
+               }
+               
+               // if we are writing md files for Publish
+               if let aurl = cont.albumurl,
+                   exportOptions == .md {
+                   createMarkDown(aurl, name: cont.name?.lowercased())
         }//writemdfiles==true
     }//createMdFile
     
-    func makerow( ) -> String {
-        let kleenex = runman.custom.kleenex
-        guard context is ManifezzContext
-            else { fatalError() }
-        return ManifezzContext.cleanItUp(context as! ManifezzContext, kleenex:kleenex)
+    
+  func cleanItUp(_ r:CrawlingElement, kleenex:(String)->(String)) -> String {
+   
+        let z =
+        """
+        \(kleenex(r.name ?? "")),\(kleenex(r.artist ?? "")),\(kleenex(r.album ?? "")),\(kleenex(r.songurl)),\(kleenex(r.albumurl ?? "")),\(kleenex(r.cover_art_url ?? ""))
+        """
+        return z
     }
     
-    func makeheader( ) -> String {
-        return context.headerReport()
+    func makerow( ) -> String {
+        return  cleanItUp(cont, kleenex:kleenex)
     }
-    func maketrailer( ) -> String?  {
-        return context.trailerReport()
-    }
+    
+
     func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString {
         return urlstr//URLFromString(urlstr.url?.lastPathComponent ?? "partfromurlstr failure")
     }
@@ -337,97 +305,33 @@ private final class Transformer:NSObject,CustomControllable {
     }
 }
 
-private final    class ManifezzConfig :Configable {
-    public var baseurlstr:String? = nil
-    public var comment: String
-    var roots:[String]
-    var crawlStarts:[RootStart] = []
-    
-    enum CodingKeys: String, CodingKey {
-        case comment
-        case roots
-    }
-    
-    init(_ baseURL:URL?) {
-        baseurlstr = baseURL?.absoluteString
-        comment = ""
-        roots = []
-    }
-    
-    public func load (url:URL? = nil) -> ([RootStart],ReportParams) {
-        do {
-            let obj =    try configLoader(url!)
-            return (convertToRootStarts(obj: obj))
-        }
-        catch {
-            invalidCommand(550); exit(0)
-        }
-    }
-    func configLoader (_ configURL:URL) throws -> ManifezzConfig {
-        do {
-            let contents =  try Data.init(contentsOf: configURL)
-            // inner
-            do {
-                let    obj = try JSONDecoder().decode(ManifezzConfig.self, from: contents)
-                return obj
-            }
-            catch {
-                exitWith(503,error: error)
-            }
-            // end inner
-        }
-        catch {
-            exitWith(504,error: error)
-        }// outer
-        fatalError("should never get here")
-    }
-    func convertToRootStarts(obj:ManifezzConfig) -> ([RootStart], ReportParams){
-        var toots:[RootStart] = []
-        for root in obj.roots{
-            toots.append(RootStart(name:root.components(separatedBy: ".").last ?? "?root?",
-                                   urlstr:root,
-                                   technique: .parseTop))
-        }
-        crawlStarts = toots
-        let r = ReportParams(r: obj.comment)
-        return (toots,r)
-    }
-}
-
-final public class ManifezzClass: CrawlMeister
+final public class KrawlMaster: CrawlMeister
 {
     
     
     private var whenDone:ReturnsCrawlResults?
     
-    public  func bootCrawlMeister(name:String, baseURL:URL,configURL: URL, opath:String,options:CrawlOptions,xoptions:ExportOptions, whenDone:@escaping ReturnsCrawlResults) throws{
-        self.whenDone = whenDone
-        let runoptions : RunManagerOptions  = ( options == CrawlOptions.verbose ) ? .verbose : .none
-        //  let ext = URL(string:opath)?.pathExtension ?? OutputType.csv.rawValue
-        //        var outtype: OutputType
-        //        switch xoptions {
-        //        case csv: outtype = OutputType(value:.csv)
-        //        case json: outtype = OutputType(value: .json)
-        //        case md: outtype = OutputType(value:.text)
-        //        }
-        
+    public  func boot(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode, finally:@escaping ReturnsCrawlResults) throws{
+        self.whenDone = finally
+        let runoptions : RunManagerOptions  = ( logLevel == LoggingLevel.verbose ) ? .verbose : .none
+
         let fp = URL(string:opath)?.deletingPathExtension().absoluteString
         guard var fixedPath = fp else {fatalError("cant fix outpath")}
-        switch xoptions {
+        switch exportMode {
         case .csv : fixedPath+=".csv"
         case .json : fixedPath+=".json"
         case .md : fixedPath+=".md"
         }
         
         
-        let rm = RunnableStream(config:ManifezzConfig(baseURL),
+        let rm = RunnableStream(config:ConfigurationProcessor(baseURL),
                                 custom: Transformer(artist: name,
                                                     defaultArtUrl: "booly",
-                                                    exportOptions: xoptions),
+                                                    exportOptions: exportMode),
                                 outputFilePath: LocalFilePath(fixedPath),
-                                outputType: xoptions,
-                                runOptions: runoptions )
+                                outputType: exportMode,
+                                runOptions: logLevel )
         
-        let _ = try  CrawlingBeast(context:ManifezzContext(),  runman: rm,baseURL: baseURL,  configURL: configURL,options:options,xoptions:xoptions,whenDone:whenDone)
+        let _ = try  CrawlingBeast( runman: rm,baseURL: baseURL,  configURL: configURL,options:logLevel,xoptions:exportMode,whenDone:finally)
     }
 }

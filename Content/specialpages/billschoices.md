@@ -1,8 +1,8 @@
 
 ---
 date: 2020-01-08 17:22
-description: 2017 rehearsal 08-29-17
-tags: halfdead,2017,rehearsal
+description: Bill's Top Choices Tunes
+tags: halfdead
 players: "XBill","XMark","Marty","Anthony","Brian"
 flotsam: 600
 ---

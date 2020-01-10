@@ -13,7 +13,7 @@ import Foundation
 import func Darwin.fputs
 import var Darwin.stderr
 
-typealias ReturnsCrawlerContext = (CrawlerContext)->()
+typealias ReturnsCrawlerContext = (CrawlStats)->()
 typealias ReturnsParseResults =  (ParseResults)->()
 typealias ReturnsLinkElement = (LinkElement)->()
 
@@ -21,21 +21,16 @@ public typealias  ReturnsCrawlResults = (CrawlerStatsBlock)->()
 
 // these really must be public, whereas the stuff below is only used within
 
-public enum CrawlOptions {
+public enum LoggingLevel {
     case none
     case verbose
 }
-public enum ExportOptions {
+public enum ExportMode {
     case csv
     case json
     case md
 }
 
-//public struct CrawlResult:Equatable {
-//    var status: Int
-//    var count1: Int
-//    var count2: Int
-//}
 
 public struct CrawlerStatsBlock:Codable {
     enum CodingKeys: String, CodingKey {
@@ -56,7 +51,7 @@ public struct CrawlerStatsBlock:Codable {
     var status: Int
 }
 public protocol CrawlMeister {
-    func bootCrawlMeister(name:String, baseURL:URL,configURL: URL, opath:String,options:CrawlOptions,xoptions:ExportOptions,whenDone:@escaping ReturnsCrawlResults) throws -> (Void)
+    func boot(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode,finally:@escaping ReturnsCrawlResults) throws -> (Void)
 }
 
 // global, actually
@@ -97,7 +92,7 @@ func safeError(error:Error) -> String {
 }
 
 // was runstats
-public final class CrawlerContext:NSObject {
+public final class CrawlStats:NSObject {
     
     var partCustomizer:CustomControllable!
     var keyCounts:NSCountedSet!
@@ -177,11 +172,10 @@ public protocol Configable:class, Decodable {
 public protocol CustomRunnable {
     var config:Configable {get set}
     var outputFilePath:LocalFilePath {get set}
-    var outputType:ExportOptions  {get set}
-    var runOptions:RunManagerOptions  {get set}
+    var outputType:ExportMode  {get set}
+    var runOptions:LoggingLevel  {get set}
     var custom:CustomControllable {get set}
-    var crawlerContext:CrawlerContext {get set}
-    // var recordExporter:SingleRecordExporter! {get set}
+    var crawlerContext:CrawlStats {get set}
 }
 
 public protocol CustomControllable : class  {
@@ -191,10 +185,11 @@ public protocol CustomControllable : class  {
     func makeheader()->String
     func maketrailer()->String?
     
-    var context : Crowdable!{ get set }
-    func setupController(runman: CustomRunnable, context  :Crowdable, exporter:SingleRecordExporter)
+   // var context : Crowdable!{ get set }
+    func setupController(runman: CustomRunnable,// context  :Crowdable,
+                         exporter:SingleRecordExporter)
     
-    func startCrawling(baseURL: URL, configurl:URL,options:CrawlOptions,whenDone:@escaping ReturnsCrawlResults)
+    func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
     
     func scraper(_ technique: ParseTechnique, url:URL,  baseURL:URL?, html: String)->ParseResults?
     func incorporateParseResults(pr:ParseResults)
@@ -206,44 +201,27 @@ public protocol CustomControllable : class  {
     
 }
 extension CustomControllable {
-    public func setupController(runman: CustomRunnable, context  :Crowdable, exporter:SingleRecordExporter) {
+    public func setupController(runman: CustomRunnable, //context  :Crowdable,
+                                exporter:SingleRecordExporter) {
         self.runman = runman
         self.recordExporter = exporter
-        self.context = context
+       // self.context = context
     }
-    public  func xabsorbLink(_ link: Kanna.XMLElement , relativeTo: URL?, tag: String, links: inout [LinkElement]) {
-        if let lk = link["href"] ,
-            let url = URL(string:lk,relativeTo:relativeTo) {
-            let pextension = url.pathExtension.lowercased()
-            let hasextension = pextension.count > 0
-            let linktype:Linktype = hasextension == false ? .hyperlink:.leaf
-            if hasextension {
-                guard pextension == "mp3" || pextension == "wav" else {
-                    return
-                    
-                }
-            } else
-            {
-                //print(url)
-            }
-            let txt = link.text ?? "-notext-"
-            links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-        }
-    }// end of handleelement// end of absorbLink
+
     
     
-    public func startCrawling(baseURL: URL, configurl:URL,options:CrawlOptions,whenDone:@escaping ReturnsCrawlResults) {
-        let (roots,reportParams)  = runman.config.load(url: configurl)
+    public func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
+        let (roots,reportParams)  = runman.config.load(url: configURL)
         
         do {
             let lk = ScrapingMachine(scraper:runman.custom.scraper)
-            let icrawler = try InnerCrawler(roots:roots,baseURL:baseURL, grubber:lk,options:options)
+            let icrawler = try InnerCrawler(roots:roots,baseURL:baseURL, grubber:lk,logLevel:loggingLevel)
             let _ = try CrawlingMac (roots: roots, reportParams:reportParams,      icrawler:icrawler,   runman: runman)
             { crawlResult in
                 // here we are done, reflect it back upstream
                 // print(crawlResult)
                 // now here must unwind back to original caller
-                whenDone(crawlResult)
+                finally(crawlResult)
             }
             
         }
@@ -281,13 +259,13 @@ public enum OutputType: String {
     }
 }
 public struct ReportParams {
-    public var style:ExportOptions
+    public var style:ExportMode
     public var reportTitle:String
     public var outputFilePath:String
     public var traceFilePath:String
     public init(r:String = "reportTitle",
                 o:String =  "outputFilePath",
-                f:ExportOptions = ExportOptions.csv ,
+                f:ExportMode = ExportMode.csv ,
                 t:String = "traceFilePath") {
         reportTitle = r
         outputFilePath = o
@@ -332,17 +310,18 @@ public final class CrawlingBeast {
     
     
     public init(
-        context:Crowdable,
+       // context:Crowdable,
         runman:CustomRunnable,
         baseURL: URL ,
         configURL: URL ,
-        options:CrawlOptions = .none,
-        xoptions:ExportOptions = .json,
+        options:LoggingLevel = .none,
+        xoptions:ExportMode = .json,
         whenDone:@escaping ReturnsCrawlResults) throws {
         
-        let xpr = SingleRecordExporter(outputStream: outputStream, exportType:xoptions, runman: runman)
-        runman.custom.setupController(runman: runman, context: context, exporter: xpr)
-        runman.custom.startCrawling(baseURL:baseURL, configurl:configURL,options: options,whenDone:whenDone )
+        let xpr = SingleRecordExporter(outputStream: outputStream, exportMode:xoptions, runman: runman)
+        runman.custom.setupController(runman: runman, //context: context,
+            exporter: xpr)
+        runman.custom.startCrawling(baseURL:baseURL, configURL:configURL,loggingLevel: options,finally:whenDone )
         
     }
     
@@ -383,7 +362,7 @@ public enum ParseTechnique :String, Codable {
 // scraping is not  Specific to any 3rd party libraries, custom scraping in the custom package
 //public only for testing
 public typealias PageScraperFunc = (ParseTechnique,URL,URL?,String)->ParseResults?
-public typealias Crowdable = (Codable & Crawlable)
+public typealias Crowdable = (Codable)
 
 typealias TraceFuncSig =  (String,String?,Bool,Bool) -> ()
 
@@ -489,11 +468,6 @@ public  func exitWith( _ code:Int, error:Error) {
     exit(0)
 }
 
-public protocol Crawlable {
-    func headerReport() -> String
-    func trailerReport() -> String
-    static  func cleanItUp(_ rec: (Crawlable&Codable), kleenex:(String)->(String)) -> String
-}
 
 
 // public only for testing
@@ -537,7 +511,7 @@ final class CrawlTable {
     }
     
     
-    func crawlMeUp (whenDone:  ReturnsCrawlerContext, baseURL:URL?, stats: CrawlerContext, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
+  fileprivate  func crawlMeUp (whenDone:  ReturnsCrawlerContext, baseURL:URL?, stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
         while crawlState == .crawling {
             if items.count == 0 {
                 crawlState = .done
@@ -558,15 +532,15 @@ final class CrawlTable {
 }
 // public, inner
 //public
-final class InnerCrawler : NSObject {
+private final class InnerCrawler : NSObject {
     private(set)  var ct =  CrawlTable()
-    private var crawloptions: CrawlOptions
+    private var crawloptions: LoggingLevel
     private(set) var baseURL:URL?
     
-    public init(roots:[RootStart],baseURL:URL?, grubber:ScrapingMachine,options:CrawlOptions = .none) throws {
+    public init(roots:[RootStart],baseURL:URL?, grubber:ScrapingMachine,logLevel:LoggingLevel = .none) throws {
         self.places = roots
         self.grubber = grubber
-        self.crawloptions = options
+        self.crawloptions = logLevel
         self.baseURL = baseURL
     }
     private(set) var grubber:ScrapingMachine
@@ -580,15 +554,15 @@ final class InnerCrawler : NSObject {
     func addToCrawlList(_ f:URL ) {
         ct.addToListUnquely(f)
     }
-    func crawlDone( _ crawlerContext: CrawlerContext, _ didFinishUserCall: inout Bool, _ whenDone: ReturnsCrawlerContext) {
+    func crawlDone( _ crawlerContext: CrawlStats, _ didFinishUserCall: inout Bool, _ finally: ReturnsCrawlerContext) {
         // here we should output the very last trailer record
         //        print("calling whendone from crawldone from crawlingcore with crawlcontext \(crawlerContext)  ")
-        whenDone( crawlerContext)// everything alreadt passed
+        finally( crawlerContext)// everything alreadt passed
         didFinishUserCall = true
     }
     
     
-    func crawlOne(rootURL:URL,technique:ParseTechnique,stats:CrawlerContext,exportone:@escaping (ReturnsParseResults)) {
+    func crawlOne(rootURL:URL,technique:ParseTechnique,stats:CrawlStats,exportone:@escaping (ReturnsParseResults)) {
         
         // this is really where the action starts, we crawl from RootStart
         
@@ -656,7 +630,7 @@ final class InnerCrawler : NSObject {
     
     
     
-    func bigCrawlLoop(crawlerContext:CrawlerContext, exportOnePageWorth:@escaping ReturnsParseResults, whenDone:@escaping ReturnsCrawlerContext) {
+    func bigCrawlLoop(crawlerContext:CrawlStats, exportOnePageWorth:@escaping ReturnsParseResults, whenDone:@escaping ReturnsCrawlerContext) {
         
         var didFinishUserCall = false
         var savedExportOne = exportOnePageWorth
@@ -723,7 +697,7 @@ extension InnerCrawler {
 }
 
 // public for testing only hmm
-final class CrawlingMac {
+private final class CrawlingMac {
     
     init(roots:[RootStart],
          reportParams:ReportParams,
@@ -779,7 +753,7 @@ final class CrawlingMac {
     
     
     
-    private   func finalSummary (stats:CrawlerContext,reportParams:ReportParams,count:Int,peak:Int,crawltime:TimeInterval) {
+    private   func finalSummary (stats:CrawlStats,reportParams:ReportParams,count:Int,peak:Int,crawltime:TimeInterval) {
         // copy into  TestResultsBlock
         var fb = TestResultsBlock()
         fb.reportTitle = reportParams.reportTitle
@@ -895,19 +869,19 @@ public final class ScrapingMachine:NSObject {
  */
 
 public final class SingleRecordExporter {
-    private(set) var xoptions:ExportOptions
+    private(set) var exportMode:ExportMode
     private var rg:CustomRunnable
     var outputStream:FileHandlerOutputStream
     private var first = true
-    public init(outputStream:FileHandlerOutputStream, exportType: ExportOptions, runman:CustomRunnable) {
+    public init(outputStream:FileHandlerOutputStream, exportMode: ExportMode, runman:CustomRunnable) {
         self.outputStream = outputStream
         self.rg = runman
-        self.xoptions = exportType
+        self.exportMode = exportMode
     }
     
     
     private func emitToOutputStream(_ s:String) {
-        switch xoptions {
+        switch exportMode {
         case .csv,.json:
             
             print(s , to: &outputStream )// dont add extra
@@ -919,7 +893,7 @@ public final class SingleRecordExporter {
     
     public func addHeaderToExportStream( ) {
         
-        switch xoptions {
+        switch exportMode {
         case .csv:
             
             emitToOutputStream(rg.custom.makeheader())
@@ -935,8 +909,9 @@ public final class SingleRecordExporter {
         }
     }
     public func addTrailerToExportStream( ) {
+        print("adding trailer!!!")
         
-        switch xoptions {
+        switch exportMode {
             
         case .csv:
             if let trailer = rg.custom.maketrailer() {
@@ -951,7 +926,7 @@ public final class SingleRecordExporter {
         }
     }
     public  func addRowToExportStream( ) {
-        switch xoptions {
+        switch exportMode {
             
         case .csv:
             let stuff = rg.custom.makerow( )
@@ -992,20 +967,20 @@ public final class RunnableStream : NSObject,CustomRunnable {
     
     public var config: Configable
     // all of these variables are rquired by RunManager Protocol
-    public   var recordExporter: SingleRecordExporter!
+    private   var recordExporter: SingleRecordExporter!
     public   var outputFilePath:LocalFilePath
-    public   var outputType:ExportOptions
-    public   var runOptions:RunManagerOptions
+    public   var outputType:ExportMode
+    public   var runOptions:LoggingLevel
     public   var custom:CustomControllable
-    public   var crawlerContext:CrawlerContext
+    public   var crawlerContext:CrawlStats
     
-    required public init (config:Configable, custom:CustomControllable, outputFilePath:LocalFilePath, outputType:ExportOptions,runOptions:RunManagerOptions) {
+    required public init (config:Configable, custom:CustomControllable, outputFilePath:LocalFilePath, outputType:ExportMode,runOptions:LoggingLevel) {
         self.outputFilePath = outputFilePath
         self.outputType = outputType
         self.custom = custom
         self.config = config
         self.runOptions = runOptions
-        self.crawlerContext = CrawlerContext(partCustomizer: self.custom)
+        self.crawlerContext = CrawlStats(partCustomizer: self.custom)
         bootstrapExportDir()
         
         do {
@@ -1022,7 +997,7 @@ public final class RunnableStream : NSObject,CustomRunnable {
             super.init()
             //let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
             
-            self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportType: outputType, runman: self)
+            self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportMode: outputType, runman: self)
             
         }
         catch {
@@ -1075,5 +1050,62 @@ public class ConsoleIO {
         case .error:
             fputs("\(message)\n", stderr)
         }
+    }
+}
+
+public final  class ConfigurationProcessor :Configable {
+    public var baseurlstr:String? = nil
+    public var comment: String
+    var roots:[String]
+    var crawlStarts:[RootStart] = []
+    
+    enum CodingKeys: String, CodingKey {
+        case comment
+        case roots
+    }
+    
+    init(_ baseURL:URL?) {
+        baseurlstr = baseURL?.absoluteString
+        comment = ""
+        roots = []
+    }
+    
+    public func load (url:URL? = nil) -> ([RootStart],ReportParams) {
+        do {
+            let obj =    try configLoader(url!)
+            return (convertToRootStarts(obj: obj))
+        }
+        catch {
+            invalidCommand(550); exit(0)
+        }
+    }
+    func configLoader (_ configURL:URL) throws -> ConfigurationProcessor {
+        do {
+            let contents =  try Data.init(contentsOf: configURL)
+            // inner
+            do {
+                let    obj = try JSONDecoder().decode(ConfigurationProcessor.self, from: contents)
+                return obj
+            }
+            catch {
+                exitWith(503,error: error)
+            }
+            // end inner
+        }
+        catch {
+            exitWith(504,error: error)
+        }// outer
+        fatalError("should never get here")
+    }
+    func convertToRootStarts(obj:ConfigurationProcessor) -> ([RootStart], ReportParams){
+        var toots:[RootStart] = []
+        for root in obj.roots{
+            toots.append(RootStart(name:root.components(separatedBy: ".").last ?? "?root?",
+                                   urlstr:root,
+                                   technique: .parseTop))
+        }
+        crawlStarts = toots
+        let r = ReportParams(r: obj.comment)
+        return (toots,r)
     }
 }
