@@ -1,12 +1,12 @@
 
 ---
-date: 2020-01-08 17:22
-description: Brians Choices Tunes
+date: 2020-01-09 12:00
+description: Bill's Favorite Tunes List
 tags: halfdead 
 ---
 
-# Brian's Choices for Dec 2019
-<img src="/images/connect4.png" />
+# Bill's Favorites for Jan 2020
+<img src="/images/bluepic-eye.png" width="300px" />
 This is stuff I like:
 
 ## Jam Tunes
@@ -218,3 +218,4 @@ Your browser does not support the
 <code>audio</code> element.
 </audio>
 </figure>
+

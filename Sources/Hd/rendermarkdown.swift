@@ -50,7 +50,7 @@ extension Hd {
                 // copy the bytes inline from remote md file
                 if let surl = URL(string:url) {
                     do {
-                        pmdbuf +=   try String(contentsOf: surl) + "\n"
+                        pmdbuf +=   try String(contentsOf: surl) + "\n\n\n"
                     }
                     catch {
                         print("[crawler] Couldnt read bytes from \(url) \(error)")

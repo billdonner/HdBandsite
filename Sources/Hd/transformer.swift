@@ -256,9 +256,21 @@ final class Transformer:NSObject,BigMachinery{
      
             let fund = url.lastPathComponent
             let (playdate,venue) = pickapart(fund)
+            
+                        guard playdate != "" else {return}
+            
             let ve =  venue == "" ? Hd.default_venue_acronym : venue
-            guard playdate != "" else {return}
-            createMarkDown(aurl,  venue: ve, playdate: playdate, links:mdlinks )
+                       let month = playdate.prefix(2)
+                       let year = playdate.suffix(2)
+                       
+                       let start = playdate.index(playdate.startIndex, offsetBy: 2)
+                       let end = playdate.index(playdate.endIndex, offsetBy: -2)
+                   
+                       let day = playdate[start..<end]
+                        
+            // when naming the file, put the date part first and then the venu, the date is YYMMDD for sorting
+          
+            createMarkDown(aurl,  venue: ve, playdate: String(year+month+day), links:mdlinks )
         }//writemdfiles==true
     }//incorporateParseResults
     

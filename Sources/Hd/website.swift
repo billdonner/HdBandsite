@@ -80,7 +80,7 @@ extension PublishingStep where Site == Hd {
 //                            .viewport(.accordingToDevice)),
                        
             let bod =             Node.body(
-                            .style("header nav a { color: #cb3018; padding: 10px 10px; };  color: #3ff; dd {font-size:.6em}"),
+                            .style("header nav a { color: #cb3018; padding: 10px 10px; };  dd {font-size:.6em}"),
                             .h2("Who Are We?"),
                             .img(.src("/images/roseslogo.png")),
                             .span("We play in \(Hd.default_venue_description)"),
