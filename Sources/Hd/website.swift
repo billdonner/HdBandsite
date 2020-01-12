@@ -12,7 +12,7 @@ import Plot
 // This type acts as the configuration for your website.
 
 
-let crawlerKeyTags:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
+
 
 struct Hd: Website {
     enum SectionID: String, WebsiteSectionID {
@@ -28,6 +28,8 @@ struct Hd: Website {
     struct ItemMetadata: WebsiteItemMetadata {
         // Add any site-specific metadata that you want to use here.
         // var flotsam : TimeInterval = 0
+        //var venue: String?
+        //var date: String?
     }
     
     // Update these properties to configure your website:
@@ -36,9 +38,15 @@ struct Hd: Website {
     var description = "The Greatest Band In A Very Small Land - published on " + "\(Date())".dropLast(9)
     var language: Language { .english }
     var imagePath: Path? { "images/ABHDLogo.png" }
-    var favicon: Favicon?  { Favicon(path: "images/favicon.png") }
+    var favicon: Favicon?  { Favicon(path: "images/favicon.png")}
+        
+    static let default_venue_acronym : String = "thorn"
+    static let default_venue_description: String = "Highline Studios, Thornwood, NY"
+    static let crawlerKeyTags:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
+    }
     
-}
+
+
 
 extension PublishingStep where Site == Hd {
     static func addDefaultSectionTitles() -> Self {
@@ -75,6 +83,7 @@ extension PublishingStep where Site == Hd {
                             .style("header nav a { color: #cb3018; padding: 10px 10px; };  color: #3ff; dd {font-size:.6em}"),
                             .h2("Who Are We?"),
                             .img(.src("/images/roseslogo.png")),
+                            .span("We play in \(Hd.default_venue_description)"),
                             .ul(
                                 .li(.dl(
                                     .dt("Anthony"),

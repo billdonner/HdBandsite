@@ -116,50 +116,6 @@ public final class SingleRecordExporter {
 }
 
 
-public final class RunnableStream : NSObject,CustomRunnable {
-    
-    public var config: Configable
-    // all of these variables are rquired by RunManager Protocol
-    private   var recordExporter: SingleRecordExporter!
-    public   var outputFilePath:LocalFilePath
-    public   var exportMode:ExportMode
-    public   var logLevel:LoggingLevel
-    public   var custom:CustomControllable
-    public   var crawlStats:CrawlStats
-    
-    required public init (config:Configable, custom:CustomControllable, outputFilePath:LocalFilePath, exportMode:ExportMode,logLevel:LoggingLevel) {
-        self.outputFilePath = outputFilePath
-        self.exportMode = exportMode
-        self.custom = custom
-        self.config = config
-        self.logLevel = logLevel
-        self.crawlStats = CrawlStats(partCustomizer: self.custom)
-        bootstrapExportDir()
-        
-        do {
-            // Some of the APIs that we use below are available in macOS 10.13 and above.
-            guard #available(macOS 10.13, *) else {
-                consoleIO.writeMessage("need at least 10.13",to:.error)
-                exit(0)
-            }
-            let url = URL(fileURLWithPath: self.outputFilePath.path,relativeTo: ExportDirectoryURL)
-            try  "".write(to: url, atomically: true, encoding: .utf8)
-            let fileHandle = try FileHandle(forWritingTo: url)
-            outputStream = FileHandlerOutputStream(fileHandle)
-            
-            super.init()
-            //let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
-            
-            self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportMode: exportMode, runman: self)
-            
-        }
-        catch {
-            consoleIO.writeMessage("Could not initialize RunnableStream \(outputFilePath) \(error)",to:.error)
-            exit(0)
-        }
-    }
-}
-
 ////////
 ///MARK- : STREAM IO STUFF
 
@@ -265,7 +221,7 @@ public final  class ConfigurationProcessor :Configable {
 // was runstats
 public final class CrawlStats:NSObject {
     
-    var partCustomizer:CustomControllable!
+    var partCustomizer:BigMachinery!
     var keyCounts:NSCountedSet!
     var goodurls :Set<URLFromString>!
     var badurls :Set<URLFromString>!
@@ -291,7 +247,7 @@ public final class CrawlStats:NSObject {
         badurls = Set<URLFromString>()
         keyCounts = NSCountedSet()
     }
-    init(partCustomizer :CustomControllable) {
+    init(partCustomizer :BigMachinery) {
         self.partCustomizer = partCustomizer
         super.init()
         reset()

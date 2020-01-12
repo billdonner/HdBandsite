@@ -137,7 +137,7 @@ public protocol CustomRunnable {
     var outputFilePath:LocalFilePath {get set}
     var exportMode:ExportMode  {get set}
     var logLevel:LoggingLevel  {get set}
-    var custom:CustomControllable {get set}
+    var custom:BigMachinery {get set}
     var crawlStats:CrawlStats {get set}
 }
 
