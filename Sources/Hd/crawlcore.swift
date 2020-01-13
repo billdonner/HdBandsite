@@ -132,7 +132,7 @@ public protocol Configable:class, Decodable {
     func load (url:URL? ) -> ([RootStart],ReportParams)
 }
 
-public protocol CustomRunnable {
+ protocol BigMachineRunner {
     var config:Configable {get set}
     var outputFilePath:LocalFilePath {get set}
     var exportMode:ExportMode  {get set}

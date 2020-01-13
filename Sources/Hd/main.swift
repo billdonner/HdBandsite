@@ -7,6 +7,26 @@ import Plot
 
 let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content" // NSTemporaryDirectory()
 
+public struct Fav : Codable {
+    let name: String
+    let url: String
+    let comment: String = ""
+}
+    
+    
+fileprivate func addBillsFavorites() {
+    let link1 = Fav(name: "riders",url: "https://billdonner.com/foobly/riders.mp3")
+    let link2 = Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3")
+    let links = [link1,link2]
+    
+    
+    createMarkDown(mode:.fromWithin,
+                   url:"https://mumble012/bumble123//bills-best-2019/",
+                   venue: "favorites",
+                   playdate: "123119",
+                   links:links)
+}
+
 func command_main() {
     
     func printUsage() {
@@ -94,6 +114,10 @@ func command_main() {
                                                    exportMode:exportMode)
             { crawlResults in
                 print("[crawler] scanned \(crawlResults.count1) pages,  \(String(format:"%5.2f",crawlResults.secsPerCycle*1000)) ms per page")
+                
+                addBillsFavorites()
+                
+                
                 // at this point we've plunked files into the designated directory
                 let start = Date()
                 

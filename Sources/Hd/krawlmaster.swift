@@ -15,7 +15,7 @@ final public class KrawlMaster: CrawlMeister
         
         public init(
             // context:Crowdable,
-            runman:CustomRunnable,
+            runman:BigMachineRunner,
             baseURL: URL ,
             configURL: URL ,
             options:LoggingLevel = .none,
@@ -36,7 +36,7 @@ final public class KrawlMaster: CrawlMeister
         }
     }
 
-      class KrawlStream : NSObject,CustomRunnable {
+      class KrawlStream : NSObject,BigMachineRunner {
         
         public var config: Configable
         // all of these variables are rquired by RunManager Protocol

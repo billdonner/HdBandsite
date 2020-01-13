@@ -5,7 +5,7 @@ description: Bill's Favorite Tunes List
 tags: halfdead 
 ---
 
-# Bill's Favorites for Jan 2020
+# Brian's Favorites for Jan 2020
 <img src="/images/bluepic-eye.png" width="300px" />
 This is stuff I like:
 

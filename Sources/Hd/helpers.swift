@@ -19,12 +19,12 @@ var consoleIO = ConsoleIO()
  inside SingleRecordExport we'll switch on export type to decide what to dump into the output stream
  */
 
-public final class SingleRecordExporter {
+final class SingleRecordExporter {
     private(set) var exportMode:ExportMode
-    private var rg:CustomRunnable
+    private var rg:BigMachineRunner
     var outputStream:FileHandlerOutputStream
     private var first = true
-    public init(outputStream:FileHandlerOutputStream, exportMode: ExportMode, runman:CustomRunnable) {
+    init(outputStream:FileHandlerOutputStream, exportMode: ExportMode, runman:BigMachineRunner) {
         self.outputStream = outputStream
         self.rg = runman
         self.exportMode = exportMode

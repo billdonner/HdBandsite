@@ -236,13 +236,13 @@ extension InnerCrawler {
 public final class CrawlingMac {
     private var returnsCrawlResults:ReturnsCrawlResults
     private var reportParams : ReportParams
-    private var runman : CustomRunnable
+    private var runman : BigMachineRunner
     fileprivate  var icrawler : InnerCrawler
     
     init(roots:[RootStart],
          reportParams:ReportParams,
          icrawler :InnerCrawler,
-         runman:CustomRunnable,
+         runman:BigMachineRunner,
          returnsResults:@escaping ReturnsCrawlResults)
         throws {
             self.icrawler =   icrawler
