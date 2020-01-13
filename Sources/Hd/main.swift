@@ -15,18 +15,29 @@ public struct Fav : Codable {
     
     
 fileprivate func addBillsFavorites() {
-    let link1 = Fav(name: "riders",url: "https://billdonner.com/foobly/riders.mp3")
-    let link2 = Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3")
-    let links = [link1,link2]
+ 
+    let links = [Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3"),
+                 Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3")]
     
     
-    createMarkDown(mode:.fromWithin,
-                   url:"https://mumble012/bumble123//bills-best-2019/",
+    createMarkDown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
                    venue: "favorites",
                    playdate: "123119",
                    links:links)
+    
+    print("[crawler] adding Bills Favorites")
 }
-
+fileprivate func addBriansFavorites() {
+    let links = [Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3"),
+                 Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3")]
+    
+    
+    createMarkDown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/",
+                   venue: "favorites",
+                   playdate: "123118",
+                   links:links)
+     print("[crawler] adding Brians Favorites")
+}
 func command_main() {
     
     func printUsage() {
@@ -116,7 +127,9 @@ func command_main() {
                 print("[crawler] scanned \(crawlResults.count1) pages,  \(String(format:"%5.2f",crawlResults.secsPerCycle*1000)) ms per page")
                 
                 addBillsFavorites()
+                 addBriansFavorites()
                 
+                let published_counts = crawlResults.count1 + 3
                 
                 // at this point we've plunked files into the designated directory
                 let start = Date()
@@ -129,7 +142,7 @@ func command_main() {
                                   additionalSteps:additionalSteps)
                 
                 let elapsed = Date().timeIntervalSince(start) / Double(crawlResults.count1)
-                print("[crawler] published \(crawlResults.count1) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
+                print("[crawler] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
                     
                 }
                 catch {

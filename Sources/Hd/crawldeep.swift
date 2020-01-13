@@ -12,7 +12,7 @@ import Foundation
 
 // public only for testing
 final class CrawlTable {
-    public init() {
+    init() {
     }
     
     private  var crawlCountPeak: Int = 0
@@ -51,7 +51,7 @@ final class CrawlTable {
     }
     
     
-  public  func crawlLoop (finally:  ReturnsCrawlStats, baseURL:URL?, stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
+ func crawlLoop (finally:  ReturnsCrawlStats, baseURL:URL?, stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
         while crawlState == .crawling {
             if items.count == 0 {
                 crawlState = .done
@@ -73,7 +73,7 @@ final class CrawlTable {
 
 ////////
 
-public final class InnerCrawler : NSObject {
+  final class InnerCrawler : NSObject {
     private(set)  var ct =  CrawlTable()
     private var crawloptions: LoggingLevel
     private(set) var baseURL:URL?
@@ -81,7 +81,7 @@ public final class InnerCrawler : NSObject {
     private(set) var places: [RootStart] = [] // set by crawler
     private var first = true
     
-    public init(roots:[RootStart],baseURL:URL?, grubber:ScrapingMachine,logLevel:LoggingLevel = .none) throws {
+   init(roots:[RootStart],baseURL:URL?, grubber:ScrapingMachine,logLevel:LoggingLevel = .none) throws {
         self.places = roots
         self.grubber = grubber
         self.crawloptions = logLevel
@@ -311,7 +311,7 @@ public final class CrawlingMac {
 
 
 // public only for testing
-public final class ScrapingMachine:NSObject {
+ final class ScrapingMachine:NSObject {
     private var scraperx:PageScraperFunc
     public init(scraper:@escaping PageScraperFunc) {
         self.scraperx = scraper
@@ -330,7 +330,7 @@ public final class ScrapingMachine:NSObject {
     }
     
     // this is the major entry point
-    public func scrapeFromURL( _ urlget:URL, baseURL:URL?,
+ func scrapeFromURL( _ urlget:URL, baseURL:URL?,
                                parsingTechnique:ParseTechnique,
                                whenDone:@escaping (( ParseResults ) ->())){
         

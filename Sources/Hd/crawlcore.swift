@@ -58,7 +58,7 @@ public protocol CrawlMeister {
 
 
 // freestanding
-public var LibraryDirectoryURL:URL {
+ var LibraryDirectoryURL:URL {
     return  URL(fileURLWithPath:  NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0] as String )//+ "/" + "_export")// distinguish
 }
 var ExportDirectoryURL:URL {
@@ -92,7 +92,7 @@ func safeError(error:Error) -> String {
 }
 
 
-public func makesafe(error:Error) -> String {
+ func makesafe(error:Error) -> String {
     let matcher = """
 "
 """.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -122,11 +122,8 @@ public struct URLFromString :Hashable {
     }
     
 }
-public enum RunManagerOptions {
-    case none
-    case verbose
-}
-public protocol Configable:class, Decodable {
+ 
+ protocol Configable:class, Decodable {
     var baseurlstr:String? {get set}
     var comment:String {get set}
     func load (url:URL? ) -> ([RootStart],ReportParams)

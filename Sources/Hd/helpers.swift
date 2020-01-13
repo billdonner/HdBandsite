@@ -42,7 +42,7 @@ final class SingleRecordExporter {
         }
     }
     
-    public func addHeaderToExportStream( ) {
+   func addHeaderToExportStream( ) {
         
         switch exportMode {
         case .csv:
@@ -59,7 +59,7 @@ final class SingleRecordExporter {
                 break
         }
     }
-    public func addTrailerToExportStream( ) {
+    func addTrailerToExportStream( ) {
         print("adding trailer!!!")
         
         switch exportMode {
@@ -76,7 +76,7 @@ final class SingleRecordExporter {
                 break
         }
     }
-    public  func addRowToExportStream( ) {
+    func addRowToExportStream( ) {
         switch exportMode {
             
         case .csv:
@@ -159,15 +159,15 @@ public class ConsoleIO {
     }
 }
 
-public final  class ConfigurationProcessor :Configable {
+ final  class ConfigurationProcessor :Configable {
     
     enum CodingKeys: String, CodingKey {
         case comment
         case roots
     }
     
-    public var baseurlstr:String? = nil
-    public var comment: String
+   var baseurlstr:String? = nil
+     var comment: String
     var roots:[String]
     var crawlStarts:[RootStart] = []
     
@@ -179,7 +179,7 @@ public final  class ConfigurationProcessor :Configable {
         roots = []
     }
     
-    public func load (url:URL? = nil) -> ([RootStart],ReportParams) {
+ func load (url:URL? = nil) -> ([RootStart],ReportParams) {
         do {
             let obj =    try configLoader(url!)
             return (convertToRootStarts(obj: obj))
@@ -219,7 +219,7 @@ public final  class ConfigurationProcessor :Configable {
     }
 }
 // was runstats
-public final class CrawlStats:NSObject {
+  final class CrawlStats:NSObject {
     
     var partCustomizer:BigMachinery!
     var keyCounts:NSCountedSet!

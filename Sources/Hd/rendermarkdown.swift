@@ -6,12 +6,29 @@
 //
 
 import Foundation
+
+func decomposePlayDate(_ playdate:String) -> (String,String,String) { // month day year ==> year month day
+    let month = playdate.prefix(2)
+    let year = playdate.suffix(2)
+    let start = playdate.index(playdate.startIndex, offsetBy: 2)
+    let end = playdate.index(playdate.endIndex, offsetBy: -2)
+    let range = start..<end
+    let day = playdate[range]
+    return (String(year),String(month),String(day))
+}
+
+
 extension Hd {
     // generate markdown in a variety of formats as neede
     
     // this is an exmple what dates shoud look like
     // date: 2020-01-05 17:42
-  private  static func generateHTMLFromImagesAndMarkdown(links:[Fav]) -> (String ,String) {
+    
+    struct ImagesAndMarkdown {
+        let images: String
+        let markdown: String
+    }
+  private  static func generateHTMLFromImagesAndMarkdown(links:[Fav]) -> ImagesAndMarkdown {
         var imagesbuf = ""
         var pmdbuf = "\n"
         for(_,alink) in links.enumerated() {
@@ -33,7 +50,7 @@ extension Hd {
             }
         }
         if imagesbuf=="" { imagesbuf = "<img src='/images/abhdlogo300.png' />" }
-        return (imagesbuf,pmdbuf)
+    return ImagesAndMarkdown(images:imagesbuf,markdown:pmdbuf)
     }
     
     
@@ -69,17 +86,7 @@ extension Hd {
         
    private static  func generateTopMdHTML(title:String, venue:String,playdate:String,tags:[String] ,links:[Fav])->String {
     
-    func decomposePlayDate(_ playdate:String) -> (String,String,String) { // month day year ==> year month day
-        let month = playdate.prefix(2)
-        let year = playdate.suffix(2)
-        
-        let start = playdate.index(playdate.startIndex, offsetBy: 2)
-        let end = playdate.index(playdate.endIndex, offsetBy: -2)
-        let range = start..<end
-        let day = playdate[range]
-        return (String(year),String(month),String(day))
-    }
-    
+
     
             let tagstring = tags.joined(separator: ",")
             
@@ -93,13 +100,13 @@ extension Hd {
             x +=   "-" + day
             
             let cookie = get_fortune_cookie()
-            let (imagesbuf,pmdbuf) = Self.generateHTMLFromImagesAndMarkdown(links:links)
-            let ellipsis = imagesbuf.count>500 ? "..." : ""
+            let immd = Self.generateHTMLFromImagesAndMarkdown(links:links)
+            let ellipsis = immd.markdown.count>500 ? "..." : ""
             let top = """
             
             ---
             venue: \(venue)
-            description: \(venue) \(x) \(pmdbuf.prefix(500))\(ellipsis)
+            description: \(venue) \(x) \(immd.markdown.prefix(500))\(ellipsis)
             tags: \(tagstring)
             
             
@@ -108,23 +115,37 @@ extension Hd {
             # \(title)
             
             <div style='margin:20px'>
-            \(imagesbuf)
+    \(immd.images)
             
             <div style='margin:20px'>
             <h4><i>\(cookie)</i></h4>
             </div>
-            \(pmdbuf)
+    \(immd.markdown)
             
-            """
+"""
             
             return top
         }
     
-        static public func renderMarkdown(_ s:String,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
-                                   exportMode:ExportMode = .md )->String {
+        static func renderMarkdown(_ s:String,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
+                                   exportMode:ExportMode = .md,
+                                   mode:PublishingMode )->String {
         switch exportMode {
+        
         case .md:
-            return Self.generateTopMdHTML(title:s,venue:venue,playdate:playdate,tags:tags,links:links) + Self.generateAudioHTML(links: links)
+            var newtags = tags
+            switch mode {
+            case .fromPublish:
+                break
+            case .fromWithin:
+                newtags.append("favorite")
+                
+            }
+            
+            return Self.generateTopMdHTML(title:s,venue:venue,playdate:playdate,tags:newtags,links:links) + "\n\n\n\n" + Self.generateAudioHTML(links: links)
+            
+            
+            
         default:fatalError("cant render \(exportMode) as markdown")
         }
     }
