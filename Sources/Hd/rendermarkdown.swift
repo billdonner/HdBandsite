@@ -69,8 +69,8 @@ extension Hd {
                 \n<h2> \(String(format:"%02d",idx+1))    \(alink.name)</h2>
                 
                 <figure>
-                <figcaption> </figcaption>
-                <audio  controls style='margin: 0 0 0 5px; background: #B80808;'>
+                <figcaption style='margin-bottom: 5px; background: #B80808;' > \(alink.comment) </figcaption>
+                <audio  controls style='margin: 0 0 0 10px; background: #B80808;'>
                 <source src="\(alink.url)" type="\(htype)"/></audio>
                 </figure>
                 

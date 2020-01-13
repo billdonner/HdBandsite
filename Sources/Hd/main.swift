@@ -7,17 +7,19 @@ import Plot
 
 let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content" // NSTemporaryDirectory()
 
-public struct Fav : Codable {
+public struct Fav {
     let name: String
     let url: String
-    let comment: String = ""
+    let comment: String
 }
     
     
 fileprivate func addBillsFavorites() {
  
-    let links = [Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3"),
-                 Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3")]
+    let links:[Fav] = [
+        Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"favorite of all time"),
+        Fav(name: "riders",url: "https://billdonner.com/foobly/riders.mp3",comment:"best of the year")
+    ]
     
     
     createMarkDown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
@@ -28,8 +30,12 @@ fileprivate func addBillsFavorites() {
     print("[crawler] adding Bills Favorites")
 }
 fileprivate func addBriansFavorites() {
-    let links = [Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3"),
-                 Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3")]
+    let links = [
+        Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"not exactly my taste"),
+                 
+                 
+        Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"I like the drumming")
+    ]
     
     
     createMarkDown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/",

@@ -114,7 +114,7 @@ extension PublishingStep where Site == Hd {
         )
         
         let   b = bod.render(indentedBy: .tabs(1))
-        print("[crawling] adding About Us page")
+        print("[crawler] adding About Us page")
         return PublishingStep<Hd>.addItem(Item(
             path: "/", // this will put it at /about which will take us directly there from top menu
             sectionID: .about,

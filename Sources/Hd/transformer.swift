@@ -277,7 +277,7 @@ final class Transformer:NSObject,BigMachinery{
                 cont.songurl = href
                 cont.artist = artist
                 cont.cover_art_url = self.coverArtUrl
-                mdlinks.append(Fav(name:cont.name ?? "??", url:cont.songurl))
+                mdlinks.append(Fav(name:cont.name ?? "??", url:cont.songurl,comment:""))
                 recordExporter.addRowToExportStream()
             }
         }
