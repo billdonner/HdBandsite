@@ -5,7 +5,9 @@ import Plot
 // extra properties for crawling
 
 
-let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content" // NSTemporaryDirectory()
+let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content"
+
+// tweak
 
 public struct Fav {
     let name: String
