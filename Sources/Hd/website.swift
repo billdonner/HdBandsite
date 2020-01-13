@@ -42,7 +42,6 @@ struct Hd: Website {
 
 
 
-
 extension PublishingStep where Site == Hd {
     static func addDefaultSectionTitles() -> Self {
         .step(named: "Default section titles") { context in
@@ -51,12 +50,11 @@ extension PublishingStep where Site == Hd {
                 
                 switch section.id {
                 case .audiosessions:
-                    section.title = "º Audio º"
-                    
+                    section.title =  "Audio" 
                 case .specialpages:
-                    section.title = "º Favorites º"
+                    section.title = "Favorites"
                 case .about:
-                    section.title = "º About º"
+                    section.title = "About"
                     
                 }
             }

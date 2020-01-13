@@ -146,7 +146,7 @@ func command_main() {
                 let additionalSteps:[PublishingStep<Hd>] =  [PublishingStep<Hd>.makeMembersPage(), 
                                                              PublishingStep<Hd>.addDefaultSectionTitles()]
                 do {
-                try Hd().publish(withTheme: .foundation,
+                try Hd().publish(withTheme: .hd,
                                   additionalSteps:additionalSteps)
                 
                 let elapsed = Date().timeIntervalSince(start) / Double(crawlResults.count1)
