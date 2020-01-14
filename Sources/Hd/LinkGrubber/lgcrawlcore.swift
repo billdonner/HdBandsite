@@ -51,7 +51,7 @@ public struct CrawlerStatsBlock:Codable {
     var status: Int
 }
 protocol CrawlMeister {
-    func boot(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode,finally:@escaping ReturnsCrawlResults) throws -> (Void)
+    func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode,finally:@escaping ReturnsCrawlResults) throws -> (Void)
 }
 
 // global, actually

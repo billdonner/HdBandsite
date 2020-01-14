@@ -7,7 +7,7 @@
 
 import Foundation
 
-final public class KrawlMaster: CrawlMeister
+final public class LinkGrubber: CrawlMeister
 {
     private var whenDone:ReturnsCrawlResults?
     // this is where main calls in
@@ -80,7 +80,7 @@ final public class KrawlMaster: CrawlMeister
     }
 
     
-    public  func boot(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode, finally:@escaping ReturnsCrawlResults) throws{
+    public  func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode, finally:@escaping ReturnsCrawlResults) throws{
         self.whenDone = finally
         let fp = URL(string:opath)?.deletingPathExtension().absoluteString
         guard var fixedPath = fp else {fatalError("cant fix outpath")}

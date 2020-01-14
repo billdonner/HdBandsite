@@ -258,7 +258,12 @@ final class CrawlingMac {
     
     func onepageworth(pr:ParseResults)->() {
         //each page we hit gets scraped and incorporated
-        runman.custom.incorporateParseResults(pr: pr)
+        do {
+        try runman.custom.incorporateParseResults(pr: pr)
+        }
+        catch {
+            print("couldnt scrape onpageworth \(error)")
+        }
     }
     
     private func startMeUp(_ roots:[RootStart]) {

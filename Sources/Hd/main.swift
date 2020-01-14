@@ -8,38 +8,6 @@ import Plot
 let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content"
 
 // tweak
-
-    
-fileprivate func addBillsFavorites() {
- 
-    let links:[Fav] = [
-        Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"favorite of all time"),
-        Fav(name: "riders",url: "https://billdonner.com/foobly/riders.mp3",comment:"best of the year")
-    ]
-    
-    
-    createMarkDown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
-                   venue: "favorites",
-                   playdate: "123119",
-                   links:links)
-    
-    print("[crawler] adding Bills Favorites")
-}
-fileprivate func addBriansFavorites() {
-    let links = [
-        Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"not exactly my taste"),
-                 
-                 
-        Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"I like the drumming")
-    ]
-    
-    
-    createMarkDown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/",
-                   venue: "favorites",
-                   playdate: "123118",
-                   links:links)
-     print("[crawler] adding Brians Favorites")
-}
 func command_main() {
     
     func printUsage() {
@@ -85,6 +53,10 @@ func command_main() {
         printUsage()
         
     }
+    func allPublishingSteps () throws -> [PublishingStep<Hd>] {
+        return [try   PublishingStep<Hd>.makeTestPageStep(), try   PublishingStep<Hd>.makeMembersPageStep()]
+    }
+    
     
     var verbosity:LoggingLevel = .none
     var baseURL:URL? = nil
@@ -105,10 +77,10 @@ func command_main() {
         }
         
         switch subargs[0] {
-            case "c": exportMode = .csv
-            case "j": exportMode = .json
-            case "m": exportMode = .md
-            default: exitBadCommand(); exit(0)
+        case "c": exportMode = .csv
+        case "j": exportMode = .json
+        case "m": exportMode = .md
+        default: exitBadCommand(); exit(0)
         }
         
         if CommandLine.arguments.count > 4  {
@@ -119,32 +91,32 @@ func command_main() {
         guard let configurl = URL(string:CommandLine.arguments[2]) else  { exitBadCommand(); exit(0)  }
         
         do {
-            try  KrawlMaster().boot (name: opath.components(separatedBy: ".-").first ?? opath,
-                                                   baseURL:baseURL!,
-                                                   configURL:configurl,
-                                                   opath:opath,
-                                                   logLevel: verbosity,
-                                                   exportMode:exportMode)
+            try  LinkGrubber().grub (name: opath.components(separatedBy: ".-").first ?? opath,
+                                     baseURL:baseURL!,
+                                     configURL:configurl,
+                                     opath:opath,
+                                     logLevel: verbosity,
+                                     exportMode:exportMode)
             { crawlResults in
-                print("[crawler] scanned \(crawlResults.count1) pages,  \(String(format:"%5.2f",crawlResults.secsPerCycle*1000)) ms per page")
                 
-                addBillsFavorites()
-                 addBriansFavorites()
+                print("[crawler] linkgrubber scanned \(crawlResults.count1) pages,  \(String(format:"%5.2f",crawlResults.secsPerCycle*1000)) ms per page")
                 
-                let published_counts = crawlResults.count1 + 3
                 
                 // at this point we've plunked files into the designated directory
                 let start = Date()
                 
-                // This will generate your website using the built-in Foundation theme:
-                let additionalSteps:[PublishingStep<Hd>] =  [PublishingStep<Hd>.makeMembersPage(), 
-                                                             PublishingStep<Hd>.addDefaultSectionTitles()]
-                do {
-                try Hd().publish(withTheme: .hd,
-                                  additionalSteps:additionalSteps)
+                // generate the site with the Hd theme
                 
-                let elapsed = Date().timeIntervalSince(start) / Double(crawlResults.count1)
-                print("[crawler] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
+                do {
+                    
+                    try   PrePublishing.allPrePublishingSteps ()
+                    
+                    
+                    try Hd().publish(withTheme: .hd, additionalSteps: try allPublishingSteps())
+                    let published_counts = crawlResults.count1 + 4
+                    let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
+                    
+                    print("[crawler] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
                     
                 }
                 catch {
