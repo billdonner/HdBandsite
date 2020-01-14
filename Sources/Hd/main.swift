@@ -53,10 +53,7 @@ func command_main() {
         printUsage()
         
     }
-    func allPublishingSteps () throws -> [PublishingStep<Hd>] {
-        return [try   PublishingStep<Hd>.makeTestPageStep(), try   PublishingStep<Hd>.makeMembersPageStep()]
-    }
-    
+ 
     
     var verbosity:LoggingLevel = .none
     var baseURL:URL? = nil
@@ -112,7 +109,7 @@ func command_main() {
                     try   PrePublishing.allPrePublishingSteps ()
                     
                     
-                    try Hd().publish(withTheme: .hd, additionalSteps: try allPublishingSteps())
+                    try Hd().publish(withTheme: .hd, additionalSteps: try PublishingStep<Hd>.allsteps())
                     let published_counts = crawlResults.count1 + 4
                     let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
                     

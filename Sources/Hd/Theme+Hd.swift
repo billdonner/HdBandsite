@@ -23,7 +23,10 @@ extension Theme where Site == Hd {
 //MARK: - These pages are built with Plot and then AddPage
 
 extension PublishingStep where Site == Hd {
+    static func allsteps () throws -> [PublishingStep<Hd>] {
+     return [try makeTestPageStep(), try makeMembersPageStep(),addSectionTitlesStep()]
     
+    }
 
     static func makeTestPageStep ( ) throws -> Self {
         return PublishingStep<Hd>.addPage(Page(path:"/test",

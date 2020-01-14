@@ -16,7 +16,7 @@ struct PrePublishing{
         try addBillsFavorites()
         try addBriansFavorites()
     }
-    private func addBillsFavorites() throws {
+    static private func addBillsFavorites() throws {
         
         let links:[Fav] = [
             Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"favorite of all time"),
@@ -31,7 +31,7 @@ struct PrePublishing{
         
         print("[crawler] adding Bills Favorites")
     }
-    private func addBriansFavorites() throws{
+    static private func addBriansFavorites() throws{
         let links = [
             Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"not exactly my taste"),
             
