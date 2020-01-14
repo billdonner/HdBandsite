@@ -50,7 +50,7 @@ public struct CrawlerStatsBlock:Codable {
     var count2: Int
     var status: Int
 }
-public protocol CrawlMeister {
+protocol CrawlMeister {
     func boot(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode,finally:@escaping ReturnsCrawlResults) throws -> (Void)
 }
 
@@ -58,7 +58,7 @@ public protocol CrawlMeister {
 
 
 // freestanding
- var LibraryDirectoryURL:URL {
+var LibraryDirectoryURL:URL {
     return  URL(fileURLWithPath:  NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0] as String )//+ "/" + "_export")// distinguish
 }
 var ExportDirectoryURL:URL {
@@ -92,7 +92,7 @@ func safeError(error:Error) -> String {
 }
 
 
- func makesafe(error:Error) -> String {
+func makesafe(error:Error) -> String {
     let matcher = """
 "
 """.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -113,33 +113,33 @@ func decomposePlayDate(_ playdate:String) -> (String,String,String) { // month d
     return (String(year),String(month),String(day))
 }
 
-public  struct LocalFilePath {
+struct LocalFilePath {
     private(set) var p : String
-    public var path :String {
+    var path :String {
         return p//url.absoluteString
     }
-    public  init(_ p:String){
+    init(_ p:String){
         self.p = p
     }
 }
-public struct URLFromString :Hashable {
-    public let  string : String
-    public let  url: URL?
+struct URLFromString :Hashable {
+    let  string : String
+    let  url: URL?
     
-    public init(_ s:String ) {
+    init(_ s:String ) {
         self.string = s
         self.url = URL(string:s)
     }
     
 }
- 
- protocol Configable:class, Decodable {
+
+protocol Configable:class, Decodable {
     var baseurlstr:String? {get set}
     var comment:String {get set}
     func load (url:URL? ) -> ([RootStart],ReportParams)
 }
 
- protocol BigMachineRunner {
+protocol BigMachineRunner {
     var config:Configable {get set}
     var outputFilePath:LocalFilePath {get set}
     var exportMode:ExportMode  {get set}
@@ -148,24 +148,24 @@ public struct URLFromString :Hashable {
     var crawlStats:CrawlStats {get set}
 }
 
-public struct  RootStart : Codable  {
-    public let name: String
-    public let technique:ParseTechnique
-    public let urlstr: String
+struct  RootStart : Codable  {
+    let name: String
+    let technique:ParseTechnique
+    let urlstr: String
     
-    public init(name:String, urlstr:String, technique: ParseTechnique = .passThru){ //, baseurlstr:String?) {
+    init(name:String, urlstr:String, technique: ParseTechnique = .passThru){ //, baseurlstr:String?) {
         self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         self.technique = technique; self.urlstr = urlstr;//self.baseurlstr = baseurlstr
     }
 }
 
-public enum OutputType: String {
+enum OutputType: String {
     case csv = "csv"
     case json = "json"
     case text = "text"
     case unknown
     
-    public init(value: String) {
+    init(value: String) {
         switch value {
         case "csv": self = .csv
         case "json": self = .json
@@ -174,31 +174,32 @@ public enum OutputType: String {
         }
     }
 }
-public struct ReportParams {
-    public var style:ExportMode
-    public var reportTitle:String
-    public var outputFilePath:String
-    public var traceFilePath:String
-    public init(r:String = "reportTitle",
-                o:String =  "outputFilePath",
-                f:ExportMode = ExportMode.csv ,
-                t:String = "traceFilePath") {
+struct ReportParams {
+    var style:ExportMode
+    var reportTitle:String
+    var outputFilePath:String
+    var traceFilePath:String
+    
+    init(r:String = "reportTitle",
+         o:String =  "outputFilePath",
+         f:ExportMode = ExportMode.csv ,
+         t:String = "traceFilePath") {
         reportTitle = r
         outputFilePath = o
         style = f
         traceFilePath = t
     }
-    public static func mock()->ReportParams {
+    static func mock()->ReportParams {
         return ReportParams()
     }
 }
 //from apple via khanalou - i improved this to add an exclusive task segment before going to the concurrent queue
-public final class LimitedWorker {
+final class LimitedWorker {
     private let serialQueue = DispatchQueue(label: "com.midnightrambler.serial.queue")
     private let concurrentQueue = DispatchQueue(label: "com.midnightrambler.concurrent.queue", attributes: .concurrent)
     private let semaphore: DispatchSemaphore
     
-    public init(limit: Int) {
+    init(limit: Int) {
         semaphore = DispatchSemaphore(value: limit)
     }
     
@@ -228,7 +229,7 @@ private enum ScrapeTechnique {
     case kannaLinksAndElementsCSS
     case kannaLinksAndElementsPath
 }
-public enum ParseTechnique :String, Codable {
+enum ParseTechnique :String, Codable {
     case passThru
     case parseTop
     case parseLeaf
@@ -251,22 +252,22 @@ public enum ParseTechnique :String, Codable {
 
 // scraping is not  Specific to any 3rd party libraries, custom scraping in the custom package
 //public only for testing
-public typealias PageScraperFunc = (ParseTechnique,URL,URL?,String)->ParseResults?
+typealias PageScraperFunc = (ParseTechnique,URL,URL?,String)->ParseResults?
 public typealias Crowdable = (Codable)
 
 typealias TraceFuncSig =  (String,String?,Bool,Bool) -> ()
 
-public enum Linktype {
+enum Linktype {
     case leaf
     case hyperlink
 }
 
-public  struct LinkElement  {
-    public let title: String
-    public let href: URL?
-    public let linktype: Linktype
+struct LinkElement  {
+    let title: String
+    let href: URL?
+    let linktype: Linktype
     
-    public var urlstr: String {
+    var urlstr: String {
         if let url = href {
             return url.absoluteString
         }
@@ -275,39 +276,39 @@ public  struct LinkElement  {
         }
     }
     // when a LinkElement is creted, it tries to make a url from the supplied string
-    public init(title:String,href:String,linktype:Linktype,relativeTo:URL?) {
+    init(title:String,href:String,linktype:Linktype,relativeTo:URL?) {
         self.title = title; self.href=URL(string:href,relativeTo:relativeTo); self.linktype=linktype
     }
 }
-public enum ParseStatus:Equatable  {
+enum ParseStatus:Equatable  {
     case failed(code:Int)
     case succeeded
 }
-public struct Props : Codable,Hashable {
-    public let key: String
-    public let value: String
-    public init(key:String,value:String) {
+struct Props : Codable,Hashable {
+    let key: String
+    let value: String
+    init(key:String,value:String) {
         self.key = key
         self.value = value
     }
 }
-public struct ParseResults {
-    public  let url : URL?
-    public let baseurl: URL?
-    public  let technique : ParseTechnique
-    public  let status : ParseStatus
+struct ParseResults {
+    let url : URL?
+    let baseurl: URL?
+    let technique : ParseTechnique
+    let status : ParseStatus
     
-    public  let pagetitle: String
-    public  let links :  [LinkElement]
-    public  let props : [Props]
-    public  let tags : [String]
-    public init(url:URL?,baseurl:URL?,
-                technique:ParseTechnique,
-                status:ParseStatus,
-                pagetitle:String,
-                links:[LinkElement],
-                props:[Props],
-                tags:[String]) {
+    let pagetitle: String
+    let links :  [LinkElement]
+    let props : [Props]
+    let tags : [String]
+    init(url:URL?,baseurl:URL?,
+         technique:ParseTechnique,
+         status:ParseStatus,
+         pagetitle:String,
+         links:[LinkElement],
+         props:[Props],
+         tags:[String]) {
         
         self.url = url
         self.baseurl = baseurl
@@ -345,8 +346,8 @@ struct TestResultsBlock:Codable {
     var crawlerStarted: String =  ""
     
 }
-public  func exitWith( _ code:Int, error:Error) {
-
+func exitWith( _ code:Int, error:Error) {
+    
     func emitResultsAsTrace(_ fb: TestResultsBlock){//}, _ trace: TraceFuncSig) {
         // convert to json and put the whole chunk out
         do {
@@ -362,7 +363,7 @@ public  func exitWith( _ code:Int, error:Error) {
             print("Could  not encode fullparseblock ", error)
         }
     }
-
+    
     
     var trb = TestResultsBlock()
     trb.status = code

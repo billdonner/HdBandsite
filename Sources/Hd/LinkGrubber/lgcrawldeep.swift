@@ -235,7 +235,7 @@ extension InnerCrawler {
 }
 
 // public for testing only hmm
-public final class CrawlingMac {
+final class CrawlingMac {
     private var returnsCrawlResults:ReturnsCrawlResults
     private var reportParams : ReportParams
     private var runman : BigMachineRunner
@@ -315,7 +315,7 @@ public final class CrawlingMac {
 // public only for testing
  final class ScrapingMachine:NSObject {
     private var scraperx:PageScraperFunc
-    public init(scraper:@escaping PageScraperFunc) {
+ init(scraper:@escaping PageScraperFunc) {
         self.scraperx = scraper
         super.init()
     }

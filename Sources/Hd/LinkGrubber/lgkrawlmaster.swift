@@ -12,8 +12,7 @@ final public class KrawlMaster: CrawlMeister
     private var whenDone:ReturnsCrawlResults?
     // this is where main calls in
    class KrawlingBeast {
-        
-        public init(
+          init(
             // context:Crowdable,
             runman:BigMachineRunner,
             baseURL: URL ,
@@ -41,13 +40,13 @@ final public class KrawlMaster: CrawlMeister
         public var config: Configable
         // all of these variables are rquired by RunManager Protocol
         private   var recordExporter: SingleRecordExporter!
-        public   var outputFilePath:LocalFilePath
-        public   var exportMode:ExportMode
-        public   var logLevel:LoggingLevel
-        public   var custom:BigMachinery
-        public   var crawlStats:CrawlStats
+         var outputFilePath:LocalFilePath
+         var exportMode:ExportMode
+         var logLevel:LoggingLevel
+       var custom:BigMachinery
+        var crawlStats:CrawlStats
         
-        required public init (config:Configable, custom:BigMachinery, outputFilePath:LocalFilePath, exportMode:ExportMode,logLevel:LoggingLevel) {
+        required   init (config:Configable, custom:BigMachinery, outputFilePath:LocalFilePath, exportMode:ExportMode,logLevel:LoggingLevel) {
             self.outputFilePath = outputFilePath
             self.exportMode = exportMode
             self.custom = custom
