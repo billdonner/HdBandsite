@@ -9,12 +9,6 @@ let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content"
 
 // tweak
 
-public struct Fav {
-    let name: String
-    let url: String
-    let comment: String
-}
-    
     
 fileprivate func addBillsFavorites() {
  

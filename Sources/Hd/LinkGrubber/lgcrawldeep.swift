@@ -7,10 +7,12 @@
 
 import Foundation
 
-// public, inner
-//public
-
-// public only for testing
+public struct Fav {
+    let name: String
+    let url: String
+    let comment: String
+}
+    
 final class CrawlTable {
     init() {
     }

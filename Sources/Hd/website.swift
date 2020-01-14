@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Website.swift
 //  
 //
 //  Created by william donner on 1/10/20.
@@ -8,6 +8,7 @@
 import Foundation
 import Publish
 import Plot
+import Kanna
 
 // This type acts as the configuration for your website.
 
@@ -129,85 +130,48 @@ extension PublishingStep where Site == Hd {
         )
     }
 }
-//extension PublishingStep where Site == Hd {
-//    static  func makeBookUsPage()->PublishingStep<Hd> {
-//        
-//        let html = HTML(.body(
-//            .img(.src("/images/roseslogo.png"),.class("image"),.alt("ABHD LOGO")),
-//            .form(
-//                .action("mailto:bildonner@gmail.com"),
-//                
-//                .h2( "Hire Us"),
-//                
-//                .p("We Don't Play For Free"),
-//                
-//                .fieldset(
-//                    .label(.for("name"), "Name"),
-//                    .input(.name("name"), .type(.text), .autofocus(false), .required(true))
-//                ),
-//                .fieldset(
-//                    .label(.for("email"), "Email"),
-//                    .input(.name("email"), .type(.email), .autocomplete(true), .required(true)),
-//                    .textarea(.name("comments"), .cols(50), .rows(10), .required(false), .text("Tell us about your party"))
-//                ),
-//                
-//                .input(.type(.submit), .value("Send")),
-//                .input(.type(.reset), .value("Clear"))
-//            )
-//            ))
-//        let   b = html.render(indentedBy: .tabs(1))
-//        
-//        return   PublishingStep<Hd>.addItem(Item(
-//            path: "Book ABHD",
-//            sectionID: .about, metadata: Hd.ItemMetadata(),
-//            //            metadata: Hd.ItemMetadata(
-//            //                players: ["XBill","Mark","Marty","Anthony","Brian"],
-//            //                flotsam: 10 * 60
-//            //            ),
-//            tags: ["favorite", "featured"],
-//            content: Content(
-//                title: "Book Us For Your Next Party",
-//                description:"Book Us For Your Next Party, we play all over Westchester",
-//                body:"""
-//                \(b)
-//                """
-//            )
-//            )
-//        )
-//    }
-//}
-////        let _ =  """
-////                    <img src="/images/roseslogo.png">
-////                    <h2>Hire Us</h2>
-////                    <form action="mailto:bildonner@gmail.com" method="get" enctype="text/plain">
-////                      <p>Name: <input type="text" name="name"/></p>
-////                      <p>Email: <input type="text" name="email"/></p>
-////                      <p>Comments:
-////                        <br />
-////                        <textarea name="comments" rows = "12" cols = "35">Tell Us About Your Party</textarea>
-////                        <br>
-////                      <p><input type="submit" name="submit" value="Send" />
-////                        <input type="reset" name="reset" value="Clear Form" />
-////                      </p>
-////                    </form>
-////    """
-//
-//        let p = Page(path:"/foo",content:Content(
-//            title: "About Us",
-//            description:"Members of the Band",
-//            body:"""
-//        \(bod)
-//""")
-//        )
-//        return PublishingStep<Hd>.addPage(p)
 
-
-
-//
-//        let html = HTML(.comment("We Need Contributions From Band Members"),
-//                        .head(.style("header nav a { color: #cb3018; padding: 10px 10px; }; dd {font-size:.6em}"),
-//                                     .title("ABHD Members"),
-//                                     .description("We can play cover tunes and jam tunes"),
-//                                     .socialImageLink("/images/roseslogo.png"),
-//                                     .twitterCardType(.summaryLargeImage),
-//
+//MARK: - pass thru the music and art files, only
+extension Transformer {
+    func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
+        if let lk = href, //link["href"] ,
+            let url = URL(string:lk,relativeTo:relativeTo) {
+            let pextension = url.pathExtension.lowercased()
+            let hasextension = pextension.count > 0
+            let linktype:Linktype = hasextension == false ? .hyperlink:.leaf
+            guard url.absoluteString.hasPrefix(relativeTo!.absoluteString) else {
+                return
+            }
+            
+            if hasextension {
+                guard pextension == "mp3" || pextension == "wav" || pextension == "jpg" || pextension == "jpeg" || pextension == "png" ||  pextension == "md" else {
+                    return
+                }
+                if pextension == "jpg" || pextension == "jpeg" || pextension == "png" || pextension == "md"  {
+                    print("Processing \(pextension) file from \(url)")
+                }
+            } else
+            {
+                //  print("no ext: ", url)
+            }
+            
+            // strip exension if any off the title
+            let parts = (txt ?? "fail").components(separatedBy: ".")
+            if let ext  = parts.last,  let front = parts.first , ext.count > 0
+            {
+                let subparts = front.components(separatedBy: "-")
+                if let titl = subparts.last {
+                    let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
+                    links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+                }
+                
+            } else {
+                // this is what happens upstream
+                if  let txt  = txt  {
+                links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+                }
+                
+            }
+        }
+    }// end of absorbLink
+}

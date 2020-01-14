@@ -12,9 +12,13 @@
 
 body {
     background: #FAFEEC;
-    color: #239C65;
-    font-family: "San Francisco", "Tahoma", "Times New Roman";
-    text-align: center;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 16px;
+    line-height: 1.5;
+    word-wrap: break-word;
 }
 
 .wrapper {
@@ -24,7 +28,17 @@ body {
     padding: 40px;
     text-align: left;
 }
-
+.modest {
+       margin: 0 0 0 20px;
+}
+audio {
+    margin: 0 0 0 10px;
+    background: #B80808;
+}
+figcaption {
+    margin-bottom: 5px;
+    background: #B80808;
+}
 header {
     background-color: #FA5A6E;
 }

@@ -103,6 +103,16 @@ func safeError(error:Error) -> String {
     
 }
 
+func decomposePlayDate(_ playdate:String) -> (String,String,String) { // month day year ==> year month day
+    let month = playdate.prefix(2)
+    let year = playdate.suffix(2)
+    let start = playdate.index(playdate.startIndex, offsetBy: 2)
+    let end = playdate.index(playdate.endIndex, offsetBy: -2)
+    let range = start..<end
+    let day = playdate[range]
+    return (String(year),String(month),String(day))
+}
+
 public  struct LocalFilePath {
     private(set) var p : String
     public var path :String {
