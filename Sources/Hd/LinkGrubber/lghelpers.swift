@@ -47,7 +47,7 @@ final class SingleRecordExporter {
         switch exportMode {
         case .csv:
             
-            emitToOutputStream(rg.custom.makeheader())
+            emitToOutputStream(rg.custom.makecsvheader())
             
             
         case .json:
@@ -65,7 +65,7 @@ final class SingleRecordExporter {
         switch exportMode {
             
         case .csv:
-            if let trailer = rg.custom.maketrailer() {
+            if let trailer = rg.custom.mskecsvtrailer() {
                 emitToOutputStream(trailer)
             }
         case .json:
@@ -80,11 +80,11 @@ final class SingleRecordExporter {
         switch exportMode {
             
         case .csv:
-            let stuff = rg.custom.makerow( )
+            let stuff = rg.custom.makecsvrow( )
             emitToOutputStream(stuff)
             
         case .json:
-            let stuff = rg.custom.makerow( )
+            let stuff = rg.custom.makecsvrow( )
             let parts = stuff.components(separatedBy: ",")
             if first {
                 emitToOutputStream("""

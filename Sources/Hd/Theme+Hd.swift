@@ -233,9 +233,7 @@ private struct HdHTMLFactory: HTMLFactory {
                         .class("all-tags"),
                         .forEach(page.tags.sorted()) { tag in
                             .li(
-                                .class("tag"),
-                                .a(
-                                    .href(context.site.path(for: tag)),
+                                .class("tag"),  .a(.href(context.site.path(for: tag)),
                                     .text(tag.string)
                                 )
                             )
@@ -274,94 +272,6 @@ private struct HdHTMLFactory: HTMLFactory {
                     )
                 ),
                 .footer(for: context.site)
-            )
-        )
-    }
-}
-
-private extension Node where Context == HTML.BodyContext {
-    static func wrapper(_ nodes: Node...) -> Node {
-        .div(.class("wrapper"), .group(nodes))
-    }
-    
-    static func header<T: Website>(
-        for context: PublishingContext<T>,
-        selectedSection: T.SectionID?
-    ) -> Node {
-        let sectionIDs = T.SectionID.allCases
-        
-        return .header(
-            .wrapper(
-                .a(.class("site-name"), .href("/"), .text(context.site.name)),
-                .if(sectionIDs.count > 1,
-                    .nav(
-                        .ul(
-                            .li(.a(
-                                .href("/tags"),
-                                .text("Tags"))),
-                            .li(.a(
-                                .href("/specialpages"),
-                                .text("Favorites"))),
-                            .li(.a(
-                                .href("/about"),
-                                .text("Contact"))),
-                            .li(.a(
-                                .href("/audiosessions"),
-                                .text("Audio")))
-                            
-                        )
-                    )
-                )// if
-            )//wrapper
-        )
-    }
-    
-    static func itemList<T: Website>(for items: [Item<T>], on site: T) -> Node {
-        return .div(//.p(.text("itemlist preamble")),
-            .ul(
-                .class("item-list"),
-                .forEach(items) { item in
-                    .li(.article(
-                        .h1(.a(
-                            .href(item.path),
-                            .text(item.title)
-                            )),
-                        .tagList(for: item, on: site),
-                        .p(.text(item.description))
-                        ))
-                    
-                }
-            )
-        )
-    }
-    
-    static func tagList<T: Website>(for item: Item<T>, on site: T) -> Node {
-        return .div(//.p(.text("taglist preamble")),
-            .ul(.class("tag-list"), .forEach(item.tags) { tag in
-                .li(.a(
-                    .href(site.path(for: tag)),
-                    .text(tag.string)
-                    ))
-                }))
-    }
-    
-    static func footer<T: Website>(for site: T) -> Node {
-        let now = "\(Date())".dropLast(9)
-        return .footer(
-            .p(
-                .text("Generated using "),
-                .a(
-                    .text("Publish"),
-                    .href("https://github.com/johnsundell/publish")
-                ),
-                .text(" and "),
-                .a( .text("LinkGrubber"),
-                    .href("https://github.com/johnsundell/publish")
-                ),
-                
-                .p(.a(
-                    .text("last updated \(now)")
-                    ))
             )
         )
     }

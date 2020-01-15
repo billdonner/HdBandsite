@@ -22,9 +22,9 @@ public enum PublishingMode {
  protocol BigMachinery : class  {
     var runman: BigMachineRunner! { get set }
     var recordExporter : SingleRecordExporter!{ get set }
-    func makerow() -> String
-    func makeheader()->String
-    func maketrailer()->String?
+    func makecsvrow() -> String
+    func makecsvheader()->String
+    func mskecsvtrailer()->String?
     
    // var context : Crowdable!{ get set }
     func setupController(runman: BigMachineRunner,// context  :Crowdable,
