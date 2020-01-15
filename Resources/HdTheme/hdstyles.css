@@ -20,7 +20,10 @@ body {
     line-height: 1.5;
     word-wrap: break-word;
 }
-
+ img .img300 {
+    max-width: 300px;
+     width: 300px;
+}
 .wrapper {
     max-width: 900px;
     margin-left: auto;

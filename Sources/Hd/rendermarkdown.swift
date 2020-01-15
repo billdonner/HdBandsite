@@ -6,7 +6,10 @@
 //
 
 import Foundation
+import Plot
 import Kanna
+
+
 func cleanOuputs(outpath:String) {
     do {
         // clear the output directory
@@ -26,7 +29,20 @@ func cleanOuputs(outpath:String) {
     }
     catch {print("[crawler] Could not clean outputs \(error)")}
 }
-  
+public extension Node where Context: HTML.BodyContext {
+  /// Add a `<code>` HTML element within the current context.
+  /// - parameter nodes: The element's attributes and child elements.
+  static func figure(_ nodes: Node<HTML.BodyContext>...) -> Node {
+      .element(named: "figure", nodes: nodes)
+  }
+    /// Add a `<h3>` HTML element within the current context.
+    /// - parameter nodes: The element's attributes and child elements.
+    static func figcaption(_ nodes: Node<HTML.BodyContext>...) -> Node {
+        .element(named: "figcaption", nodes: nodes)
+    }
+}
+
+
 extension Hd {
     // generate markdown in a variety of formats as needed
     
@@ -34,11 +50,11 @@ extension Hd {
     // date: 2020-01-05 17:42
     
     struct ImagesAndMarkdown {
-        let images: String
+        let images: [String]
         let markdown: String
     }
     private  static func generateHTMLFromRemoteDirectoryAssets(links:[Fav]) -> ImagesAndMarkdown {
-        var imagesbuf = ""
+        var images: [String] = []
         var pmdbuf = "\n"
         for(_,alink) in links.enumerated() {
             let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
@@ -55,36 +71,37 @@ extension Hd {
             } else
                 if (pext=="jpg" || pext=="jpeg" || pext=="png"){
                     // if its an image just accumulate them in a gallery
-                    imagesbuf += "<img src='\(alink.url)' width='300' />"
+             
+                    images.append(alink.url)
             }
         }
-        if imagesbuf=="" { imagesbuf = "<img src='/images/abhdlogo300.png' />" }
-        return ImagesAndMarkdown(images:imagesbuf,markdown:pmdbuf)
+        if images.count == 0  {
+            images.append( "/images/abhdlogo300.png")
+            
+        }
+        return ImagesAndMarkdown(images:images,markdown:pmdbuf)
+    }
+    static func buildAudioBlock(idx:Int,alink:Fav)->String {
+        let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
+            if (pext=="mp3" || pext=="wav"){
+                let div = Node.div(
+                    .h2("\(String(format:"%02d",idx+1))    \(alink.name)"),
+                    .figure(
+                        .figcaption(.text(alink.comment)),
+                        .audio(.controls(true), .source(.src(alink.url), .type((pext == "mp3") ? .mp3:.wav))))
+                )
+                return  div.render()
+        }
+            else {
+             return    ""
+        }
     }
     
-    
     private static func generateAudioHTMLFromRemoteDirectoryAssets(links:[Fav]) -> String {
-        
-        var outbuf = """
-       <br/>
-        
-"""
+        var outbuf = ""
         for(idx,alink) in links.enumerated() {
-            
-            let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
-            if (pext=="mp3" || pext=="wav"){
-                let htype = (pext == "mp3") ? "audio/mpeg" : "audio/wav"
-                outbuf += """
-                \n<h2> \(String(format:"%02d",idx+1))    \(alink.name)</h2>
-                <figure>
-                <figcaption> \(alink.comment) </figcaption>
-                <audio  controls>
-                <source src="\(alink.url)" type="\(htype)"/>
-                </audio>
-                </figure>
-                
-                """
-            }}
+            outbuf += buildAudioBlock(idx: idx,alink: alink)
+            }
         return outbuf
     }
 }
@@ -92,7 +109,7 @@ extension Hd {
 
 extension Hd {
     
-    private static  func generateTopMdHTML(title:String, venue:String,playdate:String,tags:[String] ,links:[Fav])->String {
+    private static  func generateAudioTopMdHTML(title:String,u sourceurl:URL, venue:String,playdate:String,tags:[String] ,links:[Fav])->String {
         
         let tagstring = tags.joined(separator: ",")
         
@@ -108,32 +125,34 @@ extension Hd {
         let cookie = get_fortune_cookie()
         let immd = Self.generateHTMLFromRemoteDirectoryAssets(links:links)
         let ellipsis = immd.markdown.count>500 ? "..." : ""
+        
+        let div = Node.div(
+            .img(.src("\(immd.images[0])"), .class("img300"),
+                 .alt("\(immd.markdown.prefix(50))")),
+            .h4 ( .i ("\(cookie)")),
+            .p("\(immd.markdown)")
+        )
+    
+ 
         let top = """
         
         ---
+        sourceurl: \(sourceurl.absoluteString)
         venue: \(venue)
         description: \(venue) \(x) \(immd.markdown.prefix(500))\(ellipsis)
         tags: \(tagstring)
-        
-        
         ---
         
-        # \(title)
+# \(title)
         
-        <div class="modest">
-        \(immd.images)
-        </div>
-        <div class="modest">
-        <h4><i>\(cookie)</i></h4>
-        </div>
-        \(immd.markdown)
+    \(div.render())
         
-        """
+"""
         
         return top
     }
     
-    static func generateAudioMarkdownPage(_ s:String,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
+    static func generateAudioMarkdownPage(_ s:String,u:URL,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
                                           exportMode:ExportMode = .md,
                                           mode:PublishingMode )->String {
         switch exportMode {
@@ -147,7 +166,7 @@ extension Hd {
                 newtags.append("favorite")
             }
 
-            return Self.generateTopMdHTML(title:s,venue:venue,playdate:playdate,tags:newtags,links:links)
+            return Self.generateAudioTopMdHTML(title:s,u:u,venue:venue,playdate:playdate,tags:newtags,links:links)
                 + "\n\n\n\n"
                 + Self.generateAudioHTMLFromRemoteDirectoryAssets(links: links)
             
@@ -178,7 +197,7 @@ func makeAudioListMarkdown(mode:PublishingMode,
         return nil
     }
     
-    func makeAndWriteMdFile(_ title:String) throws {
+    func makeAndWriteMdFile(_ title:String,u:URL) throws {
         var moretags:Set<String>=[]
         for link in links {
             if  let bonustag = checkForBonusTags(name: link.name )  {
@@ -188,7 +207,17 @@ func makeAudioListMarkdown(mode:PublishingMode,
         if links.count == 0 { print("[crawler] no links for \(title) - check your music tree") }
         else {
             
+            var spec: String
+                 switch  mode {
+                 case  .fromPublish :
+                     spec =  "\(crawlerMarkDownOutputPath)/audiosessions/\(venue)\(playdate).md"
+                 case  .fromWithin :
+                     spec =  "\(crawlerMarkDownOutputPath)/specialpages/\(title).md"
+                     
+                 }
+            
             let stuff = Hd.generateAudioMarkdownPage(title,
+                                                     u:u,
                                                      venue: venue ,
                                                      playdate:playdate,
                                                      tags:Array(moretags)
@@ -197,21 +226,9 @@ func makeAudioListMarkdown(mode:PublishingMode,
                                                      mode:mode)
             
             let markdownData: Data? = stuff.data(using: .utf8)
-            // create md file with temp
-            //session\(String(format:"%011d",mdseqnum)
-           // do {
-                var spec: String
-                switch  mode {
-                case  .fromPublish :
-                    spec =  "\(crawlerMarkDownOutputPath)/audiosessions/\(venue)\(playdate).md"
-                case  .fromWithin :
-                    spec =  "\(crawlerMarkDownOutputPath)/specialpages/\(title).md"
-                    
-                }
+ 
                 try markdownData!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))
-//            } catch {
-//                print("Cant write file \(error)")
-//            }
+ 
         }
     }
     
@@ -245,7 +262,7 @@ func makeAudioListMarkdown(mode:PublishingMode,
         banner =  parts[3]
     }
     // we actually dont care for the filename, it is autogenerated
-   try makeAndWriteMdFile(banner)
+    try makeAndWriteMdFile(banner,u: u)
     
 }
 
@@ -418,3 +435,12 @@ final class Transformer:NSObject,BigMachinery{
     }
 }
 
+//               let foo = """
+//                \n<h2> \(String(format:"%02d",idx+1))    \(alink.name)</h2>
+//                <figure>
+//                <figcaption> \(alink.comment) </figcaption>
+//                <audio  controls>
+//                <source src="\(alink.url)" type="\(htype)"/>
+//                </audio>
+//                </figure>
+//                """

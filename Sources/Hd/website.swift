@@ -26,6 +26,7 @@ struct Hd: Website {
         // var flotsam : TimeInterval = 0
         //var venue: String?
         //var date: String?
+        var sourceurl: String?
     }
     
     // Update these properties to configure your website:

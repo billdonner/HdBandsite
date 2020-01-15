@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Theme+Hd.swift
 //  
 //
 //  Created by william donner on 1/13/20.
@@ -25,9 +25,7 @@ extension Theme where Site == Hd {
 extension PublishingStep where Site == Hd {
     static func allsteps () throws -> [PublishingStep<Hd>] {
      return [try makeTestPageStep(), try makeMembersPageStep(),addSectionTitlesStep()]
-    
     }
-
     static func makeTestPageStep ( ) throws -> Self {
         return PublishingStep<Hd>.addPage(Page(path:"/test",
                                                content: Content(title:"test test", description:"this is just a test" )))
@@ -43,11 +41,11 @@ extension PublishingStep where Site == Hd {
                     
                     switch section.id {
                     case .audiosessions:
-                        section.title = "Audio"
+                        section.title = "Everything Ever Played"
                     case .specialpages:
-                        section.title = "Favorites"
+                        section.title = "Our Hand-Picked Favorites"
                     case .about:
-                        section.title = "About"
+                        section.title = "About the Band"
                         
                     }
                 }
