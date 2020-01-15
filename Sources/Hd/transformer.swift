@@ -8,7 +8,8 @@
 import Foundation
 import Kanna
 
-
+let letters = CharacterSet.letters
+let digits = CharacterSet.decimalDigits
 fileprivate func cleanOuputs(outpath:String) {
     do {
         // clear the output directory
@@ -51,8 +52,7 @@ fileprivate func pickapart(_ phrase:String) -> Shredded {
 
 final class Transformer:NSObject,BigMachinery{
     
-    let letters = CharacterSet.letters
-    let digits = CharacterSet.decimalDigits
+
     
     
     var runman : BigMachineRunner!
@@ -63,6 +63,33 @@ final class Transformer:NSObject,BigMachinery{
     var firstTime = true
     var coverArtUrl : String?
     var artist : String
+    
+    
+    func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
+        if let lk = href, //link["href"] ,
+            let url = URL(string:lk,relativeTo:relativeTo) ,
+            
+            let linktype = processExtension(url:url, relativeTo: relativeTo) {
+            
+            // strip exension if any off the title
+            let parts = (txt ?? "fail").components(separatedBy: ".")
+            if let ext  = parts.last,  let front = parts.first , ext.count > 0
+            {
+                let subparts = front.components(separatedBy: "-")
+                if let titl = subparts.last {
+                    let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
+                    links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+                }
+                
+            } else {
+                // this is what happens upstream
+                if  let txt  = txt  {
+                    links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
+                }
+                
+            }
+        }
+    }// end of absorbLink
     
     func makecsvheader( ) -> String {
         return  "Name,Artist,Album,SongURL,AlbumURL,CoverArtURL"

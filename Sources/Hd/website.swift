@@ -42,51 +42,29 @@ struct Hd: Website {
     static let crawlerKeyTags:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
 }
 
-
-
-
-
 //MARK: - pass thru the music and art files, only
 extension Transformer {
-    func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
-        if let lk = href, //link["href"] ,
-            let url = URL(string:lk,relativeTo:relativeTo) {
-            let pextension = url.pathExtension.lowercased()
-            let hasextension = pextension.count > 0
-            let linktype:Linktype = hasextension == false ? .hyperlink:.leaf
-            guard url.absoluteString.hasPrefix(relativeTo!.absoluteString) else {
-                return
-            }
-            
-            if hasextension {
-                guard pextension == "mp3" || pextension == "wav" || pextension == "jpg" || pextension == "jpeg" || pextension == "png" ||  pextension == "md" else {
-                    return
-                }
-                if pextension == "jpg" || pextension == "jpeg" || pextension == "png" || pextension == "md"  {
-                    print("Processing \(pextension) file from \(url)")
-                }
-            } else
-            {
-                //  print("no ext: ", url)
-            }
-            
-            // strip exension if any off the title
-            let parts = (txt ?? "fail").components(separatedBy: ".")
-            if let ext  = parts.last,  let front = parts.first , ext.count > 0
-            {
-                let subparts = front.components(separatedBy: "-")
-                if let titl = subparts.last {
-                    let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
-                    links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-                }
-                
-            } else {
-                // this is what happens upstream
-                if  let txt  = txt  {
-                links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
-                }
-                
-            }
+    func processExtension(url:URL,relativeTo:URL?) ->Linktype?{
+        let pextension = url.pathExtension.lowercased()
+        let hasextension = pextension.count > 0
+        let linktype:Linktype = hasextension == false ? .hyperlink:.leaf
+        guard url.absoluteString.hasPrefix(relativeTo!.absoluteString) else {
+            return nil
         }
-    }// end of absorbLink
+        
+        if hasextension {
+            guard pextension == "mp3" || pextension == "wav" || pextension == "jpg" || pextension == "jpeg" || pextension == "png" ||  pextension == "md" else {
+                return nil
+            }
+            if pextension == "jpg" || pextension == "jpeg" || pextension == "png" || pextension == "md"  {
+                print("Processing \(pextension) file from \(url)")
+            }
+        } else
+        {
+            //  print("no ext: ", url)
+        }
+        return linktype
+    }
+    
+    
 }
