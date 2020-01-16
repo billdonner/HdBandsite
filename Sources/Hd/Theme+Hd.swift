@@ -87,18 +87,21 @@ extension HdHTMLFactory {
                             .dt("Marty"),
                             .dd("Bass")
                             ))),
+                    .h2( "Hire Us"),
+                    .p("We Don't Play For Free"),
                     .form(
                         .action("mailto:bildonner@gmail.com"),
-                        .h2( "Hire Us"),
-                        .p("We Don't Play For Free"),
+                 
                         .fieldset(
                             .label(.for("name"), "Name"),
                             .input(.name("name"), .type(.text), .autofocus(false), .required(true))
                         ),
                         .fieldset(
                             .label(.for("email"), "Email"),
-                            .input(.name("email"), .type(.email), .autocomplete(true), .required(true)),
-                            .textarea(.name("comments"), .cols(50), .rows(10), .required(false), .text("Tell us about your party"))
+                            .input(.name("email"), .type(.email), .autocomplete(true), .required(true))),
+                        .fieldset(
+                            .label(.for("comments"), "Comments"),
+                            .input(.name("comments"), .type(.text) )
                         ),
                         .input(.type(.submit), .value("Send")),
                         .input(.type(.reset), .value("Clear"))

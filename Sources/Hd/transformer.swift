@@ -50,7 +50,6 @@ final class Transformer:NSObject,BigMachinery{
     func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
         if let lk = href, //link["href"] ,
             let url = URL(string:lk,relativeTo:relativeTo) ,
-            
             let linktype = processExtension(url:url, relativeTo: relativeTo) {
             
             // strip exension if any off the title
@@ -62,13 +61,11 @@ final class Transformer:NSObject,BigMachinery{
                     let titw =  titl.trimmingCharacters(in: .whitespacesAndNewlines)
                     links.append(LinkElement(title:titw,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
                 }
-                
             } else {
                 // this is what happens upstream
                 if  let txt  = txt  {
                     links.append(LinkElement(title:txt,href:url.absoluteString,linktype:linktype, relativeTo: relativeTo))
                 }
-                
             }
         }
     }// end of absorbLink
@@ -79,7 +76,6 @@ final class Transformer:NSObject,BigMachinery{
         self.exportOptions = exportOptions
         super.init()
         cleanOuputs(outpath: crawlerMarkDownOutputPath)
-        
     }
     deinit  {
         recordExporter.addTrailerToExportStream()
@@ -153,8 +149,7 @@ final class Transformer:NSObject,BigMachinery{
             recordExporter.addHeaderToExportStream()
             firstTime = false
         }
-        
-        
+         
         do {
             assert(html.count != 0 , "No html to parse")
             let doc = try  Kanna.HTML(html: html, encoding: .utf8)

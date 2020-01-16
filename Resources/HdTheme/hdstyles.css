@@ -164,10 +164,16 @@ footer>p {
     text-align: center ;
 }
 
+form {
+    border:none;
+}
+fieldset {
+    border:none;
+}
 form>input {
     
     font-size: 1.2em;
-      margin-right: 10px;
+      margin: 10px;
       padding: 6px 10px;
     
 }
