@@ -130,7 +130,10 @@ final class Transformer:NSObject,BigMachinery{
             
             // when naming the file, put the date part first and then the venu, the date is YYMMDD for sorting
             
-            try makeAudioListMarkdown(mode: .fromPublish, url:aurl,  venue: ve, playdate: String(year+month+day), links:mdlinks )
+            try makeAudioListMarkdown(mode: .fromPublish, url:aurl,
+                                 
+                                      title: "\(playdate)\(venue)",     tags:["audio"], venue: ve, playdate: String(year+month+day),
+                                      links:mdlinks )
         }//writemdfiles==true
     }//incorporateParseResults
 

@@ -24,35 +24,6 @@ struct Shredded {
 }
 
 
-fileprivate func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav]) -> ImagesAndMarkdown {
-    var images: [String] = []
-    var pmdbuf = "\n"
-    for(_,alink) in links.enumerated() {
-        let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
-        if (pext=="md") {
-            // copy the bytes inline from remote md file
-            if let surl = URL(string:alink.url) {
-                do {
-                    pmdbuf +=   try String(contentsOf: surl) + "\n\n\n"
-                }
-                catch {
-                    print("[crawler] Couldnt read bytes from \(alink.url) \(error)")
-                }
-            }
-        } else
-            if isImageExtension(pext) {
-                // if its an image just accumulate them in a gallery
-                
-                images.append(alink.url)
-        }
-    }
-    if images.count == 0  {
-        images.append( "/images/abhdlogo300.png")
-    }
-    return ImagesAndMarkdown(images:images,markdown:pmdbuf)
-}
-
-
 fileprivate func buildAudioBlock(idx:Int,alink:Fav)->String {
     let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
     if isAudioExtension(pext){
@@ -80,29 +51,32 @@ fileprivate func generateAudioHTMLFromRemoteDirectoryAssets(links:[Fav]) -> Stri
 fileprivate func generateAudioTopMdHTML(title:String,u sourceurl:URL, venue:String,playdate:String,tags:[String] ,links:[Fav])->String {
     
     let immd = generateImagesAndMarkdownFromRemoteDirectoryAssets(links:links)
-    
+    let cookie = get_fortune_cookie()
     func topdiv()-> Node<HTML.BodyContext>  {
-        let cookie = get_fortune_cookie()
+        
         
         return Node.div ( .div(
-            .h1("\(title)"),
             .img(.src("\(immd.images[0])"), .class("img300"),
                  .alt("\(immd.markdown.prefix(50))")),
             .h4 ( .i ("\(cookie)")),
             .p("\(immd.markdown)"))
         )
     }
-    
+    // it seems essential to put the title in here instead of inside the plot Node above
     func markdownmetadata() -> String {
         let ellipsis = immd.markdown.count>500 ? "..." : ""
         return """
         ---
         sourceurl: \(sourceurl.absoluteString)
         venue: \(venue)
-        description: \(venue) \(playdate) \(immd.markdown.prefix(500))\(ellipsis)
+        description: \(cookie) \(immd.markdown.prefix(500))\(ellipsis)
         tags: \(tags.joined(separator: ","))
         ---
-        """
+        
+        # \(title)
+        
+    
+"""
     }
     
     return markdownmetadata() + "\(topdiv().render())"
@@ -111,44 +85,14 @@ fileprivate func generateAudioTopMdHTML(title:String,u sourceurl:URL, venue:Stri
 // this variation uses venu and playdate to form a title
 func makeAudioListMarkdown(mode:PublishingMode,
                            url aurl: String,
+                           title:String,
+                           tags:[String],
                            venue:String,
                            playdate:String,
                            links:[Fav] ) throws {
     
-    func makeAndWriteMdFile(_ title:String,tags:[String],u:URL) throws {
-        var moretags:Set<String>=[]
-        for link in links {
-            if  let bonustag = checkForBonusTags(name: link.name )  {
-                moretags.insert(bonustag)
-            }
-        }
-        if links.count == 0 { print("[crawler] no links for \(title) - check your music tree") }
-        else {
-            
-            var spec: String
-            switch  mode {
-            case  .fromPublish :
-                spec =  "\(crawlerMarkDownOutputPath)/audiosessions/\(venue)\(playdate).md"
-            case  .fromWithin :
-                spec =  "\(crawlerMarkDownOutputPath)/favorites/\(title).md"
-            }
-            let stuff =  generateAudioMarkdownPage(title,
-                                                   u:u,
-                                                   venue: venue ,
-                                                   playdate:playdate,
-                                                   tags:Array(moretags)
-                                                    + tags ,
-                                                   links:links,
-                                                   mode:mode)
-            
-            let markdownData: Data? = stuff.data(using: .utf8)
-            try markdownData!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))
-            
-        }
-    }
-    
+
     func checkForBonusTags(name:String?)->String? {
-        
         if let songName = name {
             let shorter = songName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             for tuneTag in Hd.crawlerKeyTags {
@@ -157,18 +101,42 @@ func makeAudioListMarkdown(mode:PublishingMode,
                 }
             }
         }
-        // print("Checked \(String(describing: name)) fail")
         return nil
     }
     
-    // we actually dont care for the filename, it is autogenerated
-    guard let u = URL(string:aurl) else { return }
-    let x=makeBannerAndTags(aurl:aurl , mode: mode)
-    try makeAndWriteMdFile(x.banner ,tags:x.tags,u: u)
-    
+    var moretags:Set<String>=[]
+     for link in links {
+         if  let bonustag = checkForBonusTags(name: link.name )  {
+             moretags.insert(bonustag)
+         }
+     }
+     if links.count == 0 { print("[crawler] no links for \(title) - check your music tree") }
+     else {
+
+         let x=makeBannerAndTags(aurl:aurl , mode: mode)
+     
+        
+         var spec: String
+         switch  mode {
+         case  .fromPublish :
+             spec =  "\(crawlerMarkDownOutputPath)/audiosessions/\(venue)\(playdate).md"
+         case  .fromWithin :
+             spec =  "\(crawlerMarkDownOutputPath)/favorites/\(title).md"
+         }
+           guard let u = URL(string:aurl) else { return }
+        let stuff =  generateAudioMarkdownPage(x.banner,
+                                                u:u,
+                                                venue: venue ,
+                                                playdate:playdate,
+                                                tags:Array(moretags) + x.tags
+                                                 + tags ,
+                                                links:links,
+                                                mode:mode)
+        try makeAndWriteMdFile(title,  stuff: stuff, spec: spec)
+    }
 }
 
-func generateAudioMarkdownPage(_ s:String,u:URL,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
+fileprivate func generateAudioMarkdownPage(_ title:String,u:URL,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
                                exportMode:ExportMode = .md,
                                mode:PublishingMode )->String {
     switch exportMode {
@@ -182,7 +150,7 @@ func generateAudioMarkdownPage(_ s:String,u:URL,venue:String ,playdate:String,ta
             newtags.append("favorite")
         }
         
-        return  generateAudioTopMdHTML(title:s,u:u,venue:venue,playdate:playdate,tags:newtags,links:links)
+        return  generateAudioTopMdHTML(title:title,u:u,venue:venue,playdate:playdate,tags:newtags,links:links)
             + "\n\n\n\n"
             + generateAudioHTMLFromRemoteDirectoryAssets(links: links)
         

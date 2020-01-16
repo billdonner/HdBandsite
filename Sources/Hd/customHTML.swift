@@ -9,7 +9,40 @@ import Foundation
 import Plot
 import Publish
 
+internal extension SortOrder {
+    func makeASorter<T, V: Comparable>(
+        forKeyPath keyPath: KeyPath<T, V>
+    ) -> (T, T) -> Bool {
+        switch self {
+        case .ascending:
+            return {
+                $0[keyPath: keyPath] < $1[keyPath: keyPath]
+            }
+        case .descending:
+            return {
+                $0[keyPath: keyPath] > $1[keyPath: keyPath]
+            }
+        }
+    }
+}
 
+
+extension PublishingContext where Site == Hd  {
+    /// Return someitems within this website, sorted by a given key path.
+    ///  - parameter max: Max Number of items to return
+    /// - parameter sortingKeyPath: The key path to sort the items by.
+    /// - parameter order: The order to use when sorting the items.
+    func someItems<T: Comparable>(max:Int,
+        sortedBy sortingKeyPath: KeyPath<Item<Site>, T>,
+        order: SortOrder = .ascending
+    ) -> [Item<Site>] {
+        let items = sections.flatMap { $0.items }
+        let x = items.sorted(
+            by: order.makeASorter(forKeyPath: sortingKeyPath))
+        return x.dropLast(x.count-max)
+   
+    }
+}
 // 
 extension Node where Context: HTML.BodyContext {
   /// Add a `<figure>` HTML element within the current context.
@@ -75,8 +108,8 @@ extension Node where Context == HTML.BodyContext {
                             .href(item.path),
                             .text(item.title)
                             )),
-                        .tagList(for: item, on: site),
-                        .p(.text(item.description))
+                        .p(.text(item.description)) ,
+                        .tagList(for: item, on: site)
                         ))
                 }
             )
@@ -105,8 +138,7 @@ extension Node where Context == HTML.BodyContext {
                 .text(" and "),
                 .a( .text("LinkGrubber"),  .href("https://github.com/johnsundell/publish")
                 ),
-                .p(.a(
-                    .text("last updated \(now)")
-                    ))))
+                .i(" updated \(now)")
+                    )) 
     }
 }

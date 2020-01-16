@@ -115,7 +115,8 @@ a {
 }
 
 .tag-list {
-    margin-bottom: 15px;
+    margin-top: 20px;
+    margin-bottom: 0px;
 }
 .tag-list p {
     font-size:.8em;
@@ -125,8 +126,8 @@ a {
     display: inline-block;
     background-color: #000;
     color: #ddd;
-    padding: 4px 6px;
-    border-radius: 5px;
+    padding: 2px 3px;
+    border-radius: 3px;
     margin-right: 5px;
 }
 
@@ -161,6 +162,14 @@ footer {
 
 footer>p {
     text-align: center ;
+}
+
+form>input {
+    
+    font-size: 1.2em;
+      margin-right: 10px;
+      padding: 6px 10px;
+    
 }
 @media (prefers-color-scheme: dark) {
     body {

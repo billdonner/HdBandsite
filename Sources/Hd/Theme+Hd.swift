@@ -128,17 +128,14 @@ private struct HdHTMLFactory: HTMLFactory {
                     .h1(.text(index.title)),
                     .p(
                         .class("description"),
-                        .text(context.site.description)
+                        .text("Brand new site for About Half Dead")
                     ),
-                    .h2("Home Sweet Home")
-                    //                    .itemList(
-                    //                        for: context.allItems(
-                    //                            sortedBy: \.date,
-                    //                            order: .descending
-                    //                        ),
-                    //                        on: context.site
-                    //                    )
-                ),
+                    .h2("Home Sweet Home"),
+                    .itemList( for: context.someItems(max:5, sortedBy: \.date,
+                                             order: .descending
+                                           ),
+                                           on: context.site
+                                   )),
                 .footer(for: context.site)
             )
         )

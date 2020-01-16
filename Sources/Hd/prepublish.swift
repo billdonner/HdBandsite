@@ -26,6 +26,9 @@ struct PrePublishing{
         
         
         try makeAudioListMarkdown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
+                                  
+                                  title:"Bill's Best 2019",
+                                  tags:["favorites"],
                                   venue: "favorites",
                                   playdate: "123119",
                                   links:links)
@@ -41,7 +44,7 @@ struct PrePublishing{
         ]
         
         
-        try  makeAudioListMarkdown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/",
+        try  makeAudioListMarkdown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/", title:"Brian's Favorites 2018",     tags:["favorites"],
                                    venue: "favorites",
                                    playdate: "123118",
                                    links:links)
@@ -79,7 +82,6 @@ extension PublishingStep where Site == Hd {
                         section.title = "Our Hand-Picked Favorites"
                     case .about:
                         section.title = "About the Band"
-                        
                     case .blog:
                         section.title = "Notes From The Field"
                     }
