@@ -43,14 +43,17 @@ extension Node where Context == HTML.BodyContext {
                     .nav(
                         .ul(
                             .li(.a(
+                            .href("/blog"),
+                            .text("Blog"))),
+                            .li(.a(
                                 .href("/tags"),
                                 .text("Tags"))),
                             .li(.a(
-                                .href("/specialpages"),
+                                .href("/favorites"),
                                 .text("Favorites"))),
                             .li(.a(
                                 .href("/about"),
-                                .text("Contact"))),
+                                .text("About"))),
                             .li(.a(
                                 .href("/audiosessions"),
                                 .text("Audio")))

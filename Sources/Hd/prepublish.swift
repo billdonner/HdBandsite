@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Publish
 
 // these are pages that are built from swift code that is run before we call Publish...
 
@@ -46,4 +47,44 @@ struct PrePublishing{
                                    links:links)
         print("[crawler] adding Brians Favorites")
     }
+}
+//MARK: - These pages are built with Plot and then AddPage
+
+extension PublishingStep where Site == Hd {
+    static func allsteps () throws -> [PublishingStep<Hd>] {
+     return [try makeTestPageStep(), try makeMembersPageStep(),addSectionTitlesStep()]
+    }
+    static func makeTestPageStep ( ) throws -> Self {
+        return PublishingStep<Hd>.addPage(Page(path:"/test",
+                                               content: Content(title:"test test", description:"this is just a test" )))
+    }
+    static func makeMembersPageStep ( ) throws -> Self {
+        return PublishingStep<Hd>.addPage(Page(path:"/about",
+                                               content: Content(title:"ABHD Members", description:"The members of ABHD" )))
+    }
+        
+    
+    
+    
+    
+    static func addSectionTitlesStep() -> Self {
+            .step(named: "Default section titles") { context in
+                context.mutateAllSections { section in
+                    guard section.title.isEmpty else { return }
+                    
+                    switch section.id {
+                    case .audiosessions:
+                        section.title = "Everything Ever Played"
+                    case .favorites:
+                        section.title = "Our Hand-Picked Favorites"
+                    case .about:
+                        section.title = "About the Band"
+                        
+                    case .blog:
+                        section.title = "Notes From The Field"
+                    }
+                }
+            }
+        }
+         
 }

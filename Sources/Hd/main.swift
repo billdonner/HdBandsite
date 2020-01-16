@@ -2,10 +2,7 @@ import Foundation
 import Publish
 import Plot
 
-// extra properties for crawling
 
-
-let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content"
 
 // tweak
 func command_main() {

@@ -24,40 +24,6 @@ struct Shredded {
 }
 
 
-/// make some tags  and banner from the alburm name
-fileprivate func makeBannerAndTags(aurl:String,mode:PublishingMode)->BannerAndTags {
-    guard let u = URL(string:aurl) else { fatalError() }
-    // take only the top two parts and use them as
-    
-    let parts = u.path.components(separatedBy: "/")
-    var tags = [parts[1],parts[2]]
-    // lets analyze parts3, if it is multispaced then lets call it a gig
-    let subparts3 = parts[3].components(separatedBy: " ")
-    var performanceKind = ""
-    if (subparts3.count > 1) {
-        performanceKind = "live"
-        tags.append(subparts3[1])
-    }
-    else  {
-        performanceKind = "rehearsal"
-    }
-    
-    var banner:String
-    switch mode {
-    case .fromPublish:
-        // if publish is generating, then use this
-        tags.append( performanceKind )
-        banner = parts[2] + " \(performanceKind) " + parts[3]
-        
-    case .fromWithin:
-        // if we are generating, call it a favorite
-        //tags.append("favorites")
-        banner =  parts[3]
-    }
-    
-    return BannerAndTags(banner: banner , tags: tags )
-}
-
 fileprivate func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav]) -> ImagesAndMarkdown {
     var images: [String] = []
     var pmdbuf = "\n"
@@ -74,7 +40,7 @@ fileprivate func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav])
                 }
             }
         } else
-            if (pext=="jpg" || pext=="jpeg" || pext=="png"){
+            if isImageExtension(pext) {
                 // if its an image just accumulate them in a gallery
                 
                 images.append(alink.url)
@@ -89,7 +55,7 @@ fileprivate func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav])
 
 fileprivate func buildAudioBlock(idx:Int,alink:Fav)->String {
     let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
-    if (pext=="mp3" || pext=="wav"){
+    if isAudioExtension(pext){
         let div = Node.div(
             .h2("\(String(format:"%02d",idx+1))    \(alink.name)"),
             .figure(
@@ -164,16 +130,16 @@ func makeAudioListMarkdown(mode:PublishingMode,
             case  .fromPublish :
                 spec =  "\(crawlerMarkDownOutputPath)/audiosessions/\(venue)\(playdate).md"
             case  .fromWithin :
-                spec =  "\(crawlerMarkDownOutputPath)/specialpages/\(title).md"
+                spec =  "\(crawlerMarkDownOutputPath)/favorites/\(title).md"
             }
             let stuff =  generateAudioMarkdownPage(title,
-                                                     u:u,
-                                                     venue: venue ,
-                                                     playdate:playdate,
-                                                     tags:Array(moretags)
-                                                        + tags ,
-                                                     links:links,
-                                                     mode:mode)
+                                                   u:u,
+                                                   venue: venue ,
+                                                   playdate:playdate,
+                                                   tags:Array(moretags)
+                                                    + tags ,
+                                                   links:links,
+                                                   mode:mode)
             
             let markdownData: Data? = stuff.data(using: .utf8)
             try markdownData!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))

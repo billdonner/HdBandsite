@@ -20,39 +20,6 @@ extension Theme where Site == Hd {
 
 }
 
-//MARK: - These pages are built with Plot and then AddPage
-
-extension PublishingStep where Site == Hd {
-    static func allsteps () throws -> [PublishingStep<Hd>] {
-     return [try makeTestPageStep(), try makeMembersPageStep(),addSectionTitlesStep()]
-    }
-    static func makeTestPageStep ( ) throws -> Self {
-        return PublishingStep<Hd>.addPage(Page(path:"/test",
-                                               content: Content(title:"test test", description:"this is just a test" )))
-    }
-    static func makeMembersPageStep ( ) throws -> Self {
-        return PublishingStep<Hd>.addPage(Page(path:"/about",
-                                               content: Content(title:"ABHD Members", description:"The members of ABHD" )))
-    }
-        static func addSectionTitlesStep() -> Self {
-            .step(named: "Default section titles") { context in
-                context.mutateAllSections { section in
-                    guard section.title.isEmpty else { return }
-                    
-                    switch section.id {
-                    case .audiosessions:
-                        section.title = "Everything Ever Played"
-                    case .specialpages:
-                        section.title = "Our Hand-Picked Favorites"
-                    case .about:
-                        section.title = "About the Band"
-                        
-                    }
-                }
-            }
-        }
-         
-}
 
 //MARK: - the  Publish addPage call comes here where we can generate custom HTML using plot for these spcial pages
 

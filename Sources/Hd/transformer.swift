@@ -10,25 +10,7 @@ import Kanna
 
 let letters = CharacterSet.letters
 let digits = CharacterSet.decimalDigits
-fileprivate func cleanOuputs(outpath:String) {
-    do {
-        // clear the output directory
-        let fm = FileManager.default
-        var counter = 0
-        for folder in ["/specialpages","/audiosessions"] {
-            
-            let dir = URL(fileURLWithPath:outpath+folder)
-            
-            let furls = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
-            for furl in furls {
-                try fm.removeItem(at: furl)
-                counter += 1
-            }
-        }
-        print("[crawler] Cleaned \(counter) files from ", outpath )
-    }
-    catch {print("[crawler] Could not clean outputs \(error)")}
-}
+
 
 fileprivate func pickapart(_ phrase:String) -> Shredded {
      
@@ -50,19 +32,19 @@ fileprivate func pickapart(_ phrase:String) -> Shredded {
 }
 
 
-final class Transformer:NSObject,BigMachinery{
-    
+final class Transformer:NSObject,BigMachinery{ 
 
-    
-    
     var runman : BigMachineRunner!
     var recordExporter : SingleRecordExporter!
-    fileprivate var cont = CrawlingElement()
-    var exportOptions:ExportMode!
+    var cont = CrawlingElement()
+    let exportOptions:ExportMode!
     
+    
+    
+                                                      
     var firstTime = true
-    var coverArtUrl : String?
-    var artist : String
+    let coverArtUrl : String?
+    let artist : String
     
     
     func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement]) {
@@ -90,24 +72,7 @@ final class Transformer:NSObject,BigMachinery{
             }
         }
     }// end of absorbLink
-    
-    func makecsvheader( ) -> String {
-        return  "Name,Artist,Album,SongURL,AlbumURL,CoverArtURL"
-    }
-    func mskecsvtrailer( ) -> String?  {
-        return    "==CrawlingContext=="
-    }
-    func makecsvrow( ) -> String {
-        func cleanItUp(_ r:CrawlingElement, kleenex:(String)->(String)) -> String {
-            let z =
-            """
-            \(kleenex(r.name ?? "")),\(kleenex(r.artist ?? "")),\(kleenex(r.album ?? "")),\(kleenex(r.songurl)),\(kleenex(r.albumurl ?? "")),\(kleenex(r.cover_art_url ?? ""))
-            """
-            return z
-        }
-        return  cleanItUp(cont, kleenex:kleenex)
-    }
-    
+
     required  init(artist:String, defaultArtUrl:String? = nil, exportOptions:ExportMode = .csv ) {
         self.coverArtUrl = defaultArtUrl
         self.artist = artist
