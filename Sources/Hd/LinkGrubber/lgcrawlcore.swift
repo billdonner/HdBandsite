@@ -27,11 +27,7 @@ public enum LoggingLevel {
 }
 
 
-public enum ExportMode {
-    case csv
-    case json
-    case md
-}
+
 
 
 public struct CrawlerStatsBlock:Codable {
@@ -53,7 +49,7 @@ public struct CrawlerStatsBlock:Codable {
     var status: Int
 }
 protocol CrawlMeister {
-    func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode,finally:@escaping ReturnsCrawlResults) throws -> (Void)
+    func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) throws -> (Void)
 }
 
 // global, actually
@@ -143,7 +139,6 @@ protocol Configable:class, Decodable {
 
 protocol BigMachineRunner {
     var config:Configable {get set}
-    var exportMode:ExportMode  {get set}
     var logLevel:LoggingLevel  {get set}
     var bigMachine:BigMachinery {get set}
     var crawlStats:CrawlStats {get set}
@@ -176,18 +171,15 @@ enum OutputType: String {
     }
 }
 struct ReportParams {
-    var style:ExportMode
     var reportTitle:String
     var outputFilePath:String
     var traceFilePath:String
     
     init(r:String = "reportTitle",
-         o:String =  "outputFilePath",
-         f:ExportMode = ExportMode.csv ,
+         o:String =  "outputFilePath", 
          t:String = "traceFilePath") {
         reportTitle = r
-        outputFilePath = o
-        style = f
+        outputFilePath = o 
         traceFilePath = t
     }
     static func mock()->ReportParams {

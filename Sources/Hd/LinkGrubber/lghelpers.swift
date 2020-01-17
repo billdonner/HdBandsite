@@ -21,13 +21,11 @@ var consoleIO = ConsoleIO()
  */
 
 final class RecordExporter {
-    private(set) var exportMode:ExportMode
     private var rg:BigMachineRunner
     private var first = true
-    init(exportMode: ExportMode, runman:BigMachineRunner) {
+    init( runman:BigMachineRunner) {
     
         self.rg = runman
-        self.exportMode = exportMode
     }
     
     private func emitToJSONStream(_ s:String) {

@@ -9,8 +9,6 @@ import Foundation
 import Publish
 import Plot
 
-
-
 // tweak
 func command_main() {
     
@@ -62,7 +60,6 @@ func command_main() {
     var verbosity:LoggingLevel = .none
     var baseURL:URL? = nil
     var opath:String
-    var exportMode:ExportMode
     
     // -json and -csv go to adforum for now, -text goes to manifezz
     
@@ -77,12 +74,12 @@ func command_main() {
             verbosity = .none
         }
         
-        switch subargs[0] {
-        case "c": exportMode = .csv
-        case "j": exportMode = .json
-        case "m": exportMode = .md
-        default: exitBadCommand(); exit(0)
-        }
+//        switch subargs[0] {
+//        case "c": exportMode = .csv
+//        case "j": exportMode = .json
+//        case "m": exportMode = .md
+//        default: exitBadCommand(); exit(0)
+//        }
         
         if CommandLine.arguments.count > 4  {
             guard let b =  URL(string: CommandLine.arguments[4]) else {exitBadCommand(); exit(0)  }
@@ -100,11 +97,10 @@ func command_main() {
                                      baseURL:baseURL!,
                                      configURL:configurl,
                                      opath:opath,
-                                     logLevel: verbosity,
-                                     exportMode:exportMode)
+                                     logLevel: verbosity)
             { crawlResults in
                 
-                print("[crawler] linkgrubber scanned \(crawlResults.count1) pages,  \(String(format:"%5.2f",crawlResults.secsPerCycle*1000)) ms per page")
+                print("[crawler] linkgrubber scanned \(crawlResults.count1), \(crawlResults.count2) pages,  \(String(format:"%5.2f",crawlResults.secsPerCycle*1000)) ms per page")
                 
                 
                 // at this point we've plunked files into the designated directory
@@ -115,8 +111,7 @@ func command_main() {
                 do {
                     
                     try   PrePublishing.allPrePublishingSteps ()
-                    
-                    
+                     
                     try Hd().publish(withTheme: .hd, additionalSteps: try PublishingStep<Hd>.allsteps())
                     let published_counts = crawlResults.count1 + 4
                     let elapsed = Date().timeIntervalSince(start) / Double(published_counts)

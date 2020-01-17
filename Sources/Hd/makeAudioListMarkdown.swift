@@ -137,11 +137,7 @@ func makeAudioListMarkdown(mode:PublishingMode,
 }
 
 fileprivate func generateAudioMarkdownPage(_ title:String,u:URL,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
-                               exportMode:ExportMode = .md,
                                mode:PublishingMode )->String {
-    switch exportMode {
-        
-    case .md:
         var newtags = tags
         switch mode {
         case .fromPublish:
@@ -153,7 +149,4 @@ fileprivate func generateAudioMarkdownPage(_ title:String,u:URL,venue:String ,pl
         return  generateAudioTopMdHTML(title:title,u:u,venue:venue,playdate:playdate,tags:newtags,links:links)
             + "\n\n\n\n"
             + generateAudioHTMLFromRemoteDirectoryAssets(links: links)
-        
-    default:fatalError("cant render \(exportMode) as markdown")
-    }
 }

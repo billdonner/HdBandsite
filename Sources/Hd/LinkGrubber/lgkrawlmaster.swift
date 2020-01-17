@@ -18,10 +18,9 @@ final public class LinkGrubber: CrawlMeister
             baseURL: URL ,
             configURL: URL ,
             options:LoggingLevel = .none,
-            xoptions:ExportMode = .json,
             whenDone:@escaping ReturnsCrawlResults) throws {
             
-            let xpr = RecordExporter( exportMode:xoptions, runman: runman)
+            let xpr = RecordExporter(  runman: runman)
             runman.bigMachine.setupController(runman: runman, //context: context,
                 exporter: xpr)
             runman.bigMachine.startCrawling(baseURL:baseURL, configURL:configURL,loggingLevel: options,finally:whenDone )
@@ -39,14 +38,12 @@ final public class LinkGrubber: CrawlMeister
        var config: Configable
         // all of these variables are rquired by RunManager Protocol
         private   var recordExporter: RecordExporter!
-         var exportMode:ExportMode
          var logLevel:LoggingLevel
        var bigMachine:BigMachinery
         var crawlStats:CrawlStats
         
-        required   init (config:Configable, custom:BigMachinery, csvoutPath:LocalFilePath,jsonoutPath:LocalFilePath, exportMode:ExportMode,logLevel:LoggingLevel) {
+        required   init (config:Configable, custom:BigMachinery, csvoutPath:LocalFilePath,jsonoutPath:LocalFilePath, logLevel:LoggingLevel) {
      
-            self.exportMode = exportMode
             self.bigMachine = custom
             self.config = config
             self.logLevel = logLevel
@@ -73,7 +70,7 @@ final public class LinkGrubber: CrawlMeister
                 super.init()
                 //let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
                 
-                self.recordExporter = RecordExporter( exportMode: exportMode, runman: self)
+                self.recordExporter = RecordExporter( runman: self)
                 
             }
             catch {
@@ -84,7 +81,7 @@ final public class LinkGrubber: CrawlMeister
     }
 
     
-    public  func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode, finally:@escaping ReturnsCrawlResults) throws{
+    public  func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws{
         self.whenDone = finally
         let fp = URL(string:opath)?.deletingPathExtension().absoluteString
         guard let fixedPath = fp
@@ -92,13 +89,11 @@ final public class LinkGrubber: CrawlMeister
 
         let rm = KrawlStream(config:ConfigurationProcessor(baseURL),
                                 custom: Transformer(artist: name,
-                                                    defaultArtUrl: "booly",
-                                                    exportOptions: exportMode),
+                                                    defaultArtUrl: "booly"),
                                 csvoutPath: LocalFilePath(fixedPath+".csv"),
                                 jsonoutPath: LocalFilePath(fixedPath+".json"),
-                                exportMode: exportMode,
                                 logLevel: logLevel )
         
-        let _ = try  KrawlingBeast( runman: rm,baseURL: baseURL,  configURL: configURL,options:logLevel,xoptions:exportMode,whenDone:finally)
+        let _ = try  KrawlingBeast( runman: rm,baseURL: baseURL,  configURL: configURL,options:logLevel,whenDone:finally)
     }
 }

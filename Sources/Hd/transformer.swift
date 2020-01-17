@@ -37,11 +37,7 @@ final class Transformer:NSObject,BigMachinery{
     var runman : BigMachineRunner!
     var recordExporter : RecordExporter!
     var cont = CrawlingElement()
-    let exportOptions:ExportMode!
-    
-    
-    
-                                                      
+                             
     var firstTime = true
     let coverArtUrl : String?
     let artist : String
@@ -70,10 +66,9 @@ final class Transformer:NSObject,BigMachinery{
         }
     }// end of absorbLink
 
-    required  init(artist:String, defaultArtUrl:String? = nil, exportOptions:ExportMode = .csv ) {
+    required  init(artist:String, defaultArtUrl:String? = nil ) {
         self.coverArtUrl = defaultArtUrl
         self.artist = artist
-        self.exportOptions = exportOptions
         super.init()
         cleanOuputs(outpath: pathToOutputDir)
     }
@@ -104,8 +99,7 @@ final class Transformer:NSObject,BigMachinery{
         }
         
         // if we are writing md files for Publish
-        if let aurl = cont.albumurl,
-            exportOptions == .md {
+        if let aurl = cont.albumurl {
             // figure out venue and playdate from the url
             
             let fund = url.lastPathComponent
