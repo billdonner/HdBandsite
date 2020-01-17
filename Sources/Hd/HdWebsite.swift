@@ -46,8 +46,8 @@ struct Hd: Website {
 // extra properties for crawling
 
 
-let crawlerMarkDownOutputPath =  "/Users/williamdonner/hd/Content"
- 
+let pathToOutputDir =  "/Users/williamdonner/hd/Content"
+ let pathToResourcesDir =  "/Users/williamdonner/hd/Resources"
 func isImageExtension (_ s:String) -> Bool {
         return ["jpg","jpeg","png"].firstIndex(of: s) != nil
     }

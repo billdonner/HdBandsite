@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  makeAudioListMarkdown.swift
 //  
 //
 //  Created by william donner on 1/10/20.
@@ -119,9 +119,9 @@ func makeAudioListMarkdown(mode:PublishingMode,
          var spec: String
          switch  mode {
          case  .fromPublish :
-             spec =  "\(crawlerMarkDownOutputPath)/audiosessions/\(venue)\(playdate).md"
+             spec =  "\(pathToOutputDir)/audiosessions/\(venue)\(playdate).md"
          case  .fromWithin :
-             spec =  "\(crawlerMarkDownOutputPath)/favorites/\(title).md"
+             spec =  "\(pathToOutputDir)/favorites/\(title).md"
          }
            guard let u = URL(string:aurl) else { return }
         let stuff =  generateAudioMarkdownPage(x.banner,

@@ -110,6 +110,10 @@ a {
 .item-list h1 a {
     text-decoration:none;
 }
+li .reftag a {
+    text-decoration:none;
+}
+}
 .item-list p {
     margin-bottom: 0;
 }
@@ -127,7 +131,7 @@ a {
     background-color: #000;
     color: #ddd;
     padding: 2px 3px;
-    border-radius: 3px;
+    border-radius: 5px;
     margin-right: 5px;
 }
 
@@ -155,6 +159,10 @@ a {
     padding: 6px 10px;
 }
 
+dd {
+    font-size:.8em;
+}
+
 footer {
     color: #8a8a8a;
     font-size: .8em;
@@ -170,12 +178,10 @@ form {
 fieldset {
     border:none;
 }
-form>input {
-    
+form>input { 
     font-size: 1.2em;
       margin: 10px;
       padding: 6px 10px;
-    
 }
 @media (prefers-color-scheme: dark) {
     body {

@@ -25,6 +25,8 @@ public enum LoggingLevel {
     case none
     case verbose
 }
+
+
 public enum ExportMode {
     case csv
     case json
@@ -141,10 +143,9 @@ protocol Configable:class, Decodable {
 
 protocol BigMachineRunner {
     var config:Configable {get set}
-    var outputFilePath:LocalFilePath {get set}
     var exportMode:ExportMode  {get set}
     var logLevel:LoggingLevel  {get set}
-    var custom:BigMachinery {get set}
+    var bigMachine:BigMachinery {get set}
     var crawlStats:CrawlStats {get set}
 }
 

@@ -259,7 +259,7 @@ final class CrawlingMac {
     func onepageworth(pr:ParseResults)->() {
         //each page we hit gets scraped and incorporated
         do {
-        try runman.custom.incorporateParseResults(pr: pr)
+        try runman.bigMachine.incorporateParseResults(pr: pr)
         }
         catch {
             print("couldnt scrape onpageworth \(error)")
@@ -299,8 +299,8 @@ final class CrawlingMac {
         fb.reportTitle = reportParams.reportTitle
         // this is not always good
         fb.command = CommandLine.arguments
-        fb.rootcrawlpoints = stats.goodurls.map() { runman.custom.kleenURLString($0)!.string }
-        fb.leafpoints = stats.badurls.map() { runman.custom.kleenURLString($0)!.string }
+        fb.rootcrawlpoints = stats.goodurls.map() { runman.bigMachine.kleenURLString($0)!.string }
+        fb.leafpoints = stats.badurls.map() { runman.bigMachine.kleenURLString($0)!.string }
         fb.status = stats.badurls.count > 0 && stats.goodurls.count > 0 ? 201:(stats.goodurls.count > 0 ? 200:202)
         //let elapsed = String(format:"%02.3f ",crawltime)
         let percycle = count <= 0 ? 0.0 : (crawltime / Double(count))

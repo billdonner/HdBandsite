@@ -8,7 +8,8 @@
 import Foundation
 import Kanna
 
-var outputStream : FileHandlerOutputStream!
+var csvOutputStream : FileHandlerOutputStream!
+var jsonOutputStream : FileHandlerOutputStream!
 var traceStream : FileHandlerOutputStream!
 var consoleIO = ConsoleIO()
 
@@ -19,98 +20,80 @@ var consoleIO = ConsoleIO()
  inside SingleRecordExport we'll switch on export type to decide what to dump into the output stream
  */
 
-final class SingleRecordExporter {
+final class RecordExporter {
     private(set) var exportMode:ExportMode
     private var rg:BigMachineRunner
-    var outputStream:FileHandlerOutputStream
     private var first = true
-    init(outputStream:FileHandlerOutputStream, exportMode: ExportMode, runman:BigMachineRunner) {
-        self.outputStream = outputStream
+    init(exportMode: ExportMode, runman:BigMachineRunner) {
+    
         self.rg = runman
         self.exportMode = exportMode
     }
     
+    private func emitToJSONStream(_ s:String) {
+            print(s , to: &jsonOutputStream )// dont add extra
     
-    private func emitToOutputStream(_ s:String) {
-        switch exportMode {
-        case .csv,.json:
-            
-            print(s , to: &outputStream )// dont add extra
-            
-        case .md:
-            break
-        }
     }
+//
+//    private func emitToOutputStream(_ s:String) {
+//            print(s , to: &csvOutputStream )// dont add extra
+//            print(s , to: &jsonOutputStream )// dont add extra
+//
+//    }
     
    func addHeaderToExportStream( ) {
+    
+    print(rg.bigMachine.makecsvheader(), to: &csvOutputStream )// dont add extra
+    print("""
+      [
+    """ ,
+            to: &jsonOutputStream )// dont add extra
         
-        switch exportMode {
-        case .csv:
-            
-            emitToOutputStream(rg.custom.makecsvheader())
-            
-            
-        case .json:
-            
-            emitToOutputStream("""
-[
-""")
-            case .md:
-                break
-        }
+
     }
     func addTrailerToExportStream( ) {
         print("adding trailer!!!")
-        
-        switch exportMode {
-            
-        case .csv:
-            if let trailer = rg.custom.mskecsvtrailer() {
-                emitToOutputStream(trailer)
+         
+            if let trailer = rg.bigMachine.mskecsvtrailer() {
+               print(trailer , to: &csvOutputStream )
             }
-        case .json:
-            emitToOutputStream("""
-]
-""")
-            case .md:
-                break
-        }
+     //emitToJSONStream(trailer)
     }
     func addRowToExportStream( ) {
-        switch exportMode {
+        //switch exportMode {
             
-        case .csv:
-            let stuff = rg.custom.makecsvrow( )
-            emitToOutputStream(stuff)
+       // case .csv:
+            let stuff = rg.bigMachine.makecsvrow( )
+                    print(stuff , to: &csvOutputStream )
             
-        case .json:
-            let stuff = rg.custom.makecsvrow( )
+       // case .json:
+          //  let stuff = rg.custom.makecsvrow( )
             let parts = stuff.components(separatedBy: ",")
             if first {
-                emitToOutputStream("""
+                emitToJSONStream("""
 {
 """)
             } else {
-                emitToOutputStream("""
+                emitToJSONStream("""
 ,{
 """)
             }
             for (idx,part) in parts.enumerated() {
-                emitToOutputStream("""
+                emitToJSONStream("""
                     "\(idx)":"\(part)"
                     """)
                 if idx == parts.count - 1 {
-                    emitToOutputStream("""
+                    emitToJSONStream("""
 }
 """)
                 } else {
-                    emitToOutputStream(",")
+                    emitToJSONStream(",")
                 }
                 
             }
-        case .md:
-            break
-        }
+//        case .md:
+//            break
+//        }
         first =  false
     }
 }
@@ -170,9 +153,7 @@ public class ConsoleIO {
      var comment: String
     var roots:[String]
     var crawlStarts:[RootStart] = []
-    
-
-    
+     
     init(_ baseURL:URL?) {
         baseurlstr = baseURL?.absoluteString
         comment = ""

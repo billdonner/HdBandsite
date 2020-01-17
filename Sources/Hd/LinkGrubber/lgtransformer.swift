@@ -9,26 +9,22 @@
 import Foundation
 import Kanna
 
-
-
-
 /// add new code to write md files for Publish ing static site
 public enum PublishingMode {
     case fromPublish
     case fromWithin
 }
 
-
  protocol BigMachinery : class  {
     var runman: BigMachineRunner! { get set }
-    var recordExporter : SingleRecordExporter!{ get set }
+    var recordExporter : RecordExporter!{ get set }
     func makecsvrow() -> String
     func makecsvheader()->String
     func mskecsvtrailer()->String?
     
    // var context : Crowdable!{ get set }
     func setupController(runman: BigMachineRunner,// context  :Crowdable,
-                         exporter:SingleRecordExporter)
+                         exporter:RecordExporter)
     func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
     func scraper(_ technique: ParseTechnique, url:URL,  baseURL:URL?, html: String)->ParseResults?
     func incorporateParseResults(pr:ParseResults) throws
@@ -39,7 +35,7 @@ public enum PublishingMode {
 }
 extension BigMachinery {
      func setupController(runman: BigMachineRunner, //context  :Crowdable,
-                                exporter:SingleRecordExporter) {
+                                exporter:RecordExporter) {
         self.runman = runman
         self.recordExporter = exporter
        // self.context = context
@@ -62,7 +58,7 @@ extension BigMachinery {
         let (roots,reportParams)  = runman.config.load(url: configURL)
         
         do {
-            let lk = ScrapingMachine(scraper:runman.custom.scraper)
+            let lk = ScrapingMachine(scraper:runman.bigMachine.scraper)
             let icrawler = try InnerCrawler(roots:roots,baseURL:baseURL, grubber:lk,logLevel:loggingLevel)
             let _ = try CrawlingMac (roots: roots, reportParams:reportParams,      icrawler:icrawler,   runman: runman)
             { crawlResult in
@@ -78,9 +74,6 @@ extension BigMachinery {
         }
     }
 }
-
-
-
 
 public final class  CrawlingElement:Codable {
     
@@ -100,6 +93,4 @@ public final class  CrawlingElement:Codable {
         }
         return albumurl
     }
-    
 }
-

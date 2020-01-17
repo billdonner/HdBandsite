@@ -88,11 +88,15 @@ func command_main() {
             guard let b =  URL(string: CommandLine.arguments[4]) else {exitBadCommand(); exit(0)  }
             baseURL =   b
         }
-        opath =  (CommandLine.arguments[3])
+        //opath =  (CommandLine.arguments[3])
+       
+        opath = pathToResourcesDir + "/bigdata.csv"
+        
+        
         guard let configurl = URL(string:CommandLine.arguments[2]) else  { exitBadCommand(); exit(0)  }
         
         do {
-            try  LinkGrubber().grub (name: opath.components(separatedBy: ".-").first ?? opath,
+            try  LinkGrubber().grub (name: "BigData", //opath.components(separatedBy: ".-").first ?? opath,
                                      baseURL:baseURL!,
                                      configURL:configurl,
                                      opath:opath,

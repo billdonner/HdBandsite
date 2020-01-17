@@ -35,7 +35,7 @@ fileprivate func pickapart(_ phrase:String) -> Shredded {
 final class Transformer:NSObject,BigMachinery{ 
 
     var runman : BigMachineRunner!
-    var recordExporter : SingleRecordExporter!
+    var recordExporter : RecordExporter!
     var cont = CrawlingElement()
     let exportOptions:ExportMode!
     
@@ -75,7 +75,7 @@ final class Transformer:NSObject,BigMachinery{
         self.artist = artist
         self.exportOptions = exportOptions
         super.init()
-        cleanOuputs(outpath: crawlerMarkDownOutputPath)
+        cleanOuputs(outpath: pathToOutputDir)
     }
     deinit  {
         recordExporter.addTrailerToExportStream()

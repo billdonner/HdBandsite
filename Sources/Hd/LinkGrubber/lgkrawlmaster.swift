@@ -21,10 +21,10 @@ final public class LinkGrubber: CrawlMeister
             xoptions:ExportMode = .json,
             whenDone:@escaping ReturnsCrawlResults) throws {
             
-            let xpr = SingleRecordExporter(outputStream: outputStream, exportMode:xoptions, runman: runman)
-            runman.custom.setupController(runman: runman, //context: context,
+            let xpr = RecordExporter( exportMode:xoptions, runman: runman)
+            runman.bigMachine.setupController(runman: runman, //context: context,
                 exporter: xpr)
-            runman.custom.startCrawling(baseURL:baseURL, configURL:configURL,loggingLevel: options,finally:whenDone )
+            runman.bigMachine.startCrawling(baseURL:baseURL, configURL:configURL,loggingLevel: options,finally:whenDone )
             
         }
         
@@ -35,24 +35,22 @@ final public class LinkGrubber: CrawlMeister
         }
     }
 
-      class KrawlStream : NSObject,BigMachineRunner {
-        
-        public var config: Configable
+    class KrawlStream : NSObject,BigMachineRunner {
+       var config: Configable
         // all of these variables are rquired by RunManager Protocol
-        private   var recordExporter: SingleRecordExporter!
-         var outputFilePath:LocalFilePath
+        private   var recordExporter: RecordExporter!
          var exportMode:ExportMode
          var logLevel:LoggingLevel
-       var custom:BigMachinery
+       var bigMachine:BigMachinery
         var crawlStats:CrawlStats
         
-        required   init (config:Configable, custom:BigMachinery, outputFilePath:LocalFilePath, exportMode:ExportMode,logLevel:LoggingLevel) {
-            self.outputFilePath = outputFilePath
+        required   init (config:Configable, custom:BigMachinery, csvoutPath:LocalFilePath,jsonoutPath:LocalFilePath, exportMode:ExportMode,logLevel:LoggingLevel) {
+     
             self.exportMode = exportMode
-            self.custom = custom
+            self.bigMachine = custom
             self.config = config
             self.logLevel = logLevel
-            self.crawlStats = CrawlStats(partCustomizer: self.custom)
+            self.crawlStats = CrawlStats(partCustomizer: self.bigMachine)
             bootstrapExportDir()
             
             do {
@@ -61,19 +59,25 @@ final public class LinkGrubber: CrawlMeister
                     consoleIO.writeMessage("need at least 10.13",to:.error)
                     exit(0)
                 }
-                let url = URL(fileURLWithPath: self.outputFilePath.path,relativeTo: ExportDirectoryURL)
+                let url = URL(fileURLWithPath:  csvoutPath.path,relativeTo: ExportDirectoryURL)
                 try  "".write(to: url, atomically: true, encoding: .utf8)
                 let fileHandle = try FileHandle(forWritingTo: url)
-                outputStream = FileHandlerOutputStream(fileHandle)
+                csvOutputStream = FileHandlerOutputStream(fileHandle)
+                
+                let url2 = URL(fileURLWithPath:  jsonoutPath.path,relativeTo: ExportDirectoryURL)
+                    try  "".write(to: url2, atomically: true, encoding: .utf8)
+                    let fileHandle2 = try FileHandle(forWritingTo: url2)
+                    jsonOutputStream = FileHandlerOutputStream(fileHandle2)
+                
                 
                 super.init()
                 //let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
                 
-                self.recordExporter = SingleRecordExporter(outputStream: outputStream, exportMode: exportMode, runman: self)
+                self.recordExporter = RecordExporter( exportMode: exportMode, runman: self)
                 
             }
             catch {
-                consoleIO.writeMessage("Could not initialize RunnableStream \(outputFilePath) \(error)",to:.error)
+                consoleIO.writeMessage("Could not initialize RunnableStream  \(error)",to:.error)
                 exit(0)
             }
         }
@@ -83,19 +87,15 @@ final public class LinkGrubber: CrawlMeister
     public  func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,exportMode:ExportMode, finally:@escaping ReturnsCrawlResults) throws{
         self.whenDone = finally
         let fp = URL(string:opath)?.deletingPathExtension().absoluteString
-        guard var fixedPath = fp else {fatalError("cant fix outpath")}
-        switch exportMode {
-        case .csv : fixedPath+=".csv"
-        case .json : fixedPath+=".json"
-        case .md : fixedPath+=".md"
-        }
-        
-        
+        guard let fixedPath = fp
+            else {  fatalError("cant fix outpath") }
+
         let rm = KrawlStream(config:ConfigurationProcessor(baseURL),
                                 custom: Transformer(artist: name,
                                                     defaultArtUrl: "booly",
                                                     exportOptions: exportMode),
-                                outputFilePath: LocalFilePath(fixedPath),
+                                csvoutPath: LocalFilePath(fixedPath+".csv"),
+                                jsonoutPath: LocalFilePath(fixedPath+".json"),
                                 exportMode: exportMode,
                                 logLevel: logLevel )
         

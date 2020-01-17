@@ -11,8 +11,6 @@ import Publish
 // these are pages that are built from swift code that is run before we call Publish...
 
 struct PrePublishing{
-    
-    
     static func allPrePublishingSteps () throws {
         try addBillsFavorites()
         try addBriansFavorites()
@@ -26,7 +24,6 @@ struct PrePublishing{
         
         
         try makeAudioListMarkdown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
-                                  
                                   title:"Bill's Best 2019",
                                   tags:["favorites"],
                                   venue: "favorites",
@@ -65,11 +62,7 @@ extension PublishingStep where Site == Hd {
         return PublishingStep<Hd>.addPage(Page(path:"/about",
                                                content: Content(title:"ABHD Members", description:"The members of ABHD" )))
     }
-        
-    
-    
-    
-    
+ 
     static func addSectionTitlesStep() -> Self {
             .step(named: "Default section titles") { context in
                 context.mutateAllSections { section in
@@ -87,6 +80,5 @@ extension PublishingStep where Site == Hd {
                     }
                 }
             }
-        }
-         
+        } 
 }
