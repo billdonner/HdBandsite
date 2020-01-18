@@ -57,22 +57,22 @@ func command_main() {
     }
  
     
-    var verbosity:LoggingLevel = .none
-    var baseURL:URL? = nil
+    let verbosity:LoggingLevel = .verbose
+
     var opath:String
     
     // -json and -csv go to adforum for now, -text goes to manifezz
     
     do {
         guard CommandLine.arguments.count > 4 else { exitBadCommand(); exit(0)  }
-        let arg0 = CommandLine.arguments[1].dropFirst()
-        let subargs = arg0.components(separatedBy: ",")
-        
-        if  subargs.count>1 {
-            verbosity  = subargs[1].hasPrefix("v") ? .verbose: .none
-        } else {
-            verbosity = .none
-        }
+//        let arg0 = CommandLine.arguments[1].dropFirst()
+//        let subargs = arg0.components(separatedBy: ",")
+//
+//        if  subargs.count>1 {
+//            verbosity  = subargs[1].hasPrefix("v") ? .verbose: .none
+//        } else {
+//            verbosity = .none
+//        }
         
 //        switch subargs[0] {
 //        case "c": exportMode = .csv
@@ -81,10 +81,10 @@ func command_main() {
 //        default: exitBadCommand(); exit(0)
 //        }
         
-        if CommandLine.arguments.count > 4  {
-            guard let b =  URL(string: CommandLine.arguments[4]) else {exitBadCommand(); exit(0)  }
-            baseURL =   b
-        }
+//        if CommandLine.arguments.count > 4  {
+//            guard let b =  URL(string: CommandLine.arguments[4]) else {exitBadCommand(); exit(0)  }
+//            baseURL =   b
+//        }
         //opath =  (CommandLine.arguments[3])
        
         opath = pathToResourcesDir + "/bigdata.csv"
@@ -94,7 +94,7 @@ func command_main() {
         
         do {
             try  LinkGrubber().grub (name: "BigData", //opath.components(separatedBy: ".-").first ?? opath,
-                                     baseURL:baseURL!,
+                            
                                      configURL:configurl,
                                      opath:opath,
                                      logLevel: verbosity)

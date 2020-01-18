@@ -53,7 +53,7 @@ final class CrawlTable {
     }
     
     
- func crawlLoop (finally:  ReturnsCrawlStats, baseURL:URL?, stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
+ func crawlLoop (finally:  ReturnsCrawlStats,  stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
         while crawlState == .crawling {
             if items.count == 0 {
                 crawlState = .done
@@ -78,16 +78,16 @@ final class CrawlTable {
   final class InnerCrawler : NSObject {
     private(set)  var ct =  CrawlTable()
     private var crawloptions: LoggingLevel
-    private(set) var baseURL:URL?
+
     private(set) var grubber:ScrapingMachine
     private(set) var places: [RootStart] = [] // set by crawler
     private var first = true
     
-   init(roots:[RootStart],baseURL:URL?, grubber:ScrapingMachine,logLevel:LoggingLevel = .none) throws {
+   init(roots:[RootStart], grubber:ScrapingMachine,logLevel:LoggingLevel = .none) throws {
         self.places = roots
         self.grubber = grubber
         self.crawloptions = logLevel
-        self.baseURL = baseURL
+       
     }
 
     
@@ -119,7 +119,7 @@ final class CrawlTable {
         case .parseTop:
             
             // in this case the brandujrl is the topurl
-            self.loadAndScrape(rootURL, baseURL: baseURL,technique:.parseTop) {parserez in
+            self.loadAndScrape(rootURL, technique:.parseTop) {parserez in
                 // take all these urls and put them on the end of the crawl list as Leafs
                 guard let _ = parserez.url else {
                     return
@@ -157,7 +157,7 @@ final class CrawlTable {
             
             assert(true,"Never get here")
             
-            self.loadAndScrape(rootURL, baseURL:baseURL, technique:.parseLeaf) {leafparserez in
+            self.loadAndScrape(rootURL,  technique:.parseLeaf) {leafparserez in
                 if self.crawloptions == .verbose  {  print("\(self.ct.items.count),",terminator:"")
                     fflush(stdout)
                 }
@@ -191,18 +191,18 @@ final class CrawlTable {
             addToCrawlList(url)
         }
         
-        ct.crawlLoop(finally: finally, baseURL: baseURL, stats: crawlStats, innerCrawler: self, didFinishUserCall: &didFinishUserCall, savedExportOne: savedExportOne)
+        ct.crawlLoop(finally: finally,stats: crawlStats, innerCrawler: self, didFinishUserCall: &didFinishUserCall, savedExportOne: savedExportOne)
     }
 }
 
 extension InnerCrawler {
-    private  func loadAndScrape(_ rootURL:URL, baseURL:URL?,
+    private  func loadAndScrape(_ rootURL:URL,
                                 technique:ParseTechnique,
                                 finito:@escaping ReturnsParseResults)
     {
         
         // take this into the background
-        grubber.scrapeFromURL(rootURL, baseURL: baseURL, parsingTechnique: technique){  parseres  in
+        grubber.scrapeFromURL(rootURL,  parsingTechnique: technique){  parseres  in
             
             // take whatever we have scraped back to the foreground
             finito (parseres)
@@ -268,8 +268,8 @@ final class CrawlingMac {
     
     private func startMeUp(_ roots:[RootStart]) {
         let startTime = Date()
-        let baseurltag = (icrawler.baseURL != nil) ?  icrawler.baseURL!.absoluteString : "baseurl fail"
-        print("[crawler] starting \(startTime), baseURL \(baseurltag) please be patient")
+       // let baseurltag = (icrawler.baseURL != nil) ?  icrawler.baseURL!.absoluteString : "baseurl fail" //XXXXXXXX
+        print("[crawler] starting \(startTime), root \(roots[0].urlstr) please be patient")
         
         icrawler.bigCrawlLoop( crawlStats: runman.crawlStats, exportOnePageWorth: onepageworth) {
             _ in
@@ -289,7 +289,6 @@ final class CrawlingMac {
               
             self.returnsCrawlResults(crawlResults)
             
-            // print("***** Returning CrawlResults \(crawlResults)")
         }
     }
 
@@ -337,7 +336,7 @@ final class CrawlingMac {
     }
     
     // this is the major entry point
- func scrapeFromURL( _ urlget:URL, baseURL:URL?,
+ func scrapeFromURL( _ urlget:URL,
                                parsingTechnique:ParseTechnique,
                                whenDone:@escaping (( ParseResults ) ->())){
         
@@ -345,18 +344,18 @@ final class CrawlingMac {
         do {
             // [3] if no incoming, just get out of here
             if html.count == 0 {
-                whenDone(  ParseResults(url:nil, baseurl:baseURL,
+                whenDone(  ParseResults(url:nil,
                                         technique: parsingTechnique,
                                         status: .failed(code:-98), pagetitle:"", links: [],  props: [], tags: []))
                 return
             }
             // [4] parse the incoming and stash the results, regardless
             // note = html must already be filled in and hence urget is for info
-            let  parseResultz  =  scraperx(parsingTechnique,urlget,  baseURL, html)
+            let  parseResultz  =  scraperx(parsingTechnique,urlget,   html)
             
             guard let parseResults = parseResultz else {
                 
-                whenDone( ParseResults(url:urlget, baseurl: baseURL,
+                whenDone( ParseResults(url:urlget,  
                                        technique: parsingTechnique,
                                        status: .failed(code: -99), pagetitle:"" , links: [], props: [], tags: []))
                 return
@@ -367,7 +366,7 @@ final class CrawlingMac {
             switch status {
                 
             case .failed(let code):
-                whenDone( ParseResults(url:urlget, baseurl: baseURL,
+                whenDone( ParseResults(url:urlget,
                                        technique: parsingTechnique,
                                        status: .failed(code: code), pagetitle:"", links: [], props: [], tags: [])
                 )
@@ -375,7 +374,7 @@ final class CrawlingMac {
                 
             case .succeeded:
                 whenDone(
-                    ParseResults(url:urlget, baseurl: baseURL,
+                    ParseResults(url:urlget,  
                                  technique: parsingTechnique,
                                  status: .succeeded, pagetitle:parseResultz!.pagetitle, links:parseResults.links,  props: parseResults.props,  tags: [])
                 )

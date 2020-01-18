@@ -26,10 +26,6 @@ public enum LoggingLevel {
     case verbose
 }
 
-
-
-
-
 public struct CrawlerStatsBlock:Codable {
     enum CodingKeys: String, CodingKey {
         case elapsedSecs    = "elapsed-secs"
@@ -49,7 +45,7 @@ public struct CrawlerStatsBlock:Codable {
     var status: Int
 }
 protocol CrawlMeister {
-    func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) throws -> (Void)
+    func grub(name:String, configURL: URL, opath:String,logLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) throws -> (Void)
 }
 
 // global, actually
@@ -132,7 +128,7 @@ struct URLFromString :Hashable {
 }
 
 protocol Configable:class, Decodable {
-    var baseurlstr:String? {get set}
+
     var comment:String {get set}
     func load (url:URL? ) -> ([RootStart],ReportParams)
 }
@@ -149,9 +145,9 @@ struct  RootStart : Codable  {
     let technique:ParseTechnique
     let urlstr: String
     
-    init(name:String, urlstr:String, technique: ParseTechnique = .passThru){ //, baseurlstr:String?) {
+    init(name:String, urlstr:String, technique: ParseTechnique = .passThru){
         self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.technique = technique; self.urlstr = urlstr;//self.baseurlstr = baseurlstr
+        self.technique = technique; self.urlstr = urlstr; 
     }
 }
 
@@ -245,7 +241,7 @@ enum ParseTechnique :String, Codable {
 
 // scraping is not  Specific to any 3rd party libraries, custom scraping in the custom package
 //public only for testing
-typealias PageScraperFunc = (ParseTechnique,URL,URL?,String)->ParseResults?
+typealias PageScraperFunc = (ParseTechnique,URL,String)->ParseResults?
 public typealias Crowdable = (Codable)
 
 typealias TraceFuncSig =  (String,String?,Bool,Bool) -> ()
@@ -287,7 +283,6 @@ struct Props : Codable,Hashable {
 }
 struct ParseResults {
     let url : URL?
-    let baseurl: URL?
     let technique : ParseTechnique
     let status : ParseStatus
     
@@ -295,7 +290,7 @@ struct ParseResults {
     let links :  [LinkElement]
     let props : [Props]
     let tags : [String]
-    init(url:URL?,baseurl:URL?,
+    init(url:URL?,
          technique:ParseTechnique,
          status:ParseStatus,
          pagetitle:String,
@@ -304,7 +299,6 @@ struct ParseResults {
          tags:[String]) {
         
         self.url = url
-        self.baseurl = baseurl
         self.technique = technique
         self.status = status
         self.pagetitle = pagetitle

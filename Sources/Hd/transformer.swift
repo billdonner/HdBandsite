@@ -128,13 +128,12 @@ final class Transformer:NSObject,BigMachinery{
     }//incorporateParseResults
 
     
-    func scraper(_ parseTechnique:ParseTechnique, url theURL:URL,
-                 baseURL:URL?, html: String)   -> ParseResults? {
+    func scraper(_ parseTechnique:ParseTechnique, url theURL:URL,  html: String)   -> ParseResults? {
         
         var title: String = ""
         var links : [LinkElement] = []
         
-        guard theURL.absoluteString.hasPrefix(baseURL!.absoluteString) else
+        guard theURL.absoluteString.hasPrefix(matchingURLPrefix.absoluteString) else
         {
             return nil
         }
@@ -165,12 +164,12 @@ final class Transformer:NSObject,BigMachinery{
         }
         catch {
             print("cant parse error is \(error)")
-            return  ParseResults(url: theURL, baseurl:baseURL, technique: parseTechnique,
+            return  ParseResults(url: theURL,  technique: parseTechnique,
                                  status: .failed(code: 0), pagetitle:title,
                                  links: links, props: [], tags: [])
         }
         
-        return  ParseResults(url: theURL, baseurl:baseURL, technique: parseTechnique,
+        return  ParseResults(url: theURL, technique: parseTechnique,
                              status: .succeeded, pagetitle: title,
                              links: links, props:[], tags: [])
     }

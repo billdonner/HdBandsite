@@ -15,7 +15,6 @@ final public class LinkGrubber: CrawlMeister
           init(
             // context:Crowdable,
             runman:BigMachineRunner,
-            baseURL: URL ,
             configURL: URL ,
             options:LoggingLevel = .none,
             whenDone:@escaping ReturnsCrawlResults) throws {
@@ -23,7 +22,7 @@ final public class LinkGrubber: CrawlMeister
             let xpr = RecordExporter(  runman: runman)
             runman.bigMachine.setupController(runman: runman, //context: context,
                 exporter: xpr)
-            runman.bigMachine.startCrawling(baseURL:baseURL, configURL:configURL,loggingLevel: options,finally:whenDone )
+            runman.bigMachine.startCrawling(  configURL:configURL,loggingLevel: options,finally:whenDone )
             
         }
         
@@ -80,20 +79,19 @@ final public class LinkGrubber: CrawlMeister
         }
     }
 
-    
-    public  func grub(name:String, baseURL:URL,configURL: URL, opath:String,logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws{
+    public  func grub(name:String,configURL: URL, opath:String,logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws{
         self.whenDone = finally
         let fp = URL(string:opath)?.deletingPathExtension().absoluteString
         guard let fixedPath = fp
             else {  fatalError("cant fix outpath") }
 
-        let rm = KrawlStream(config:ConfigurationProcessor(baseURL),
+        let rm = KrawlStream(config:ConfigurationProcessor(),
                                 custom: Transformer(artist: name,
                                                     defaultArtUrl: "booly"),
                                 csvoutPath: LocalFilePath(fixedPath+".csv"),
                                 jsonoutPath: LocalFilePath(fixedPath+".json"),
                                 logLevel: logLevel )
         
-        let _ = try  KrawlingBeast( runman: rm,baseURL: baseURL,  configURL: configURL,options:logLevel,whenDone:finally)
+        let _ = try  KrawlingBeast( runman: rm, configURL: configURL,options:logLevel,whenDone:finally)
     }
 }

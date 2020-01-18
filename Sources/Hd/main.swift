@@ -1,5 +1,6 @@
 
 import Foundation
+let matchingURLPrefix = URL(string:"https://billdonner.com/halfdead")!
 command_main()
 
 
@@ -22,7 +23,6 @@ command_main()
         } else
             if isImageExtension(pext) {
                 // if its an image just accumulate them in a gallery
-                
                 images.append(alink.url)
         }
     }

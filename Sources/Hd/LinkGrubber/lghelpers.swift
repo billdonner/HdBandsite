@@ -32,12 +32,7 @@ final class RecordExporter {
             print(s , to: &jsonOutputStream )// dont add extra
     
     }
-//
-//    private func emitToOutputStream(_ s:String) {
-//            print(s , to: &csvOutputStream )// dont add extra
-//            print(s , to: &jsonOutputStream )// dont add extra
-//
-//    }
+
     
    func addHeaderToExportStream( ) {
     
@@ -147,17 +142,11 @@ public class ConsoleIO {
         case roots
     }
     
-   var baseurlstr:String? = nil
-     var comment: String
-    var roots:[String]
+     var comment: String = "<no comment>"
+    var roots:[String] = []
     var crawlStarts:[RootStart] = []
      
-    init(_ baseURL:URL?) {
-        baseurlstr = baseURL?.absoluteString
-        comment = ""
-        roots = []
-    }
-    
+
  func load (url:URL? = nil) -> ([RootStart],ReportParams) {
         do {
             let obj =    try configLoader(url!)

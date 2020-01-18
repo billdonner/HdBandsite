@@ -25,8 +25,8 @@ public enum PublishingMode {
    // var context : Crowdable!{ get set }
     func setupController(runman: BigMachineRunner,// context  :Crowdable,
                          exporter:RecordExporter)
-    func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
-    func scraper(_ technique: ParseTechnique, url:URL,  baseURL:URL?, html: String)->ParseResults?
+    func startCrawling( configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
+    func scraper(_ technique: ParseTechnique, url:URL,  html: String)->ParseResults?
     func incorporateParseResults(pr:ParseResults) throws
     func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString
     func kleenex(_ f:String)->String
@@ -54,12 +54,12 @@ extension BigMachinery {
     }
 
     
-     func startCrawling(baseURL: URL, configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
+     func startCrawling(  configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
         let (roots,reportParams)  = runman.config.load(url: configURL)
         
         do {
             let lk = ScrapingMachine(scraper:runman.bigMachine.scraper)
-            let icrawler = try InnerCrawler(roots:roots,baseURL:baseURL, grubber:lk,logLevel:loggingLevel)
+            let icrawler = try InnerCrawler(roots:roots,  grubber:lk,logLevel:loggingLevel)
             let _ = try CrawlingMac (roots: roots, reportParams:reportParams,      icrawler:icrawler,   runman: runman)
             { crawlResult in
                 // here we are done, reflect it back upstream
