@@ -232,18 +232,15 @@ fileprivate extension InnerCrawler {
 // public for testing only hmm
 final class OuterCrawler {
     private var returnsCrawlResults:ReturnsCrawlResults
-    private var reportParams : ReportParams
     private var runman : BigMachineRunner
     fileprivate  var icrawler : InnerCrawler
     
     init(roots:[RootStart],
-         reportParams:ReportParams,
          loggingLevel:LoggingLevel,
          runman:BigMachineRunner,
          returnsResults:@escaping ReturnsCrawlResults)
         throws {
- 
-            self.reportParams = reportParams
+  
             self.runman = runman
             self.returnsCrawlResults = returnsResults
             
@@ -278,7 +275,6 @@ final class OuterCrawler {
             let crawltime = Date().timeIntervalSince(startTime)
             
             self.finalSummary(stats: self.runman.crawlStats,
-                              reportParams: self.reportParams,
                               count:count,
                               peak:peak,
                               crawltime:crawltime)
@@ -291,10 +287,10 @@ final class OuterCrawler {
         }
     }
 
-    private   func finalSummary (stats:CrawlStats,reportParams:ReportParams,count:Int,peak:Int,crawltime:TimeInterval) {
+    private   func finalSummary (stats:CrawlStats, count:Int,peak:Int,crawltime:TimeInterval) {
         // copy into  TestResultsBlock
         var fb = TestResultsBlock()
-        fb.reportTitle = reportParams.reportTitle
+        fb.reportTitle = "Crawl Summary"
         // this is not always good
         fb.command = CommandLine.arguments
         fb.rootcrawlpoints = stats.goodurls.map() { runman.bigMachine.kleenURLString($0)!.string }

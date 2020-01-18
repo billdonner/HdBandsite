@@ -50,7 +50,7 @@ struct URLFromString :Hashable {
 protocol Configable:class, Decodable {
 
     var comment:String {get set}
-    func load (url:URL? ) -> ([RootStart],ReportParams)
+    func load (url:URL? ) -> ([RootStart])
 }
 public struct CrawlerStatsBlock:Codable {
     enum CodingKeys: String, CodingKey {
@@ -217,7 +217,7 @@ public class ConsoleIO {
     var crawlStarts:[RootStart] = []
      
 
- func load (url:URL? = nil) -> ([RootStart],ReportParams) {
+ func load (url:URL? = nil) -> ([RootStart]) {
         do {
             let obj =    try configLoader(url!)
             return (convertToRootStarts(obj: obj))
@@ -244,7 +244,7 @@ public class ConsoleIO {
         }// outer
         fatalError("should never get here")
     }
-    func convertToRootStarts(obj:ConfigurationProcessor) -> ([RootStart], ReportParams){
+    func convertToRootStarts(obj:ConfigurationProcessor) -> ([RootStart]){
         var toots:[RootStart] = []
         for root in obj.roots{
             toots.append(RootStart(name:root.components(separatedBy: ".").last ?? "?root?",
@@ -252,8 +252,7 @@ public class ConsoleIO {
                                    technique: .parseTop))
         }
         crawlStarts = toots
-        let r = ReportParams(r: obj.comment)
-        return (toots,r)
+        return (toots)
     }
 }
 // was runstats

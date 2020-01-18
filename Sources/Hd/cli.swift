@@ -20,23 +20,23 @@ func command_main() {
         print(nam)
         
         // Get display name, version and build
-        
-        if let displayName =
-            Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String{
-            print(displayName)
-        }
-        if let version =
-            Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String{
-            print(version)
-        }
-        if let build =
-            Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as?  String {
-            print(build)
-        }
-        if let bundleID  =
-            Bundle.main.infoDictionary?[ "CFBundleIdentifier"] as? String {
-            print(bundleID)
-        }
+//        
+//        if let displayName =
+//            Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String{
+//            print(displayName)
+//        }
+//        if let version =
+//            Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String{
+//            print(version)
+//        }
+//        if let build =
+//            Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as?  String {
+//            print(build)
+//        }
+//        if let bundleID  =
+//            Bundle.main.infoDictionary?[ "CFBundleIdentifier"] as? String {
+//            print(bundleID)
+//        }
         let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
         
         print("\(executableName) 1.0.3 ")
@@ -64,37 +64,13 @@ func command_main() {
     // -json and -csv go to adforum for now, -text goes to manifezz
     
     do {
- //       guard CommandLine.arguments.count > 4 else { //exitBadCommand(); exit(0)  }
-//        let arg0 = CommandLine.arguments[1].dropFirst()
-//        let subargs = arg0.components(separatedBy: ",")
-//
-//        if  subargs.count>1 {
-//            verbosity  = subargs[1].hasPrefix("v") ? .verbose: .none
-//        } else {
-//            verbosity = .none
-//        }
-        
-//        switch subargs[0] {
-//        case "c": exportMode = .csv
-//        case "j": exportMode = .json
-//        case "m": exportMode = .md
-//        default: exitBadCommand(); exit(0)
-//        }
-        
-//        if CommandLine.arguments.count > 4  {
-//            guard let b =  URL(string: CommandLine.arguments[4]) else {exitBadCommand(); exit(0)  }
-//            baseURL =   b
-//        }
-        //opath =  (CommandLine.arguments[3])
        
         opath = pathToResourcesDir + "/bigdata.csv"
-        
         
         guard let configurl = URL(string:CommandLine.arguments[1]) else  { exitBadCommand(); exit(0)  }
         
         do {
-            try  LinkGrubber().grub (name: "BigData", //opath.components(separatedBy: ".-").first ?? opath,
-                            
+            try  LinkGrubber().grub (name: "BigData",
                                      configURL:configurl,
                                      opath:opath,
                                      logLevel: verbosity)

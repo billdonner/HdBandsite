@@ -9,10 +9,7 @@ import Foundation
 import Plot
 import Kanna
 
-struct ImagesAndMarkdown {
-    let images: [String]
-    let markdown: String
-}
+
 
 struct BannerAndTags {
     let banner: String

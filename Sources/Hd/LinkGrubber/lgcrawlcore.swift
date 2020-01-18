@@ -23,7 +23,11 @@ public typealias  ReturnsCrawlResults = (CrawlerStatsBlock)->()
 
 
 // global, actually
-
+enum CrawlState {
+    case crawling
+    case done
+    case failed
+}
 struct  RootStart : Codable  {
     let name: String
     let technique:ParseTechnique
@@ -91,24 +95,6 @@ func decomposePlayDate(_ playdate:String) -> (String,String,String) { // month d
 }
 
 
-
-
-struct ReportParams {
-    var reportTitle:String
-    var outputFilePath:String
-    var traceFilePath:String
-    
-    init(r:String = "reportTitle",
-         o:String =  "outputFilePath", 
-         t:String = "traceFilePath") {
-        reportTitle = r
-        outputFilePath = o 
-        traceFilePath = t
-    }
-    static func mock()->ReportParams {
-        return ReportParams()
-    }
-}
 //from apple via khanalou - i improved this to add an exclusive task segment before going to the concurrent queue
 final class LimitedWorker {
     private let serialQueue = DispatchQueue(label: "com.midnightrambler.serial.queue")
@@ -235,11 +221,7 @@ struct ParseResults {
     }
 }
 
-enum CrawlState {
-    case crawling
-    case done
-    case failed
-}
+
 
 struct TestResultsBlock:Codable {
     enum CodingKeys: String, CodingKey {

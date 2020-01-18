@@ -51,12 +51,12 @@ extension BigMachinery {
     
     
     func startCrawling(  configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
-        let (roots,reportParams)  = runman.config.load(url: configURL)
+        let (roots)  = runman.config.load(url: configURL)
         
         do {
             
             let _ = try OuterCrawler (roots: roots,
-                                      reportParams:reportParams, loggingLevel: loggingLevel,
+                                       loggingLevel: loggingLevel,
                                       runman: runman)
             { crawlResult in
                 // here we are done, reflect it back upstream
