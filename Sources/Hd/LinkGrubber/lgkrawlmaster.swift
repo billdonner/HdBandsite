@@ -9,29 +9,29 @@ import Foundation
 
 final public class LinkGrubber: CrawlMeister
 {
-    private var whenDone:ReturnsCrawlResults?
+   // private var whenDone:ReturnsCrawlResults
     // this is where main calls in
-   class KrawlingBeast {
-          init(
-            // context:Crowdable,
-            runman:BigMachineRunner,
-            configURL: URL ,
-            options:LoggingLevel = .none,
-            whenDone:@escaping ReturnsCrawlResults) throws {
-            
-            let xpr = RecordExporter(  runman: runman)
-            runman.bigMachine.setupController(runman: runman, //context: context,
-                exporter: xpr)
-            runman.bigMachine.startCrawling(  configURL:configURL,loggingLevel: options,finally:whenDone )
-            
-        }
-        
-        enum Error: Swift.Error {
-            case missingFileName
-            case failedToCreateFile
-            case badFilePath
-        }
-    }
+//   class KrawlingBeast {
+//          init(
+//            // context:Crowdable,
+//            runman:BigMachineRunner,
+//            configURL: URL ,
+//            options:LoggingLevel = .none,
+//            whenDone:@escaping ReturnsCrawlResults) throws {
+//
+//            let xpr = RecordExporter(  runman: runman)
+//            runman.bigMachine.setupController(runman: runman, //context: context,
+//                exporter: xpr)
+//            runman.bigMachine.startCrawling(  configURL:configURL,loggingLevel: options,finally:whenDone )
+//
+//        }
+//
+//        enum Error: Swift.Error {
+//            case missingFileName
+//            case failedToCreateFile
+//            case badFilePath
+//        }
+//    }
 
     class KrawlStream : NSObject,BigMachineRunner {
        var config: Configable
@@ -80,7 +80,7 @@ final public class LinkGrubber: CrawlMeister
     }
 
     public  func grub(name:String,configURL: URL, opath:String,logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws{
-        self.whenDone = finally
+        //self.whenDone = finally
         let fp = URL(string:opath)?.deletingPathExtension().absoluteString
         guard let fixedPath = fp
             else {  fatalError("cant fix outpath") }
@@ -92,6 +92,11 @@ final public class LinkGrubber: CrawlMeister
                                 jsonoutPath: LocalFilePath(fixedPath+".json"),
                                 logLevel: logLevel )
         
-        let _ = try  KrawlingBeast( runman: rm, configURL: configURL,options:logLevel,whenDone:finally)
+        
+        let xpr = RecordExporter(  runman: rm)
+        rm.bigMachine.setupController(runman: rm, //context: context,
+            exporter: xpr)
+        rm.bigMachine.startCrawling(  configURL:configURL,loggingLevel: logLevel,finally:finally )
+
     }
 }

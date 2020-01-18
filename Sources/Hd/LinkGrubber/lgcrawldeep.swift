@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Igcrawlwidedeep.swift
 //  
 //
 //  Created by william donner on 1/10/20.
@@ -7,13 +7,8 @@
 
 import Foundation
 
-public struct Fav {
-    let name: String
-    let url: String
-    let comment: String
-}
-    
-final class CrawlTable {
+
+fileprivate final class CrawlTable {
     init() {
     }
     
@@ -53,7 +48,7 @@ final class CrawlTable {
     }
     
     
- func crawlLoop (finally:  ReturnsCrawlStats,  stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
+ fileprivate func crawlLoop (finally:  ReturnsCrawlStats,  stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
         while crawlState == .crawling {
             if items.count == 0 {
                 crawlState = .done
@@ -75,7 +70,7 @@ final class CrawlTable {
 
 ////////
 
-  final class InnerCrawler : NSObject {
+  fileprivate final class InnerCrawler : NSObject {
     private(set)  var ct =  CrawlTable()
     private var crawloptions: LoggingLevel
 
@@ -195,7 +190,7 @@ final class CrawlTable {
     }
 }
 
-extension InnerCrawler {
+fileprivate extension InnerCrawler {
     private  func loadAndScrape(_ rootURL:URL,
                                 technique:ParseTechnique,
                                 finito:@escaping ReturnsParseResults)
@@ -235,7 +230,7 @@ extension InnerCrawler {
 }
 
 // public for testing only hmm
-final class CrawlingMac {
+final class OuterCrawler {
     private var returnsCrawlResults:ReturnsCrawlResults
     private var reportParams : ReportParams
     private var runman : BigMachineRunner
@@ -243,15 +238,19 @@ final class CrawlingMac {
     
     init(roots:[RootStart],
          reportParams:ReportParams,
-         icrawler :InnerCrawler,
+         loggingLevel:LoggingLevel,
          runman:BigMachineRunner,
          returnsResults:@escaping ReturnsCrawlResults)
         throws {
-            self.icrawler =   icrawler
+ 
             self.reportParams = reportParams
             self.runman = runman
             self.returnsCrawlResults = returnsResults
-            startMeUp(roots)
+            
+            // we start the inner crawler right here
+            let lk = ScrapingMachine(scraper:runman.bigMachine.scraper)
+            self.icrawler =  try InnerCrawler(roots:roots,  grubber:lk,logLevel:loggingLevel)
+            startMeUp(roots, icrawler: icrawler )
     }
     
 
@@ -266,7 +265,7 @@ final class CrawlingMac {
         }
     }
     
-    private func startMeUp(_ roots:[RootStart]) {
+    private func startMeUp(_ roots:[RootStart],icrawler:InnerCrawler) {
         let startTime = Date()
        // let baseurltag = (icrawler.baseURL != nil) ?  icrawler.baseURL!.absoluteString : "baseurl fail" //XXXXXXXX
         print("[crawler] starting \(startTime), root \(roots[0].urlstr) please be patient")
@@ -317,7 +316,7 @@ final class CrawlingMac {
 
 
 // public only for testing
- final class ScrapingMachine:NSObject {
+ fileprivate final class ScrapingMachine:NSObject {
     private var scraperx:PageScraperFunc
  init(scraper:@escaping PageScraperFunc) {
         self.scraperx = scraper

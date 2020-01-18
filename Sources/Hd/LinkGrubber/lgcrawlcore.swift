@@ -21,36 +21,19 @@ public typealias  ReturnsCrawlResults = (CrawlerStatsBlock)->()
 
 // these really must be public, whereas the stuff below is only used within
 
-public enum LoggingLevel {
-    case none
-    case verbose
-}
-
-public struct CrawlerStatsBlock:Codable {
-    enum CodingKeys: String, CodingKey {
-        case elapsedSecs    = "elapsed-secs"
-        case secsPerCycle     = "secs-percycle"
-        case added
-        case peak
-        case count1
-        case count2
-        case status
-    }
-    var added:Int
-    var peak:Int
-    var elapsedSecs:Double
-    var secsPerCycle:Double
-    var count1: Int
-    var count2: Int
-    var status: Int
-}
-protocol CrawlMeister {
-    func grub(name:String, configURL: URL, opath:String,logLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) throws -> (Void)
-}
 
 // global, actually
 
-
+struct  RootStart : Codable  {
+    let name: String
+    let technique:ParseTechnique
+    let urlstr: String
+    
+    init(name:String, urlstr:String, technique: ParseTechnique = .passThru){
+        self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.technique = technique; self.urlstr = urlstr;
+    }
+}
 // freestanding
 var LibraryDirectoryURL:URL {
     return  URL(fileURLWithPath:  NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0] as String )//+ "/" + "_export")// distinguish
@@ -107,65 +90,9 @@ func decomposePlayDate(_ playdate:String) -> (String,String,String) { // month d
     return (String(year),String(month),String(day))
 }
 
-struct LocalFilePath {
-    private(set) var p : String
-    var path :String {
-        return p//url.absoluteString
-    }
-    init(_ p:String){
-        self.p = p
-    }
-}
-struct URLFromString :Hashable {
-    let  string : String
-    let  url: URL?
-    
-    init(_ s:String ) {
-        self.string = s
-        self.url = URL(string:s)
-    }
-    
-}
 
-protocol Configable:class, Decodable {
 
-    var comment:String {get set}
-    func load (url:URL? ) -> ([RootStart],ReportParams)
-}
 
-protocol BigMachineRunner {
-    var config:Configable {get set}
-    var logLevel:LoggingLevel  {get set}
-    var bigMachine:BigMachinery {get set}
-    var crawlStats:CrawlStats {get set}
-}
-
-struct  RootStart : Codable  {
-    let name: String
-    let technique:ParseTechnique
-    let urlstr: String
-    
-    init(name:String, urlstr:String, technique: ParseTechnique = .passThru){
-        self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.technique = technique; self.urlstr = urlstr; 
-    }
-}
-
-enum OutputType: String {
-    case csv = "csv"
-    case json = "json"
-    case text = "text"
-    case unknown
-    
-    init(value: String) {
-        switch value {
-        case "csv": self = .csv
-        case "json": self = .json
-        case "text": self = .text
-        default: self = .unknown
-        }
-    }
-}
 struct ReportParams {
     var reportTitle:String
     var outputFilePath:String

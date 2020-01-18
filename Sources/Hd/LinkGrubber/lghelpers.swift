@@ -13,6 +13,88 @@ var jsonOutputStream : FileHandlerOutputStream!
 var traceStream : FileHandlerOutputStream!
 var consoleIO = ConsoleIO()
 
+/// add new code to write md files for Publish ing static site
+public enum PublishingMode {
+    case fromPublish
+    case fromWithin
+}
+public struct Fav {
+    let name: String
+    let url: String
+    let comment: String
+}
+public enum LoggingLevel {
+    case none
+    case verbose
+}
+struct LocalFilePath {
+    private(set) var p : String
+    var path :String {
+        return p//url.absoluteString
+    }
+    init(_ p:String){
+        self.p = p
+    }
+}
+struct URLFromString :Hashable {
+    let  string : String
+    let  url: URL?
+    
+    init(_ s:String ) {
+        self.string = s
+        self.url = URL(string:s)
+    }
+    
+}
+
+protocol Configable:class, Decodable {
+
+    var comment:String {get set}
+    func load (url:URL? ) -> ([RootStart],ReportParams)
+}
+public struct CrawlerStatsBlock:Codable {
+    enum CodingKeys: String, CodingKey {
+        case elapsedSecs    = "elapsed-secs"
+        case secsPerCycle     = "secs-percycle"
+        case added
+        case peak
+        case count1
+        case count2
+        case status
+    }
+    var added:Int
+    var peak:Int
+    var elapsedSecs:Double
+    var secsPerCycle:Double
+    var count1: Int
+    var count2: Int
+    var status: Int
+}
+protocol CrawlMeister {
+    func grub(name:String, configURL: URL, opath:String,logLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) throws -> (Void)
+}
+protocol BigMachineRunner {
+    var config:Configable {get set}
+    var logLevel:LoggingLevel  {get set}
+    var bigMachine:BigMachinery {get set}
+    var crawlStats:CrawlStats {get set}
+}
+
+enum OutputType: String {
+    case csv = "csv"
+    case json = "json"
+    case text = "text"
+    case unknown
+    
+    init(value: String) {
+        switch value {
+        case "csv": self = .csv
+        case "json": self = .json
+        case "text": self = .text
+        default: self = .unknown
+        }
+    }
+}
 /*
  
  build either csv or json export stream
@@ -24,43 +106,34 @@ final class RecordExporter {
     private var rg:BigMachineRunner
     private var first = true
     init( runman:BigMachineRunner) {
-    
         self.rg = runman
     }
     
     private func emitToJSONStream(_ s:String) {
             print(s , to: &jsonOutputStream )// dont add extra
-    
     }
 
     
    func addHeaderToExportStream( ) {
-    
     print(rg.bigMachine.makecsvheader(), to: &csvOutputStream )// dont add extra
     print("""
       [
     """ ,
             to: &jsonOutputStream )// dont add extra
-        
-
     }
     func addTrailerToExportStream( ) {
         print("adding trailer!!!")
-         
             if let trailer = rg.bigMachine.mskecsvtrailer() {
                print(trailer , to: &csvOutputStream )
             }
      //emitToJSONStream(trailer)
     }
     func addRowToExportStream( ) {
-        //switch exportMode {
-            
-       // case .csv:
+ 
             let stuff = rg.bigMachine.makecsvrow( )
                     print(stuff , to: &csvOutputStream )
             
-       // case .json:
-          //  let stuff = rg.custom.makecsvrow( )
+        
             let parts = stuff.components(separatedBy: ",")
             if first {
                 emitToJSONStream("""
@@ -84,9 +157,6 @@ final class RecordExporter {
                 }
                 
             }
-//        case .md:
-//            break
-//        }
         first =  false
     }
 }

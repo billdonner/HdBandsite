@@ -64,7 +64,7 @@ func command_main() {
     // -json and -csv go to adforum for now, -text goes to manifezz
     
     do {
-        guard CommandLine.arguments.count > 4 else { exitBadCommand(); exit(0)  }
+ //       guard CommandLine.arguments.count > 4 else { //exitBadCommand(); exit(0)  }
 //        let arg0 = CommandLine.arguments[1].dropFirst()
 //        let subargs = arg0.components(separatedBy: ",")
 //
@@ -90,7 +90,7 @@ func command_main() {
         opath = pathToResourcesDir + "/bigdata.csv"
         
         
-        guard let configurl = URL(string:CommandLine.arguments[2]) else  { exitBadCommand(); exit(0)  }
+        guard let configurl = URL(string:CommandLine.arguments[1]) else  { exitBadCommand(); exit(0)  }
         
         do {
             try  LinkGrubber().grub (name: "BigData", //opath.components(separatedBy: ".-").first ?? opath,

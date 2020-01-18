@@ -9,22 +9,18 @@
 import Foundation
 import Kanna
 
-/// add new code to write md files for Publish ing static site
-public enum PublishingMode {
-    case fromPublish
-    case fromWithin
-}
 
- protocol BigMachinery : class  {
+    
+protocol BigMachinery : class  {
     var runman: BigMachineRunner! { get set }
     var recordExporter : RecordExporter!{ get set }
     func makecsvrow() -> String
     func makecsvheader()->String
     func mskecsvtrailer()->String?
     
-   // var context : Crowdable!{ get set }
+    // var context : Crowdable!{ get set }
     func setupController(runman: BigMachineRunner,// context  :Crowdable,
-                         exporter:RecordExporter)
+        exporter:RecordExporter)
     func startCrawling( configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
     func scraper(_ technique: ParseTechnique, url:URL,  html: String)->ParseResults?
     func incorporateParseResults(pr:ParseResults) throws
@@ -34,13 +30,13 @@ public enum PublishingMode {
     func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement])
 }
 extension BigMachinery {
-     func setupController(runman: BigMachineRunner, //context  :Crowdable,
-                                exporter:RecordExporter) {
+    func setupController(runman: BigMachineRunner, //context  :Crowdable,
+        exporter:RecordExporter) {
         self.runman = runman
         self.recordExporter = exporter
-       // self.context = context
+        // self.context = context
     }
-
+    
     func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString {
         return urlstr//URLFromString(urlstr.url?.lastPathComponent ?? "partfromurlstr failure")
     }
@@ -52,15 +48,16 @@ extension BigMachinery {
         let newer = original.replacingOccurrences(of: "%20", with: "+")
         return URLFromString(newer)
     }
-
     
-     func startCrawling(  configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
+    
+    func startCrawling(  configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
         let (roots,reportParams)  = runman.config.load(url: configURL)
         
         do {
-            let lk = ScrapingMachine(scraper:runman.bigMachine.scraper)
-            let icrawler = try InnerCrawler(roots:roots,  grubber:lk,logLevel:loggingLevel)
-            let _ = try CrawlingMac (roots: roots, reportParams:reportParams,      icrawler:icrawler,   runman: runman)
+            
+            let _ = try OuterCrawler (roots: roots,
+                                      reportParams:reportParams, loggingLevel: loggingLevel,
+                                      runman: runman)
             { crawlResult in
                 // here we are done, reflect it back upstream
                 // print(crawlResult)
