@@ -8,11 +8,13 @@
 import Foundation
 import Publish
 
+
+
 struct ImagesAndMarkdown {
     let images: [String]
     let markdown: String
-}
- func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav]) -> ImagesAndMarkdown {
+
+ static func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav]) -> ImagesAndMarkdown {
     var images: [String] = []
     var pmdbuf = "\n"
     for(_,alink) in links.enumerated() {
@@ -39,19 +41,17 @@ struct ImagesAndMarkdown {
     return ImagesAndMarkdown(images:images,markdown:pmdbuf)
 }
 
-
- func makeAndWriteMdFile(_ title:String, stuff:String,spec:String) throws {
-          let markdownData: Data? = stuff.data(using: .utf8)
-          try markdownData!.write(to:URL(fileURLWithPath:  spec,isDirectory: false))
-      }
-
+}
 
 // these are pages that are built from swift code that is run before we call Publish...
 
 struct PrePublishing{
-    static func allPrePublishingSteps () throws {
-        try addBillsFavorites()
-        try addBriansFavorites()
+    static func allPrePublishingSteps ()throws  ->Int {
+        let funcs : [() throws  ->  ()] = [addBillsFavorites,addBriansFavorites]
+        for f in funcs {
+            try f()
+        }
+        return funcs.count
     }
     static private func addBillsFavorites() throws {
         
@@ -59,9 +59,7 @@ struct PrePublishing{
             Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"favorite of all time"),
             Fav(name: "riders",url: "https://billdonner.com/foobly/riders.mp3",comment:"best of the year")
         ]
-        
-        
-        try makeAudioListMarkdown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
+        try Audio.makeAudioListMarkdown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
                                   title:"Bill's Best 2019",
                                   tags:["favorites"],
                                   venue: "favorites",
@@ -73,13 +71,11 @@ struct PrePublishing{
     static private func addBriansFavorites() throws{
         let links = [
             Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"not exactly my taste"),
-            
-            
             Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"I like the drumming")
-        ]
-        
-        
-        try  makeAudioListMarkdown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/", title:"Brian's Favorites 2018",     tags:["favorites"],
+        ] 
+        try  Audio.makeAudioListMarkdown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/",
+                                   title:"Brian's Favorites 2018",
+                                   tags:["favorites"],
                                    venue: "favorites",
                                    playdate: "123118",
                                    links:links)
@@ -89,14 +85,17 @@ struct PrePublishing{
 //MARK: - These pages are built with Plot and then AddPage
 
 extension PublishingStep where Site == Hd {
-    static func allsteps () throws -> [PublishingStep<Hd>] {
-     return [try makeTestPageStep(), try makeMembersPageStep(),addSectionTitlesStep()]
+    static var madePageCount = 0
+    static func allsteps () throws -> ([PublishingStep<Hd>],Int) {
+     return ([try makeTestPageStep(), try makeMembersPageStep(),addSectionTitlesStep()],madePageCount)
     }
     static func makeTestPageStep ( ) throws -> Self {
+        madePageCount += 1
         return PublishingStep<Hd>.addPage(Page(path:"/test",
                                                content: Content(title:"test test", description:"this is just a test" )))
     }
     static func makeMembersPageStep ( ) throws -> Self {
+        madePageCount += 1 
         return PublishingStep<Hd>.addPage(Page(path:"/about",
                                                content: Content(title:"ABHD Members", description:"The members of ABHD" )))
     }

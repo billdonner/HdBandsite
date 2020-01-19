@@ -159,11 +159,14 @@ final class RecordExporter {
             to: &jsonOutputStream )// dont add extra
     }
     func addTrailerToExportStream( ) {
-        print("adding trailer!!!")
+        
             if let trailer =  mskecsvtrailer() {
                print(trailer , to: &csvOutputStream )
             }
-     //emitToJSONStream(trailer)
+        
+        emitToJSONStream("""
+}
+""")
     }
     func addRowToExportStream(cont:CrawlingElement) {
  

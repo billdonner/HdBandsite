@@ -11,8 +11,9 @@ import Kanna
 let letters = CharacterSet.letters
 let digits = CharacterSet.decimalDigits
 
+final class Transformer:NSObject {
 
-fileprivate func pickapart(_ phrase:String) -> Shredded {
+  func pickapart(_ phrase:String) -> Shredded {
      
     var letterCount = 0
     var digitCount = 0
@@ -32,9 +33,7 @@ fileprivate func pickapart(_ phrase:String) -> Shredded {
 }
 
 
-final class Transformer:NSObject {
 
-    //var bigMachineRunner : BigMachineRunner!
     var recordExporter : RecordExporter!
     var cont = CrawlingElement()
                              
@@ -75,17 +74,13 @@ final class Transformer:NSObject {
     }
     deinit  {
         recordExporter.addTrailerToExportStream()
+        print("[crawler] finalized csv and json streams")
     }
     
     func  incorporateParseResults(pr:ParseResults) throws {
-        
         var mdlinks : [Fav] = []  // must reset each time !!
         // move the props into a record
         guard let url = pr.url else { fatalError() }
-        // regardless of the type of export
-        // var name:String = "no links!"
-        
-        
         for link in pr.links {
             let href =  link.href!.absoluteString
             if !href.hasSuffix("/" ) {
@@ -121,9 +116,11 @@ final class Transformer:NSObject {
             
             // when naming the file, put the date part first and then the venu, the date is YYMMDD for sorting
             
-            try makeAudioListMarkdown(mode: .fromPublish, url:aurl,
-                                 
-                                      title: "\(playdate)\(venue)",     tags:["audio"], venue: ve, playdate: String(year+month+day),
+            try Audio.makeAudioListMarkdown(mode: .fromPublish, url:aurl,
+                                      title: "\(playdate)\(venue)",
+                                        tags:["audio"],
+                                        venue: ve,
+                                        playdate: String(year+month+day),
                                       links:mdlinks )
         }//writemdfiles==true
     }//incorporateParseResults
@@ -134,7 +131,7 @@ final class Transformer:NSObject {
         var title: String = ""
         var links : [LinkElement] = []
         
-        guard theURL.absoluteString.hasPrefix(matchingURLPrefix.absoluteString) else
+        guard theURL.absoluteString.hasPrefix(Hd.matchingURLPrefix.absoluteString) else
         {
             return nil
         }

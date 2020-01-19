@@ -40,16 +40,8 @@ struct Hd: Website {
     var language: Language { .english }
     var imagePath: Path? { "images/ABHDLogo.png" }
     var favicon: Favicon?  { Favicon(path: "images/favicon.png")}
-    
-    static let default_venue_acronym : String = "thorn"
-    static let default_venue_description: String = "Highline Studios, Thornwood, NY"
-    static let crawlerKeyTags:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
-    static let pathToContentDir =  "/Users/williamdonner/hd/Content"
-    static let pathToResourcesDir = "/Users/williamdonner/hd"
-    
-    
+ 
 }
-
 
 
 func isImageExtension (_ s:String) -> Bool {
@@ -66,8 +58,6 @@ func isMarkdownExtension(_ s:String) -> Bool{
 
 
 
-let matchingURLPrefix =
-URL(string:"https://billdonner.com/halfdead")!
 
 
 

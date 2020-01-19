@@ -18,11 +18,18 @@ extension Theme where Site == Hd {
         )
     }
 }
+extension Hd {
+     static let default_venue_acronym : String = "thorn"
+     static let default_venue_description: String = "Highline Studios, Thornwood, NY"
+     static let crawlerKeyTags:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
+     static let pathToContentDir =  "/Users/williamdonner/hd/Content"
+     static let pathToResourcesDir = "/Users/williamdonner/hd"
+     static let matchingURLPrefix =  URL(string:"https://billdonner.com/halfdead")!
+}
+
+
 
 //MARK: - the  Publish addPage call comes here where we can generate custom HTML using plot for these spcial pages
-
-
-
 
 struct HdHTMLFactory: HTMLFactory {
     func makeSectionHTML(for section: Section<Hd>,

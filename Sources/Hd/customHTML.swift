@@ -31,23 +31,23 @@ extension PublishingContext where Site == Hd  {
     /// - parameter sortingKeyPath: The key path to sort the items by.
     /// - parameter order: The order to use when sorting the items.
     func someItems<T: Comparable>(max:Int,
-        sortedBy sortingKeyPath: KeyPath<Item<Site>, T>,
-        order: SortOrder = .ascending
+                                  sortedBy sortingKeyPath: KeyPath<Item<Site>, T>,
+                                  order: SortOrder = .ascending
     ) -> [Item<Site>] {
         let items = sections.flatMap { $0.items }
         let x = items.sorted(
             by: order.makeASorter(forKeyPath: sortingKeyPath))
         return x.dropLast(x.count-max)
-   
+        
     }
 }
 // 
 extension Node where Context: HTML.BodyContext {
-  /// Add a `<figure>` HTML element within the current context.
-  /// - parameter nodes: The element's attributes and child elements.
-  static func figure(_ nodes: Node<HTML.BodyContext>...) -> Node {
-      .element(named: "figure", nodes: nodes)
-  }
+    /// Add a `<figure>` HTML element within the current context.
+    /// - parameter nodes: The element's attributes and child elements.
+    static func figure(_ nodes: Node<HTML.BodyContext>...) -> Node {
+        .element(named: "figure", nodes: nodes)
+    }
     /// Add a `<figcaption>` HTML element within the current context.
     /// - parameter nodes: The element's attributes and child elements.
     static func figcaption(_ nodes: Node<HTML.BodyContext>...) -> Node {
@@ -74,8 +74,8 @@ extension Node where Context == HTML.BodyContext {
                     .nav(
                         .ul(
                             .li(.a(
-                            .href("/blog"),
-                            .text("Blog"))),
+                                .href("/blog"),
+                                .text("Blog"))),
                             .li(.a(
                                 .href("/tags"),
                                 .text("Tags"))),
@@ -137,7 +137,7 @@ extension Node where Context == HTML.BodyContext {
                 .a( .text("LinkGrubber"),  .href("https://github.com/johnsundell/publish")
                 ),
                 .i(" updated \(now)")
-                    )) 
+            ))
     }
 }
 extension HdHTMLFactory {
@@ -157,28 +157,28 @@ extension HdHTMLFactory {
                     
                     .h2("Recent Posts"),
                     .itemList( for: context.someItems(max:5, sortedBy: \.date,
-                                             order: .descending
-                                           ),
-                                           on: context.site
-                                   )),
+                                                      order: .descending
+                        ),
+                               on: context.site
+                    )),
                 
-    .h4("Data Assets"),
-                    .ul(
-                     
-                     .li(    .class("reftag"),
-                             .a(.href("/bigdata.csv"),
-                             .text("CSV for data anaylsis")) ),
-                     .li(    .class("reftag"),
-                             .a(.href("/bigdata.json"),
-                             .text("JSON for apps")) ),
-                     .li(    .class("reftag"),
-                             .a(
+                .h4("Data Assets"),
+                .ul(
+                    
+                    .li(    .class("reftag"),
+                            .a(.href("/bigdata.csv"),
+                               .text("CSV for data anaylsis")) ),
+                    .li(    .class("reftag"),
+                            .a(.href("/bigdata.json"),
+                               .text("JSON for apps")) ),
+                    .li(    .class("reftag"),
+                            .a(
                                 .href("/sitemap.xml"),
                                 .text("Sitemap")) ),
-                     .li(    .class("reftag"),
-                             .a(.text("RSS feed"),
-                                 .href("/feed.rss")))
-                     ),
+                    .li(    .class("reftag"),
+                            .a(.text("RSS feed"),
+                               .href("/feed.rss")))
+                ),
                 
                 .footer(for: context.site)
             )
@@ -254,7 +254,7 @@ extension HdHTMLFactory {
                     .p("We Don't Play For Free"),
                     .form(
                         .action("mailto:bildonner@gmail.com"),
-                 
+                        
                         .fieldset(
                             .label(.for("name"), "Name"),
                             .input(.name("name"), .type(.text), .autofocus(false), .required(true))
