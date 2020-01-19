@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ighelpers.swift
 //  
 //
 //  Created by william donner on 1/9/20.
@@ -70,16 +70,53 @@ public struct CrawlerStatsBlock:Codable {
     var count2: Int
     var status: Int
 }
+struct ParseResults {
+    let url : URL?
+    let technique : ParseTechnique
+    let status : ParseStatus
+    
+    let pagetitle: String
+    let links :  [LinkElement]
+    let props : [Props]
+    let tags : [String]
+    init(url:URL?,
+         technique:ParseTechnique,
+         status:ParseStatus,
+         pagetitle:String,
+         links:[LinkElement],
+         props:[Props],
+         tags:[String]) {
+        
+        self.url = url
+        self.technique = technique
+        self.status = status
+        self.pagetitle = pagetitle
+        self.links = links
+        self.props = props
+        self.tags = tags
+    }
+}
+
+
 protocol CrawlMeister {
     func grub(name:String, configURL: URL, opath:String,logLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) throws -> (Void)
 }
 protocol BigMachineRunner {
     var config:Configable {get set}
     var logLevel:LoggingLevel  {get set}
-    var bigMachine:BigMachinery {get set}
     var crawlStats:CrawlStats {get set}
+    var  recordExporter : RecordExporter!{ get set }
+    func makecsvrow() -> String
+    func makecsvheader()->String
+    func mskecsvtrailer()->String?
+    
+    mutating func setupKrawler(  exporter:RecordExporter)
+    func startCrawling( configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
+    func scraper(_ technique: ParseTechnique, url:URL,  html: String)->ParseResults?
+    func incorporateParseResults(pr:ParseResults) throws
+    func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement])
+    
 }
-
 enum OutputType: String {
     case csv = "csv"
     case json = "json"
@@ -105,8 +142,8 @@ enum OutputType: String {
 final class RecordExporter {
     private var rg:BigMachineRunner
     private var first = true
-    init( runman:BigMachineRunner) {
-        self.rg = runman
+    init( bigMachineRunner:BigMachineRunner) {
+        self.rg = bigMachineRunner
     }
     
     private func emitToJSONStream(_ s:String) {
@@ -115,7 +152,7 @@ final class RecordExporter {
 
     
    func addHeaderToExportStream( ) {
-    print(rg.bigMachine.makecsvheader(), to: &csvOutputStream )// dont add extra
+    print(rg.makecsvheader(), to: &csvOutputStream )// dont add extra
     print("""
       [
     """ ,
@@ -123,14 +160,14 @@ final class RecordExporter {
     }
     func addTrailerToExportStream( ) {
         print("adding trailer!!!")
-            if let trailer = rg.bigMachine.mskecsvtrailer() {
+            if let trailer = rg.mskecsvtrailer() {
                print(trailer , to: &csvOutputStream )
             }
      //emitToJSONStream(trailer)
     }
     func addRowToExportStream( ) {
  
-            let stuff = rg.bigMachine.makecsvrow( )
+            let stuff = rg.makecsvrow( )
                     print(stuff , to: &csvOutputStream )
             
         
@@ -258,7 +295,7 @@ public class ConsoleIO {
 // was runstats
   final class CrawlStats:NSObject {
     
-    var partCustomizer:BigMachinery!
+    var transformer:Transformer
     var keyCounts:NSCountedSet!
     var goodurls :Set<URLFromString>!
     var badurls :Set<URLFromString>!
@@ -268,14 +305,12 @@ public class ConsoleIO {
         keyCounts.add(s)
     }
     func addStatsGoodCrawlRoot(urlstr:URLFromString) {
-        guard let part  = partCustomizer?.partFromUrlstr(urlstr) else { fatalError();
-        }
+       let part  =  partFromUrlstr(urlstr)
         goodurls.insert(part )
         if badurls.contains(part)   { badurls.remove(part) }
     }
     func addStatsBadCrawlRoot(urlstr:URLFromString) {
-        guard let part  = partCustomizer?.partFromUrlstr(urlstr) else { fatalError();
-        }
+        let part  =  partFromUrlstr(urlstr)
         if goodurls.contains(part)   { return }
         badurls.insert(part)
     }
@@ -284,8 +319,8 @@ public class ConsoleIO {
         badurls = Set<URLFromString>()
         keyCounts = NSCountedSet()
     }
-    init(partCustomizer :BigMachinery) {
-        self.partCustomizer = partCustomizer
+    init(transformer :Transformer) {
+        self.transformer = transformer
         super.init()
         reset()
     }

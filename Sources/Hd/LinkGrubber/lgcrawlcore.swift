@@ -43,7 +43,7 @@ var LibraryDirectoryURL:URL {
     return  URL(fileURLWithPath:  NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0] as String )//+ "/" + "_export")// distinguish
 }
 var ExportDirectoryURL:URL {
-    return  URL(fileURLWithPath:  NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String )//+ "/" + "_export")// distinguish
+    return  URL(fileURLWithPath: "/Users/williamdonner/hd")//+ "/" + "_export")// distinguish
 }
 func bootstrapExportDir() {
     //touched in crawler pile
@@ -194,33 +194,6 @@ struct Props : Codable,Hashable {
         self.value = value
     }
 }
-struct ParseResults {
-    let url : URL?
-    let technique : ParseTechnique
-    let status : ParseStatus
-    
-    let pagetitle: String
-    let links :  [LinkElement]
-    let props : [Props]
-    let tags : [String]
-    init(url:URL?,
-         technique:ParseTechnique,
-         status:ParseStatus,
-         pagetitle:String,
-         links:[LinkElement],
-         props:[Props],
-         tags:[String]) {
-        
-        self.url = url
-        self.technique = technique
-        self.status = status
-        self.pagetitle = pagetitle
-        self.links = links
-        self.props = props
-        self.tags = tags
-    }
-}
-
 
 
 struct TestResultsBlock:Codable {

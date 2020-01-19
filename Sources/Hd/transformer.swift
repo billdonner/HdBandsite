@@ -32,9 +32,9 @@ fileprivate func pickapart(_ phrase:String) -> Shredded {
 }
 
 
-final class Transformer:NSObject,BigMachinery{ 
+final class Transformer:NSObject {
 
-    var runman : BigMachineRunner!
+    //var bigMachineRunner : BigMachineRunner!
     var recordExporter : RecordExporter!
     var cont = CrawlingElement()
                              
@@ -70,7 +70,7 @@ final class Transformer:NSObject,BigMachinery{
         self.coverArtUrl = defaultArtUrl
         self.artist = artist
         super.init()
-        cleanOuputs(outpath: pathToOutputDir)
+        cleanOuputs(outpath: Hd.pathToContentDir)
     }
     deinit  {
         recordExporter.addTrailerToExportStream()

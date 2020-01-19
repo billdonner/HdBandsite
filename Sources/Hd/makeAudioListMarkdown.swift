@@ -116,9 +116,9 @@ func makeAudioListMarkdown(mode:PublishingMode,
          var spec: String
          switch  mode {
          case  .fromPublish :
-             spec =  "\(pathToOutputDir)/audiosessions/\(venue)\(playdate).md"
+            spec =  "\(Hd.pathToContentDir)/audiosessions/\(venue)\(playdate).md"
          case  .fromWithin :
-             spec =  "\(pathToOutputDir)/favorites/\(title).md"
+            spec =  "\(Hd.pathToContentDir)/favorites/\(title).md"
          }
            guard let u = URL(string:aurl) else { return }
         let stuff =  generateAudioMarkdownPage(x.banner,

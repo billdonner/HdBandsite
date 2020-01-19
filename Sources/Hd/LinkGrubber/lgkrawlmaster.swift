@@ -9,44 +9,21 @@ import Foundation
 
 final public class LinkGrubber: CrawlMeister
 {
-   // private var whenDone:ReturnsCrawlResults
-    // this is where main calls in
-//   class KrawlingBeast {
-//          init(
-//            // context:Crowdable,
-//            runman:BigMachineRunner,
-//            configURL: URL ,
-//            options:LoggingLevel = .none,
-//            whenDone:@escaping ReturnsCrawlResults) throws {
-//
-//            let xpr = RecordExporter(  runman: runman)
-//            runman.bigMachine.setupController(runman: runman, //context: context,
-//                exporter: xpr)
-//            runman.bigMachine.startCrawling(  configURL:configURL,loggingLevel: options,finally:whenDone )
-//
-//        }
-//
-//        enum Error: Swift.Error {
-//            case missingFileName
-//            case failedToCreateFile
-//            case badFilePath
-//        }
-//    }
-
-    class KrawlStream : NSObject,BigMachineRunner {
+    class KrawlStream : NSObject {
+  
        var config: Configable
         // all of these variables are rquired by RunManager Protocol
-        private   var recordExporter: RecordExporter!
-         var logLevel:LoggingLevel
-       var bigMachine:BigMachinery
+       // private var recordExporter: RecordExporter!
+        var logLevel:LoggingLevel
+        var transformer:Transformer
         var crawlStats:CrawlStats
         
-        required   init (config:Configable, custom:BigMachinery, csvoutPath:LocalFilePath,jsonoutPath:LocalFilePath, logLevel:LoggingLevel) {
+        required   init (config:Configable, transformer:Transformer, csvoutPath:LocalFilePath,jsonoutPath:LocalFilePath, logLevel:LoggingLevel) {
      
-            self.bigMachine = custom
+            self.transformer = transformer
             self.config = config
             self.logLevel = logLevel
-            self.crawlStats = CrawlStats(partCustomizer: self.bigMachine)
+            self.crawlStats = CrawlStats(transformer: self.transformer)
             bootstrapExportDir()
             
             do {
@@ -69,7 +46,7 @@ final public class LinkGrubber: CrawlMeister
                 super.init()
                 //let exporttype = url.pathExtension == "csv" ? RecordExportType.csv : .json
                 
-                self.recordExporter = RecordExporter( runman: self)
+                //self.recordExporter = RecordExporter( runman: self)
                 
             }
             catch {
@@ -79,24 +56,21 @@ final public class LinkGrubber: CrawlMeister
         }
     }
 
-    public  func grub(name:String,configURL: URL, opath:String,logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws{
-        //self.whenDone = finally
-        let fp = URL(string:opath)?.deletingPathExtension().absoluteString
-        guard let fixedPath = fp
+    public  func grub(name:String,configURL: URL, opath:String,logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws {
+     
+        guard let fixedPath = URL(string:opath)?.deletingPathExtension().absoluteString
             else {  fatalError("cant fix outpath") }
 
         let rm = KrawlStream(config:ConfigurationProcessor(),
-                                custom: Transformer(artist: name,
-                                                    defaultArtUrl: "booly"),
+                           transformer: Transformer(artist: name, defaultArtUrl: "booly"),
                                 csvoutPath: LocalFilePath(fixedPath+".csv"),
                                 jsonoutPath: LocalFilePath(fixedPath+".json"),
                                 logLevel: logLevel )
+         
+        let xpr = RecordExporter(  bigMachineRunner: rm)
         
-        
-        let xpr = RecordExporter(  runman: rm)
-        rm.bigMachine.setupController(runman: rm, //context: context,
-            exporter: xpr)
-        rm.bigMachine.startCrawling(  configURL:configURL,loggingLevel: logLevel,finally:finally )
-
+        rm.setupKrawler(exporter: xpr)
+     
+        rm.startCrawling(  configURL:configURL,loggingLevel: logLevel,finally:finally )
     }
 }

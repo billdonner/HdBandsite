@@ -237,15 +237,15 @@ final class OuterCrawler {
     
     init(roots:[RootStart],
          loggingLevel:LoggingLevel,
-         runman:BigMachineRunner,
+         bigMachineRunner:BigMachineRunner,
          returnsResults:@escaping ReturnsCrawlResults)
         throws {
   
-            self.runman = runman
+            self.runman = bigMachineRunner
             self.returnsCrawlResults = returnsResults
             
             // we start the inner crawler right here
-            let lk = ScrapingMachine(scraper:runman.bigMachine.scraper)
+            let lk = ScrapingMachine(scraper:bigMachineRunner.scraper)
             self.icrawler =  try InnerCrawler(roots:roots,  grubber:lk,logLevel:loggingLevel)
             startMeUp(roots, icrawler: icrawler )
     }
@@ -255,7 +255,7 @@ final class OuterCrawler {
     func onepageworth(pr:ParseResults)->() {
         //each page we hit gets scraped and incorporated
         do {
-        try runman.bigMachine.incorporateParseResults(pr: pr)
+        try runman.incorporateParseResults(pr: pr)
         }
         catch {
             print("couldnt scrape onpageworth \(error)")
@@ -293,8 +293,8 @@ final class OuterCrawler {
         fb.reportTitle = "Crawl Summary"
         // this is not always good
         fb.command = CommandLine.arguments
-        fb.rootcrawlpoints = stats.goodurls.map() { runman.bigMachine.kleenURLString($0)!.string }
-        fb.leafpoints = stats.badurls.map() { runman.bigMachine.kleenURLString($0)!.string }
+        fb.rootcrawlpoints = stats.goodurls.map() {  kleenURLString($0)!.string }
+        fb.leafpoints = stats.badurls.map() {  kleenURLString($0)!.string }
         fb.status = stats.badurls.count > 0 && stats.goodurls.count > 0 ? 201:(stats.goodurls.count > 0 ? 200:202)
         //let elapsed = String(format:"%02.3f ",crawltime)
         let percycle = count <= 0 ? 0.0 : (crawltime / Double(count))

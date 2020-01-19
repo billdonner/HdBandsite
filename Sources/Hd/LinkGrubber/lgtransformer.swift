@@ -9,55 +9,35 @@
 import Foundation
 import Kanna
 
-
-    
-protocol BigMachinery : class  {
-    var runman: BigMachineRunner! { get set }
-    var recordExporter : RecordExporter!{ get set }
-    func makecsvrow() -> String
-    func makecsvheader()->String
-    func mskecsvtrailer()->String?
-    
-    // var context : Crowdable!{ get set }
-    func setupController(runman: BigMachineRunner,// context  :Crowdable,
-        exporter:RecordExporter)
-    func startCrawling( configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
-    func scraper(_ technique: ParseTechnique, url:URL,  html: String)->ParseResults?
-    func incorporateParseResults(pr:ParseResults) throws
-    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString
-    func kleenex(_ f:String)->String
-    func kleenURLString(_ url:URLFromString )->URLFromString?
-    func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement])
+func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString {
+    return urlstr//URLFromString(urlstr.url?.lastPathComponent ?? "partfromurlstr failure")
 }
-extension BigMachinery {
-    func setupController(runman: BigMachineRunner, //context  :Crowdable,
-        exporter:RecordExporter) {
-        self.runman = runman
-        self.recordExporter = exporter
-        // self.context = context
-    }
-    
-    func partFromUrlstr(_ urlstr:URLFromString) -> URLFromString {
-        return urlstr//URLFromString(urlstr.url?.lastPathComponent ?? "partfromurlstr failure")
-    }
+
+func kleenURLString(_ url: URLFromString) -> URLFromString?{
+    let original = url.string
+    let newer = original.replacingOccurrences(of: "%20", with: "+")
+    return URLFromString(newer)
+}
+
     func kleenex(_ f:String)->String {
         return f.replacingOccurrences(of: ",", with: "!")
     }
-    func kleenURLString(_ url: URLFromString) -> URLFromString?{
-        let original = url.string
-        let newer = original.replacingOccurrences(of: "%20", with: "+")
-        return URLFromString(newer)
-    }
+
+extension BigMachineRunner {
     
+    mutating func setupKrawler( exporter:RecordExporter) { 
+        self.recordExporter = exporter
+    }
+
     
     func startCrawling(  configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
-        let (roots)  = runman.config.load(url: configURL)
+        let (roots)  = self.config.load(url: configURL)
         
         do {
             
             let _ = try OuterCrawler (roots: roots,
                                        loggingLevel: loggingLevel,
-                                      runman: runman)
+                                      bigMachineRunner: self)
             { crawlResult in
                 // here we are done, reflect it back upstream
                 // print(crawlResult)

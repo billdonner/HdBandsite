@@ -65,7 +65,7 @@ func command_main() {
     
     do {
        
-        opath = pathToResourcesDir + "/bigdata.csv"
+        opath = Hd.pathToResourcesDir + "/bigdata.csv"
         
         guard let configurl = URL(string:CommandLine.arguments[1]) else  { exitBadCommand(); exit(0)  }
         

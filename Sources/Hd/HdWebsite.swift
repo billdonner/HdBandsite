@@ -10,6 +10,8 @@ import Publish
 import Plot
 import Kanna
 
+
+
 // This type acts as the configuration for your website.
 // On top of John Sundell's configuration, we have everything else that's needed for LinkGrubber, etc
 
@@ -34,7 +36,7 @@ struct Hd: Website {
     // Update these properties to configure your website:
     var url = URL(string: "http://abouthalfdead.com")!
     var name = "About Half Dead " // + "\(Date())".dropLast(14)
-    var description = "The Greatest Band In A Very Small Land - published on " + "\(Date())".dropLast(9)
+    var description = "A Jamband Featuring Doors, Dead, ABB Long Form Performances"
     var language: Language { .english }
     var imagePath: Path? { "images/ABHDLogo.png" }
     var favicon: Favicon?  { Favicon(path: "images/favicon.png")}
@@ -42,37 +44,49 @@ struct Hd: Website {
     static let default_venue_acronym : String = "thorn"
     static let default_venue_description: String = "Highline Studios, Thornwood, NY"
     static let crawlerKeyTags:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
+    static let pathToContentDir =  "/Users/williamdonner/hd/Content"
+    static let pathToResourcesDir = "/Users/williamdonner/hd"
+    
+    
 }
+
+
+
+func isImageExtension (_ s:String) -> Bool {
+["jpg","jpeg","png"].firstIndex(of: s) != nil
+    }
+func isAudioExtension (_ s:String) -> Bool {
+["mp3","mpeg","wav"].firstIndex(of: s) != nil
+}
+func isMarkdownExtension(_ s:String) -> Bool{
+["md", "markdown", "txt", "text"].firstIndex(of: s) != nil
+}
+
 // extra properties for crawling
 
 
-let pathToOutputDir =  "/Users/williamdonner/hd/Content"
- let pathToResourcesDir =  "/Users/williamdonner/hd/Resources"
-func isImageExtension (_ s:String) -> Bool {
-        return ["jpg","jpeg","png"].firstIndex(of: s) != nil
-    }
-func isAudioExtension (_ s:String) -> Bool {
-    return ["mp3","mpeg","wav"].firstIndex(of: s) != nil
-}
- 
+
+let matchingURLPrefix =
+URL(string:"https://billdonner.com/halfdead")!
+
 
 
 //MARK: - pass thru the music and art files, only
 extension Transformer {
     func processExtension(url:URL,relativeTo:URL?)->Linktype?{
-        let pextension = url.pathExtension.lowercased()
-        let hasextension = pextension.count > 0
+        let pext = url.pathExtension.lowercased()
+        let hasextension = pext.count > 0
         let linktype:Linktype = hasextension == false ? .hyperlink:.leaf
         guard url.absoluteString.hasPrefix(relativeTo!.absoluteString) else {
             return nil
         }
         
         if hasextension {
-            guard pextension == "mp3" || pextension == "wav" || pextension == "jpg" || pextension == "jpeg" || pextension == "png" ||  pextension == "md" else {
+            guard isImageExtension(pext) || isAudioExtension(pext) else {
                 return nil
             }
-            if pextension == "jpg" || pextension == "jpeg" || pextension == "png" || pextension == "md"  {
-                print("Processing \(pextension) file from \(url)")
+            if isImageExtension(pext) || isMarkdownExtension(pext) {
+                print("Processing \(pext) file from \(url)")
             }
         } else
         {
@@ -113,14 +127,14 @@ extension Transformer {
     }
     func makecsvrow( ) -> String {
         
-        func cleanItUp(_ r:CrawlingElement, kleenex:(String)->(String)) -> String {
+        func cleanItUp(_ r:CrawlingElement, f:(String)->(String)) -> String {
             let z =
             """
-            \(kleenex(r.name ?? "")),\(kleenex(r.artist ?? "")),\(kleenex(r.album ?? "")),\(kleenex(r.songurl)),\(kleenex(r.albumurl ?? "")),\(kleenex(r.cover_art_url ?? ""))
+            \(f(r.name ?? "")),\(f(r.artist ?? "")),\(f(r.album ?? "")),\(f(r.songurl)),\(f(r.albumurl ?? "")),\(f(r.cover_art_url ?? ""))
             """
             return z
         }
-        return  cleanItUp(cont, kleenex:kleenex)
+        return  cleanItUp(cont, f:kleenex)
     }
     
 }
