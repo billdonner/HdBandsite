@@ -16,6 +16,7 @@ import Kanna
 // On top of John Sundell's configuration, we have everything else that's needed for LinkGrubber, etc
 
 struct Hd: Website {
+    
     enum SectionID: String, WebsiteSectionID {
         // Add the sections that you want your website to contain here:
         
