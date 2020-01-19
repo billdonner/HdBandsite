@@ -66,9 +66,10 @@ final class Transformer:NSObject {
         }
     }// end of absorbLink
 
-    required  init(artist:String, defaultArtUrl:String? = nil ) {
+    required  init(artist:String, recordExporter:RecordExporter,defaultArtUrl:String? = nil ) {
         self.coverArtUrl = defaultArtUrl
         self.artist = artist
+        self.recordExporter = recordExporter
         super.init()
         cleanOuputs(outpath: Hd.pathToContentDir)
     }
@@ -94,7 +95,7 @@ final class Transformer:NSObject {
                 cont.artist = artist
                 cont.cover_art_url = self.coverArtUrl
                 mdlinks.append(Fav(name:cont.name ?? "??", url:cont.songurl,comment:""))
-                recordExporter.addRowToExportStream()
+                recordExporter.addRowToExportStream(cont: cont)
             }
         }
         

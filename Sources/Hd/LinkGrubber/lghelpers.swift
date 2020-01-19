@@ -101,22 +101,7 @@ struct ParseResults {
 protocol CrawlMeister {
     func grub(name:String, configURL: URL, opath:String,logLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) throws -> (Void)
 }
-protocol BigMachineRunner {
-    var config:Configable {get set}
-    var logLevel:LoggingLevel  {get set}
-    var crawlStats:CrawlStats {get set}
-    var  recordExporter : RecordExporter!{ get set }
-    func makecsvrow() -> String
-    func makecsvheader()->String
-    func mskecsvtrailer()->String?
-    
-    mutating func setupKrawler(  exporter:RecordExporter)
-    func startCrawling( configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults)
-    func scraper(_ technique: ParseTechnique, url:URL,  html: String)->ParseResults?
-    func incorporateParseResults(pr:ParseResults) throws
-    func absorbLink(href:String? , txt:String? ,relativeTo: URL?, tag: String, links: inout [LinkElement])
-    
-}
+
 enum OutputType: String {
     case csv = "csv"
     case json = "json"
@@ -140,11 +125,26 @@ enum OutputType: String {
  */
 
 final class RecordExporter {
-    private var rg:BigMachineRunner
     private var first = true
-    init( bigMachineRunner:BigMachineRunner) {
-        self.rg = bigMachineRunner
+    
+    func makecsvheader( ) -> String {
+        return  "Name,Artist,Album,SongURL,AlbumURL,CoverArtURL"
     }
+    func mskecsvtrailer( ) -> String?  {
+        return    "==CrawlingContext=="
+    }
+    func makecsvrow(cont:CrawlingElement) -> String {
+        
+        func cleanItUp(_ r:CrawlingElement, f:(String)->(String)) -> String {
+            let z =
+            """
+            \(f(r.name ?? "")),\(f(r.artist ?? "")),\(f(r.album ?? "")),\(f(r.songurl)),\(f(r.albumurl ?? "")),\(f(r.cover_art_url ?? ""))
+            """
+            return z
+        }
+        return  cleanItUp(cont, f:kleenex)
+    }
+    
     
     private func emitToJSONStream(_ s:String) {
             print(s , to: &jsonOutputStream )// dont add extra
@@ -152,7 +152,7 @@ final class RecordExporter {
 
     
    func addHeaderToExportStream( ) {
-    print(rg.makecsvheader(), to: &csvOutputStream )// dont add extra
+    print(makecsvheader(), to: &csvOutputStream )// dont add extra
     print("""
       [
     """ ,
@@ -160,14 +160,14 @@ final class RecordExporter {
     }
     func addTrailerToExportStream( ) {
         print("adding trailer!!!")
-            if let trailer = rg.mskecsvtrailer() {
+            if let trailer =  mskecsvtrailer() {
                print(trailer , to: &csvOutputStream )
             }
      //emitToJSONStream(trailer)
     }
-    func addRowToExportStream( ) {
+    func addRowToExportStream(cont:CrawlingElement) {
  
-            let stuff = rg.makecsvrow( )
+        let stuff = makecsvrow(cont:cont )
                     print(stuff , to: &csvOutputStream )
             
         

@@ -9,11 +9,15 @@ import Foundation
 
 final public class LinkGrubber: CrawlMeister
 {
-    class KrawlStream : NSObject {
+    
+    private var recordExporter =  RecordExporter()
+    
+    
+    private class KrawlStream : NSObject {
   
        var config: Configable
         // all of these variables are rquired by RunManager Protocol
-       // private var recordExporter: RecordExporter!
+       
         var logLevel:LoggingLevel
         var transformer:Transformer
         var crawlStats:CrawlStats
@@ -54,6 +58,25 @@ final public class LinkGrubber: CrawlMeister
                 exit(0)
             }
         }
+        
+        func startCrawling(  configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
+            let (roots)  = self.config.load(url: configURL)
+            
+            do {
+                let _ = try OuterCrawler (roots: roots,transformer:transformer,
+                                           loggingLevel: loggingLevel )
+                { crawlResult in
+                    // here we are done, reflect it back upstream
+                    // print(crawlResult)
+                    // now here must unwind back to original caller
+                    finally(crawlResult)
+                }
+                
+            }
+            catch {
+                invalidCommand(444);exit(0)
+            }
+        }
     }
 
     public  func grub(name:String,configURL: URL, opath:String,logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws {
@@ -62,15 +85,20 @@ final public class LinkGrubber: CrawlMeister
             else {  fatalError("cant fix outpath") }
 
         let rm = KrawlStream(config:ConfigurationProcessor(),
-                           transformer: Transformer(artist: name, defaultArtUrl: "booly"),
+                             transformer: Transformer(artist: name,
+                                                      recordExporter:recordExporter,
+                                defaultArtUrl: "booly"),
                                 csvoutPath: LocalFilePath(fixedPath+".csv"),
                                 jsonoutPath: LocalFilePath(fixedPath+".json"),
                                 logLevel: logLevel )
          
-        let xpr = RecordExporter(  bigMachineRunner: rm)
+      
         
-        rm.setupKrawler(exporter: xpr)
+      
      
         rm.startCrawling(  configURL:configURL,loggingLevel: logLevel,finally:finally )
     }
+    
+    
+    
 }

@@ -9,14 +9,12 @@ import Foundation
 
 
 fileprivate final class CrawlTable {
-    init() {
-    }
-    
+
     private  var crawlCountPeak: Int = 0
     private  var crawlCount = 0 //    var urlstouched: Int = 0
     private  var crawlState :  CrawlState = .crawling
     
-
+    
     //
     // urls serviced from the top of this list
     // urls are added to the bottom
@@ -48,7 +46,7 @@ fileprivate final class CrawlTable {
     }
     
     
- fileprivate func crawlLoop (finally:  ReturnsCrawlStats,  stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
+    fileprivate func crawlLoop (finally:  ReturnsCrawlStats,  stats: CrawlStats, innerCrawler:InnerCrawler,    didFinishUserCall: inout Bool,  savedExportOne: @escaping  ReturnsParseResults) {
         while crawlState == .crawling {
             if items.count == 0 {
                 crawlState = .done
@@ -70,21 +68,21 @@ fileprivate final class CrawlTable {
 
 ////////
 
-  fileprivate final class InnerCrawler : NSObject {
+fileprivate final class InnerCrawler : NSObject {
     private(set)  var ct =  CrawlTable()
     private var crawloptions: LoggingLevel
-
+    
     private(set) var grubber:ScrapingMachine
     private(set) var places: [RootStart] = [] // set by crawler
     private var first = true
     
-   init(roots:[RootStart], grubber:ScrapingMachine,logLevel:LoggingLevel = .none) throws {
+    init(roots:[RootStart], grubber:ScrapingMachine,logLevel:LoggingLevel = .none) throws {
         self.places = roots
         self.grubber = grubber
         self.crawloptions = logLevel
-       
+        
     }
-
+    
     
     func crawlingStats()->(Int,Int) {
         return ct.crawlStats()
@@ -176,7 +174,7 @@ fileprivate final class CrawlTable {
             // if we are ever really ever gonna leave via return, perhaps with out calling when done, it means WE ARE NOT DONE, just gonna a set a tiny timer to let things unwind then call the loope again
             if didFinishUserCall == false {
                 // we never returned to the user and we are not going to do that instead, delay a bit to let closures unwind?
-
+                
             }
         }
         
@@ -229,64 +227,63 @@ fileprivate extension InnerCrawler {
     }
 }
 
-// public for testing only hmm
 final class OuterCrawler {
     private var returnsCrawlResults:ReturnsCrawlResults
-    private var runman : BigMachineRunner
-    fileprivate  var icrawler : InnerCrawler
+    private  var icrawler : InnerCrawler
+    private var crawlStats : CrawlStats
+    private var transformer:Transformer
     
-    init(roots:[RootStart],
+    init(roots:[RootStart],transformer:Transformer,
          loggingLevel:LoggingLevel,
-         bigMachineRunner:BigMachineRunner,
          returnsResults:@escaping ReturnsCrawlResults)
         throws {
-  
-            self.runman = bigMachineRunner
+            self.transformer = transformer
+            self.crawlStats = CrawlStats(transformer:transformer)
             self.returnsCrawlResults = returnsResults
-            
+            let lk = ScrapingMachine(scraper: transformer.scraper)
             // we start the inner crawler right here
-            let lk = ScrapingMachine(scraper:bigMachineRunner.scraper)
             self.icrawler =  try InnerCrawler(roots:roots,  grubber:lk,logLevel:loggingLevel)
             startMeUp(roots, icrawler: icrawler )
     }
     
-
+    
     
     func onepageworth(pr:ParseResults)->() {
         //each page we hit gets scraped and incorporated
         do {
-        try runman.incorporateParseResults(pr: pr)
+            try transformer.incorporateParseResults(pr: pr)
         }
         catch {
             print("couldnt scrape onpageworth \(error)")
         }
     }
     
+    
     private func startMeUp(_ roots:[RootStart],icrawler:InnerCrawler) {
         let startTime = Date()
-       // let baseurltag = (icrawler.baseURL != nil) ?  icrawler.baseURL!.absoluteString : "baseurl fail" //XXXXXXXX
+        // let baseurltag = (icrawler.baseURL != nil) ?  icrawler.baseURL!.absoluteString : "baseurl fail" //XXXXXXXX
         print("[crawler] starting \(startTime), root \(roots[0].urlstr) please be patient")
         
-        icrawler.bigCrawlLoop( crawlStats: runman.crawlStats, exportOnePageWorth: onepageworth) {
+        icrawler.bigCrawlLoop( crawlStats: crawlStats, exportOnePageWorth: onepageworth) {
             _ in
             // finally finished !
             
             let (count,peak) = self.icrawler.crawlingStats()
             let crawltime = Date().timeIntervalSince(startTime)
             
-            self.finalSummary(stats: self.runman.crawlStats,
+            self.finalSummary(stats: self.crawlStats,
                               count:count,
                               peak:peak,
                               crawltime:crawltime)
             
-            let crawlResults = CrawlerStatsBlock(added:count,peak:peak,elapsedSecs:crawltime,secsPerCycle:crawltime/Double(count), count1: self.runman.crawlStats.goodurls.count, count2:self.runman.crawlStats.badurls.count, status:200)
+            let crawlResults = CrawlerStatsBlock(added:count,peak:peak,elapsedSecs:crawltime,secsPerCycle:crawltime/Double(count), count1: self.crawlStats.goodurls.count, count2:self.crawlStats.badurls.count, status:200)
             /// this is where we will finally wind up, need to call the user routine that was i
-              
+            
             self.returnsCrawlResults(crawlResults)
             
         }
     }
-
+    
     private   func finalSummary (stats:CrawlStats, count:Int,peak:Int,crawltime:TimeInterval) {
         // copy into  TestResultsBlock
         var fb = TestResultsBlock()
@@ -301,7 +298,7 @@ final class OuterCrawler {
         
         
         let statsblock = CrawlerStatsBlock(added:count,peak:peak,elapsedSecs:crawltime,secsPerCycle:percycle,
-                                           count1: self.runman.crawlStats.goodurls.count, count2:self.runman.crawlStats.badurls.count,
+                                           count1: self.crawlStats.goodurls.count, count2:self.crawlStats.badurls.count,
                                            status:200)
         
         fb .crawlStats = statsblock
@@ -312,9 +309,9 @@ final class OuterCrawler {
 
 
 // public only for testing
- fileprivate final class ScrapingMachine:NSObject {
+fileprivate final class ScrapingMachine:NSObject {
     private var scraperx:PageScraperFunc
- init(scraper:@escaping PageScraperFunc) {
+    init(scraper:@escaping PageScraperFunc) {
         self.scraperx = scraper
         super.init()
     }
@@ -331,9 +328,9 @@ final class OuterCrawler {
     }
     
     // this is the major entry point
- func scrapeFromURL( _ urlget:URL,
-                               parsingTechnique:ParseTechnique,
-                               whenDone:@escaping (( ParseResults ) ->())){
+    func scrapeFromURL( _ urlget:URL,
+                        parsingTechnique:ParseTechnique,
+                        whenDone:@escaping (( ParseResults ) ->())){
         
         let  (  _, html) = fetchHTMLFromURL(urlget)
         do {
@@ -378,3 +375,10 @@ final class OuterCrawler {
         }
     }
 }
+
+
+
+
+
+
+

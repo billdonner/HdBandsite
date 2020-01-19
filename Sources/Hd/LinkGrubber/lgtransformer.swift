@@ -23,35 +23,6 @@ func kleenURLString(_ url: URLFromString) -> URLFromString?{
         return f.replacingOccurrences(of: ",", with: "!")
     }
 
-extension BigMachineRunner {
-    
-    mutating func setupKrawler( exporter:RecordExporter) { 
-        self.recordExporter = exporter
-    }
-
-    
-    func startCrawling(  configURL:URL,loggingLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) {
-        let (roots)  = self.config.load(url: configURL)
-        
-        do {
-            
-            let _ = try OuterCrawler (roots: roots,
-                                       loggingLevel: loggingLevel,
-                                      bigMachineRunner: self)
-            { crawlResult in
-                // here we are done, reflect it back upstream
-                // print(crawlResult)
-                // now here must unwind back to original caller
-                finally(crawlResult)
-            }
-            
-        }
-        catch {
-            invalidCommand(444);exit(0)
-        }
-    }
-}
-
 public final class  CrawlingElement:Codable {
     
     //these are the only elements moved into the output stream

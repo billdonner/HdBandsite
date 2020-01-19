@@ -119,23 +119,7 @@ extension Transformer {
 // MARK:- CSV
 extension Transformer {
     
-    func makecsvheader( ) -> String {
-        return  "Name,Artist,Album,SongURL,AlbumURL,CoverArtURL"
-    }
-    func mskecsvtrailer( ) -> String?  {
-        return    "==CrawlingContext=="
-    }
-    func makecsvrow( ) -> String {
-        
-        func cleanItUp(_ r:CrawlingElement, f:(String)->(String)) -> String {
-            let z =
-            """
-            \(f(r.name ?? "")),\(f(r.artist ?? "")),\(f(r.album ?? "")),\(f(r.songurl)),\(f(r.albumurl ?? "")),\(f(r.cover_art_url ?? ""))
-            """
-            return z
-        }
-        return  cleanItUp(cont, f:kleenex)
-    }
+
     
 }
 
