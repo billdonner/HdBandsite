@@ -4,7 +4,7 @@ func command_main() {
     func printUsage() {
         let processinfo = ProcessInfo()
         print(processinfo.processName)
-        let path = LibraryDirectoryURL.absoluteString
+        let path = ExportDirectoryURL.absoluteString
         let nam = FileManager.default.displayName(atPath: path)
         print(nam)
          
@@ -30,21 +30,31 @@ func command_main() {
     
     let verbosity:LoggingLevel = .verbose
 
-    var opath:String
+
     
     // -json and -csv go to adforum for now, -text goes to manifezz
     
     do {
-       
-        opath = Hd.pathToResourcesDir + "/bigdata.csv"
         
-        guard let configurl = URL(string:CommandLine.arguments[1]) else  { exitBadCommand(); exit(0)  }
-        
-        Crawler(configurl, opath, verbosity, exitBadCommand)
+        var configurl :URL?
+        guard CommandLine.arguments.count > 1 else  { exitBadCommand(); exit(0)  }
+        let arg1 =  CommandLine.arguments[1].lowercased()
+        let c = arg1.first
+        switch c {
+        case "m": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-medium.json")
+        case "l": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-full.json")
+        default: configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-small.json")
+        }
+        guard let gurl = configurl else { exitBadCommand(); exit(0)  }
+        print("[crawler] executing \(gurl)")
+        let _ = Crawler(configurl: gurl, verbosity: verbosity) { status in // just runs
+            print("Crawler complete with status \(status)")
+            exit(0)
+        }
     }
 }
 
-// really starts here
+// the main program starts right here really starts here
 
 command_main()
 

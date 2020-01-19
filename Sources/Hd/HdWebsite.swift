@@ -44,20 +44,6 @@ struct Hd: Website {
 }
 
 
-func isImageExtension (_ s:String) -> Bool {
-["jpg","jpeg","png"].firstIndex(of: s) != nil
-    }
-func isAudioExtension (_ s:String) -> Bool {
-["mp3","mpeg","wav"].firstIndex(of: s) != nil
-}
-func isMarkdownExtension(_ s:String) -> Bool{
-["md", "markdown", "txt", "text"].firstIndex(of: s) != nil
-}
-
-// extra properties for crawling
-
-
-
 
 
 

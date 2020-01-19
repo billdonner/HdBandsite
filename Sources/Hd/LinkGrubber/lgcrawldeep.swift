@@ -55,12 +55,12 @@ import Foundation
                 return // ends here
             }
             // get next to process
-            guard  let rootStart = popFromTop() else {
+            guard  let newStart = popFromTop() else {
                 return
             }
             // squeeze down before crawling to keep memory reasonable
             autoreleasepool {
-                innerCrawler.crawlOne(rootURL: rootStart, technique:.parseTop ,stats:stats,exportone:savedExportOne)
+                innerCrawler.crawlOne(rootURL: newStart, technique:.parseTop ,stats:stats,exportone:savedExportOne)
             }
         }
     }

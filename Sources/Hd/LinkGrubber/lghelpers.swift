@@ -98,10 +98,6 @@ struct ParseResults {
 }
 
 
-protocol CrawlMeister {
-    func grub(name:String, configURL: URL, opath:String,logLevel:LoggingLevel,finally:@escaping ReturnsCrawlResults) throws -> (Void)
-}
-
 enum OutputType: String {
     case csv = "csv"
     case json = "json"
@@ -121,7 +117,6 @@ enum OutputType: String {
  
  build either csv or json export stream
  
- inside SingleRecordExport we'll switch on export type to decide what to dump into the output stream
  */
 
 final class RecordExporter {

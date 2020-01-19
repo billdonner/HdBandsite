@@ -7,7 +7,7 @@
 
 import Foundation
 
-final public class LinkGrubber: CrawlMeister
+final public class LinkGrubber
 {
     
     private var recordExporter =  RecordExporter()
@@ -91,11 +91,6 @@ final public class LinkGrubber: CrawlMeister
                                 csvoutPath: LocalFilePath(fixedPath+".csv"),
                                 jsonoutPath: LocalFilePath(fixedPath+".json"),
                                 logLevel: logLevel )
-         
-      
-        
-      
-     
         rm.startCrawling(  configURL:configURL,loggingLevel: logLevel,finally:finally )
     }
     
