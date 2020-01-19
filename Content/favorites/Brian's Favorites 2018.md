@@ -1,11 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/brian/brians-favorites-2018/
 venue: favorites
-description: favorites 123118 
+description: You are going to take a vacation. 
 
-tags: riders,light,custom,brian,favorite
----<div><div><h1>brians-favorites-2018</h1><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>It is not the outside riches bit the inside ones that produce happiness.</i></h4><p>
+tags: riders,light,custom,brian,favorites,favorite
+---
+
+# brians-favorites-2018
+
+<div><div><img src="/images/abhdlogo300.png" class="img300" alt="
+"/><h4><i>You are going to take a vacation.</i></h4><p>
 </p></div></div>
 
 

@@ -8,7 +8,7 @@
 import Foundation
 import Publish 
 
-// this is the main "program", used by both the mac and ios versions
+// this is the main "ctrawler program", used by both the mac and ios versions
 
 struct Crawler {
     

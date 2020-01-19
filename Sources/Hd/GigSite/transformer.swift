@@ -21,13 +21,15 @@ func isMarkdownExtension(_ s:String) -> Bool{
 ["md", "markdown", "txt", "text"].firstIndex(of: s) != nil
 }
 
-// extra properties for crawling
-
-
-
-
+ 
 final class Transformer:NSObject {
+ 
+    struct Shredded {
+        let letters: String
+        let digits:String
+    }
 
+    
   func pickapart(_ phrase:String) -> Shredded {
      
     var letterCount = 0
@@ -46,9 +48,7 @@ final class Transformer:NSObject {
     }
     return Shredded(letters:lets, digits:digs)
 }
-
-
-
+ 
     var recordExporter : RecordExporter!
     var cont = CrawlingElement()
                              
@@ -85,7 +85,7 @@ final class Transformer:NSObject {
         self.artist = artist
         self.recordExporter = recordExporter
         super.init()
-        cleanOuputs(outpath: Hd.pathToContentDir)
+        cleanOuputs(outpath: Hd.pathToContentDir, specialFolderPaths: ["/favorites","/audiosessions"] )
     }
     deinit  {
         recordExporter.addTrailerToExportStream()
@@ -187,3 +187,50 @@ final class Transformer:NSObject {
                              links: links, props:[], tags: [])
     }
 }
+
+//MARK: - pass thru the music and art files, only
+extension Transformer {
+    func processExtension(url:URL,relativeTo:URL?)->Linktype?{
+        let pext = url.pathExtension.lowercased()
+        let hasextension = pext.count > 0
+        let linktype:Linktype = hasextension == false ? .hyperlink:.leaf
+        guard url.absoluteString.hasPrefix(relativeTo!.absoluteString) else {
+            return nil
+        }
+        
+        if hasextension {
+            guard isImageExtension(pext) || isAudioExtension(pext) else {
+                return nil
+            }
+            if isImageExtension(pext) || isMarkdownExtension(pext) {
+                print("Processing \(pext) file from \(url)")
+            }
+        } else
+        {
+            //  print("no ext: ", url)
+        }
+        return linktype
+    }
+    
+    //MARK: - cleanup special folders for this site
+    func cleanOuputs(outpath:String,specialFolderPaths:[String]) {
+        do {
+            // clear the output directory
+            let fm = FileManager.default
+            var counter = 0
+            for folder in specialFolderPaths{
+                
+                let dir = URL(fileURLWithPath:outpath+folder)
+                
+                let furls = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+                for furl in furls {
+                    try fm.removeItem(at: furl)
+                    counter += 1
+                }
+            }
+            print("[crawler] Cleaned \(counter) files from ", outpath )
+        }
+        catch {print("[crawler] Could not clean outputs \(error)")}
+    }
+}
+ 

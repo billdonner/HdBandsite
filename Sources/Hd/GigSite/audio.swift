@@ -7,20 +7,12 @@
 
 import Foundation
 import Plot
-import Kanna
-
-
-
-struct BannerAndTags {
-    let banner: String
-    let tags:[String]
-}
-struct Shredded {
-    let letters: String
-    let digits:String
-}
 
 struct Audio {
+    struct BannerAndTags {
+        let banner: String
+        let tags:[String]
+    }
     static private func buildAudioBlock(idx:Int,alink:Fav)->String {
         let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
         if isAudioExtension(pext){
@@ -153,5 +145,38 @@ struct Audio {
             + "\n\n\n\n"
             + generateAudioHTMLFromRemoteDirectoryAssets(links: links)
     }
-    
+
+    /// make some tags  and banner from the alburm name
+    static private func makeBannerAndTags(aurl:String,mode:PublishingMode)->BannerAndTags {
+        guard let u = URL(string:aurl) else { fatalError() }
+        // take only the top two parts and use them as
+        
+        let parts = u.path.components(separatedBy: "/")
+        var tags = [parts[1],parts[2]]
+        // lets analyze parts3, if it is multispaced then lets call it a gig
+        let subparts3 = parts[3].components(separatedBy: " ")
+        var performanceKind = ""
+        if (subparts3.count > 1) {
+            performanceKind = "live"
+            tags.append(subparts3[1])
+        }
+        else  {
+            performanceKind = "rehearsal"
+        }
+        
+        var banner:String
+        switch mode {
+        case .fromPublish:
+            // if publish is generating, then use this
+            tags.append( performanceKind )
+            banner = parts[2] + " \(performanceKind) " + parts[3]
+            
+        case .fromWithin:
+        
+            banner =  parts[3]
+        }
+        
+        return BannerAndTags(banner: banner , tags: tags )
+    }
+
 }// struct audio

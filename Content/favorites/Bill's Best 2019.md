@@ -1,11 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/bill/bills-best-2019/
 venue: favorites
-description: favorites 123119 
+description: Your ingenuity and imagination will get results. 
 
-tags: light,riders,custom,bill,favorite
----<div><div><h1>bills-best-2019</h1><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>You will be awarded some great honor.</i></h4><p>
+tags: riders,light,custom,bill,favorites,favorite
+---
+
+# bills-best-2019
+
+<div><div><img src="/images/abhdlogo300.png" class="img300" alt="
+"/><h4><i>Your ingenuity and imagination will get results.</i></h4><p>
 </p></div></div>
 
 
