@@ -216,7 +216,7 @@ extension HdHTMLFactory {
     }
     
     static   func htmlForMembersPage(for page: Page,
-                                     context: PublishingContext<Site>) -> HTML {
+                                     context: PublishingContext<Hd>) -> HTML {
         HTML(
             .lang(context.site.language),
             .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
@@ -226,7 +226,7 @@ extension HdHTMLFactory {
                     .h2("Who Are We?"),
                     .div(
                         .img(.src("/images/roseslogo.png"))),
-                    .span("We play in \(Hd.default_venue_description)") ,
+                    .span("We play in \(Hd.bandfacts.default_venue_description)") ,
                     .ul(
                         .li(.dl(
                             .dt("Anthony"),

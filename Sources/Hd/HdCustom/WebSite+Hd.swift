@@ -42,6 +42,13 @@ struct Hd: Website {
     var imagePath: Path? { "images/ABHDLogo.png" }
     var favicon: Favicon?  { Favicon(path: "images/favicon.png")}
  
+    static let bandfacts = BandSiteParams(
+    default_venue_acronym: "thorn",
+    default_venue_description: "Highline Studios, Thornwood, NY",
+    crawlerKeyTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
+    pathToContentDir: "/Users/williamdonner/hd/Content",
+    pathToResourcesDir: "/Users/williamdonner/hd",
+    matchingURLPrefix: URL(string:"https://billdonner.com/halfdead")!)
 }
 
 

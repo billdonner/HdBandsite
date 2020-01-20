@@ -9,11 +9,16 @@ import Foundation
 import Plot
 
 struct Audio {
+    private var bandfacts:BandSiteParams
+    init(bandfacts:BandSiteParams)
+    {
+        self.bandfacts = bandfacts
+    }
     struct BannerAndTags {
         let banner: String
         let tags:[String]
     }
-    static private func buildAudioBlock(idx:Int,alink:Fav)->String {
+  private func buildAudioBlock(idx:Int,alink:Fav)->String {
         let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
         if isAudioExtension(pext){
             let div = Node.div(
@@ -28,7 +33,7 @@ struct Audio {
             return    ""
         }
     }
-      static private func generateAudioHTMLFromRemoteDirectoryAssets(links:[Fav]) -> String {
+     private func generateAudioHTMLFromRemoteDirectoryAssets(links:[Fav]) -> String {
         var outbuf = ""
         for(idx,alink) in links.enumerated() {
             outbuf += buildAudioBlock(idx: idx,alink: alink)
@@ -37,7 +42,7 @@ struct Audio {
     }
     
     
-      static private func generateAudioTopMdHTML(title:String,u sourceurl:URL, venue:String,playdate:String,tags:[String] ,links:[Fav])->String {
+    private func generateAudioTopMdHTML(title:String,u sourceurl:URL, venue:String,playdate:String,tags:[String] ,links:[Fav])->String {
         
         let immd = ImagesAndMarkdown.generateImagesAndMarkdownFromRemoteDirectoryAssets(links:links)
         let cookie = get_fortune_cookie()
@@ -72,7 +77,7 @@ struct Audio {
     }
     
     // this variation uses venu and playdate to form a title
-    static func makeAudioListMarkdown(mode:PublishingMode,
+    func makeAudioListMarkdown(mode:PublishingMode,
                                url aurl: String,
                                title:String,
                                tags:[String],
@@ -84,7 +89,7 @@ struct Audio {
         func checkForBonusTags(name:String?)->String? {
             if let songName = name {
                 let shorter = songName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-                for tuneTag in Hd.crawlerKeyTags {
+                for tuneTag in  bandfacts.crawlerKeyTags {
                     if shorter.hasPrefix(tuneTag) {
                         return tuneTag
                     }
@@ -114,9 +119,9 @@ struct Audio {
             var spec: String
             switch  mode {
             case  .fromPublish :
-                spec =  "\(Hd.pathToContentDir)/audiosessions/\(venue)\(playdate).md"
+                spec =  "\( bandfacts.pathToContentDir)/audiosessions/\(venue)\(playdate).md"
             case  .fromWithin :
-                spec =  "\(Hd.pathToContentDir)/favorites/\(title).md"
+                spec =  "\( bandfacts.pathToContentDir)/favorites/\(title).md"
             }
             guard let u = URL(string:aurl) else { return }
             let stuff =  generateAudioMarkdownPage(x.banner,
@@ -130,8 +135,7 @@ struct Audio {
             try makeAndWriteMdFile(title,  stuff: stuff, spec: spec)
         }
     }
-    
-      static private func generateAudioMarkdownPage(_ title:String,u:URL,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
+     private func generateAudioMarkdownPage(_ title:String,u:URL,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
                                                mode:PublishingMode )->String {
         var newtags = tags
         switch mode {
@@ -147,7 +151,7 @@ struct Audio {
     }
 
     /// make some tags  and banner from the alburm name
-    static private func makeBannerAndTags(aurl:String,mode:PublishingMode)->BannerAndTags {
+   private func makeBannerAndTags(aurl:String,mode:PublishingMode)->BannerAndTags {
         guard let u = URL(string:aurl) else { fatalError() }
         // take only the top two parts and use them as
         

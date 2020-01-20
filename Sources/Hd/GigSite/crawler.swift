@@ -12,7 +12,7 @@ import Publish
 
 struct Crawler {
     
-    init( configurl: URL,  verbosity: LoggingLevel,    specialFolderPaths: [String],finally:@escaping (Int) -> ()) {
+    init( configurl: URL,  verbosity: LoggingLevel,     bandSiteParams:  BandSiteParams,  specialFolderPaths: [String],finally:@escaping (Int) -> ()) {
         var status  = 200
         func publishNow(_ crawlResults: CrawlerStatsBlock) {
             // at this point we've plunked files into the designated directory
@@ -35,7 +35,10 @@ struct Crawler {
         do {
             try  LinkGrubber().grub (name: "BigData",
                                      configURL: configurl ,
-                                     opath:Hd.pathToResourcesDir + "/bigdata.csv",
+                                     opath:bandSiteParams.pathToResourcesDir + "/bigdata.csv",
+                                     
+                                     bandSiteParams:  bandSiteParams,
+                                     
                                      specialFolderPaths: specialFolderPaths,
                                      logLevel: verbosity)
             {  crawlResults  in

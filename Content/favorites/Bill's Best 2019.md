@@ -1,7 +1,7 @@
 ---
 sourceurl: grubber://mumble012/custom/bill/bills-best-2019/
 venue: favorites
-description: It takes guts to get out of the ruts. 
+description: Many receive advice, only the wise profit from it. 
 
 tags: riders,light,custom,bill,favorites,favorite
 ---
@@ -9,7 +9,7 @@ tags: riders,light,custom,bill,favorites,favorite
 # bills-best-2019
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>It takes guts to get out of the ruts.</i></h4><p>
+"/><h4><i>Many receive advice, only the wise profit from it.</i></h4><p>
 </p></div></div>
 
 

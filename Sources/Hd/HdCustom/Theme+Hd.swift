@@ -10,6 +10,25 @@ import Plot
 
 
 typealias CrawlingSignature =  (String , @escaping (Int)->()) -> ()
+protocol   BandSiteProt {
+    var default_venue_acronym : String { get set }
+    var default_venue_description : String { get set }
+   var crawlerKeyTags:[String] { get set }
+  var pathToContentDir : String { get set }
+   var pathToResourcesDir: String { get set }
+ var matchingURLPrefix : URL{ get set }
+}
+public struct BandSiteParams:BandSiteProt {
+    var default_venue_acronym : String
+    var default_venue_description : String
+   var crawlerKeyTags:[String]
+  var pathToContentDir : String
+   var pathToResourcesDir: String
+ var matchingURLPrefix : URL
+}
+
+
+
 
 
 extension Theme where Site == Hd {
@@ -22,12 +41,14 @@ extension Theme where Site == Hd {
     }
 }
 extension Hd {
-     static let default_venue_acronym : String = "thorn"
-     static let default_venue_description: String = "Highline Studios, Thornwood, NY"
-     static let crawlerKeyTags:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
-     static let pathToContentDir =  "/Users/williamdonner/hd/Content"
-     static let pathToResourcesDir = "/Users/williamdonner/hd"
-     static let matchingURLPrefix =  URL(string:"https://billdonner.com/halfdead")!
+//     static let default_venue_acronym : String = "thorn"
+//     static let default_venue_description: String = "Highline Studios, Thornwood, NY"
+//     static let crawlerKeyTags:[String] = ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"]
+//     static let pathToContentDir =  "/Users/williamdonner/hd/Content"
+//     static let pathToResourcesDir = "/Users/williamdonner/hd"
+//     static let matchingURLPrefix =  URL(string:"https://billdonner.com/halfdead")!
+    
+
     
     static func crawler (_ c:String,finally:@escaping (Int)->()) {
         var configurl :URL?
@@ -40,6 +61,7 @@ extension Hd {
         print("[crawler] executing \(gurl)")
         let _ = Crawler(configurl: gurl,
                         verbosity:  .none,
+                        bandSiteParams: Hd.bandfacts,
                         specialFolderPaths: ["/favorites","/audiosessions"]) { status in // just runs
                            finally(status)
         }

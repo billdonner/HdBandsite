@@ -77,15 +77,15 @@ final public class LinkGrubber
         }
     }
 
-    public  func grub(name:String,configURL: URL, opath:String, specialFolderPaths: [String], logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws {
+    public  func grub(name:String,configURL: URL, opath:String,
+                      bandSiteParams: BandSiteParams,specialFolderPaths: [String], logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws {
      
         guard let fixedPath = URL(string:opath)?.deletingPathExtension().absoluteString
             else {  fatalError("cant fix outpath") }
 
         let rm = KrawlStream(config:ConfigurationProcessor(),
                              transformer: Transformer(artist: name,
-                                                      recordExporter:recordExporter,
-                                                      specialFolderPaths: specialFolderPaths,
+                                                      recordExporter:recordExporter,bandSiteParams: bandSiteParams,    specialFolderPaths: specialFolderPaths,
                                 defaultArtUrl: "booly"),
                                 csvoutPath: LocalFilePath(fixedPath+".csv"),
                                 jsonoutPath: LocalFilePath(fixedPath+".json"),
