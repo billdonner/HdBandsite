@@ -1,15 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/brian/brians-favorites-2018/
 venue: favorites
-description: You display the wonderful traits of charm and courtesy. 
+description: He who is shipwrecked the second time cannot lay the blame on Neptune. 
 
-tags: light,riders,custom,brian,favorites,favorite
+tags: riders,light,custom,brian,favorites,favorite
 ---
 
 # brians-favorites-2018
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>You display the wonderful traits of charm and courtesy.</i></h4><p>
+"/><h4><i>He who is shipwrecked the second time cannot lay the blame on Neptune.</i></h4><p>
 </p></div></div>
 
 

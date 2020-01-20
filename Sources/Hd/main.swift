@@ -1,5 +1,7 @@
 import Foundation
-func command_main() {
+
+
+func command_main(crawler:CrawlingSignature) {
      func printUsage() {
         let processinfo = ProcessInfo()
         print(processinfo.processName)
@@ -9,7 +11,7 @@ func command_main() {
         
         let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
         
-        print("\(executableName) 1.0.3 ")
+        print("\(executableName)")
         print("usage:")
         print("\(executableName) -j config-file-url json-output-file [base-url]")
         print("or")
@@ -27,18 +29,18 @@ func command_main() {
         let arg1 =  CommandLine.arguments[1].lowercased()
         let c = String(arg1.first ?? "X")
         
-        Hd.crawlerDispatch(c) {status in
+        crawler(c,  { status in
             switch status {
             case 200:   print("[crawler] it was a perfect crawl ")
             default:  bletch()
             }
-        }
+        })
         
     }
 }
 
 // the main program starts right here really starts here
 
-command_main()
+command_main(crawler:Hd.crawler)
 
 

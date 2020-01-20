@@ -9,6 +9,9 @@ import Publish
 import Plot
 
 
+typealias CrawlingSignature =  (String , @escaping (Int)->()) -> ()
+
+
 extension Theme where Site == Hd {
     // a custom theme for bands
     static var hd: Self {
@@ -26,7 +29,7 @@ extension Hd {
      static let pathToResourcesDir = "/Users/williamdonner/hd"
      static let matchingURLPrefix =  URL(string:"https://billdonner.com/halfdead")!
     
-    static func crawlerDispatch (_ c:String,finally:@escaping (Int)->()) {
+    static func crawler (_ c:String,finally:@escaping (Int)->()) {
         var configurl :URL?
         switch c {
         case "m": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-medium.json")

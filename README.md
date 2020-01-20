@@ -1,6 +1,8 @@
 
 # The AboutHalfDead.com WebSite Content Lives Here
 
+![](images/grabnhand.png)
+
 ## How It Works
 
 Here's the basic plan:
@@ -23,3 +25,4 @@ This effectively paves over everthing that was there before, so be very careful.
 
 - css
 - make it pretty
+-about to add to 

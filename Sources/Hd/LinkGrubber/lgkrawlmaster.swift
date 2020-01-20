@@ -15,7 +15,7 @@ final public class LinkGrubber
     
     private class KrawlStream : NSObject {
   
-       var config: Configable\
+       var config: Configable
         var logLevel:LoggingLevel
         var transformer:Transformer
         var crawlStats:CrawlStats
