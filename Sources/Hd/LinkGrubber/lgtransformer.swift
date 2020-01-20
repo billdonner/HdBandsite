@@ -133,7 +133,7 @@ final class Transformer:NSObject {
         print("[crawler] finalized csv and json streams")
     }
     
-    func  incorporateParseResults(pr:ParseResults) throws {
+    func  incorporateParseResults(pr:ParseResults,pageMakerFunc:MarkdownMakerSignature) throws {
         var mdlinks : [Fav] = []  // must reset each time !!
         // move the props into a record
         guard let url = pr.url else { fatalError() }
@@ -171,13 +171,18 @@ final class Transformer:NSObject {
             let day = playdate[start..<end]
             
             // when naming the file, put the date part first and then the venu, the date is YYMMDD for sorting
+           
+           // try Audio(bandfacts: bandSiteParams).makeAudioListMarkdown
             
-            try Audio(bandfacts: bandSiteParams).makeAudioListMarkdown(mode: .fromPublish, url:aurl,
-                                      title: "\(playdate)\(venue)",
-                                        tags:["audio"],
-                                        venue: ve,
-                                        playdate: String(year+month+day),
-                                      links:mdlinks )
+            
+//            try pageMakerFunc(mode: .fromPublish, url:aurl,
+//                                      title: "\(playdate)\(venue)",
+//                                        tags:["audio"],
+//                                        p1: ve,
+//                                        p2: String(year+month+day),
+//                                      links:mdlinks )
+            
+            try pageMakerFunc(  .fromPublish,  aurl,    "\(playdate)\(venue)",  ["audio"],      ve,  String(year+month+day),  mdlinks )
         }//writemdfiles==true
     }//incorporateParseResults
 

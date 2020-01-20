@@ -13,6 +13,27 @@ var jsonOutputStream : FileHandlerOutputStream!
 var traceStream : FileHandlerOutputStream!
 var consoleIO = ConsoleIO()
 
+
+typealias MarkdownMakerSignature = ( PublishingMode,   String,   String,   [String],   String, String, [Fav] ) throws -> ()
+typealias CrawlingSignature =  (String , @escaping (Int)->()) -> ()
+
+protocol   BandSiteProt {
+    var default_venue_acronym : String { get set }
+    var default_venue_description : String { get set }
+    var crawlerKeyTags:[String] { get set }
+    var pathToContentDir : String { get set }
+    var pathToResourcesDir: String { get set }
+    var matchingURLPrefix : URL{ get set }
+}
+public struct BandSiteParams:BandSiteProt {
+    var default_venue_acronym : String
+    var default_venue_description : String
+    var crawlerKeyTags:[String]
+    var pathToContentDir : String
+    var pathToResourcesDir: String
+    var matchingURLPrefix : URL
+}
+
 /// add new code to write md files for Publish ing static site
 public enum PublishingMode {
     case fromPublish
@@ -48,7 +69,7 @@ struct URLFromString :Hashable {
 }
 
 protocol Configable:class, Decodable {
-
+    
     var comment:String {get set}
     func load (url:URL? ) -> ([RootStart])
 }
@@ -142,56 +163,56 @@ final class RecordExporter {
     
     
     private func emitToJSONStream(_ s:String) {
-            print(s , to: &jsonOutputStream )// dont add extra
+        print(s , to: &jsonOutputStream )// dont add extra
     }
-
     
-   func addHeaderToExportStream( ) {
-    print(makecsvheader(), to: &csvOutputStream )// dont add extra
-    print("""
+    
+    func addHeaderToExportStream( ) {
+        print(makecsvheader(), to: &csvOutputStream )// dont add extra
+        print("""
       [
     """ ,
-            to: &jsonOutputStream )// dont add extra
+              to: &jsonOutputStream )// dont add extra
     }
     func addTrailerToExportStream( ) {
         
-            if let trailer =  mskecsvtrailer() {
-               print(trailer , to: &csvOutputStream )
-            }
+        if let trailer =  mskecsvtrailer() {
+            print(trailer , to: &csvOutputStream )
+        }
         
         emitToJSONStream("""
 }
 """)
     }
     func addRowToExportStream(cont:CrawlingElement) {
- 
-        let stuff = makecsvrow(cont:cont )
-                    print(stuff , to: &csvOutputStream )
-            
         
-            let parts = stuff.components(separatedBy: ",")
-            if first {
-                emitToJSONStream("""
+        let stuff = makecsvrow(cont:cont )
+        print(stuff , to: &csvOutputStream )
+        
+        
+        let parts = stuff.components(separatedBy: ",")
+        if first {
+            emitToJSONStream("""
 {
 """)
-            } else {
-                emitToJSONStream("""
+        } else {
+            emitToJSONStream("""
 ,{
 """)
-            }
-            for (idx,part) in parts.enumerated() {
+        }
+        for (idx,part) in parts.enumerated() {
+            emitToJSONStream("""
+                "\(idx)":"\(part)"
+                """)
+            if idx == parts.count - 1 {
                 emitToJSONStream("""
-                    "\(idx)":"\(part)"
-                    """)
-                if idx == parts.count - 1 {
-                    emitToJSONStream("""
 }
 """)
-                } else {
-                    emitToJSONStream(",")
-                }
-                
+            } else {
+                emitToJSONStream(",")
             }
+            
+        }
         first =  false
     }
 }
@@ -222,7 +243,7 @@ public struct FileHandlerOutputStream: TextOutputStream {
 }
 
 public class ConsoleIO {
-
+    
     public  enum StreamOutputType {
         case error
         case standard
@@ -240,19 +261,19 @@ public class ConsoleIO {
     }
 }
 
- final  class ConfigurationProcessor :Configable {
+final  class ConfigurationProcessor :Configable {
     
     enum CodingKeys: String, CodingKey {
         case comment
         case roots
     }
     
-     var comment: String = "<no comment>"
+    var comment: String = "<no comment>"
     var roots:[String] = []
     var crawlStarts:[RootStart] = []
-     
-
- func load (url:URL? = nil) -> ([RootStart]) {
+    
+    
+    func load (url:URL? = nil) -> ([RootStart]) {
         do {
             let obj =    try configLoader(url!)
             return (convertToRootStarts(obj: obj))
@@ -291,7 +312,7 @@ public class ConsoleIO {
     }
 }
 // was runstats
-  final class CrawlStats:NSObject {
+final class CrawlStats:NSObject {
     
     var transformer:Transformer
     var keyCounts:NSCountedSet!
@@ -303,7 +324,7 @@ public class ConsoleIO {
         keyCounts.add(s)
     }
     func addStatsGoodCrawlRoot(urlstr:URLFromString) {
-       let part  =  partFromUrlstr(urlstr)
+        let part  =  partFromUrlstr(urlstr)
         goodurls.insert(part )
         if badurls.contains(part)   { badurls.remove(part) }
     }

@@ -33,7 +33,7 @@ struct Crawler {
         }
         
         do {
-            try  LinkGrubber().grub (name: "BigData",
+            try  LinkGrubber(pageMakerFunc: Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown).grub (name: "BigData",
                                      configURL: configurl ,
                                      opath:bandSiteParams.pathToResourcesDir + "/bigdata.csv",
                                      

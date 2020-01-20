@@ -29,8 +29,8 @@ struct PrePublishing{
         try Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
                                   title:"Bill's Best 2019",
                                   tags:["favorites"],
-                                  venue: "favorites",
-                                  playdate: "123119",
+                                  p1: "favorites",
+                                  p2: "123119",
                                   links:links)
         
         print("[crawler] adding Bills Favorites")
@@ -43,8 +43,8 @@ struct PrePublishing{
         try  Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/",
                                    title:"Brian's Favorites 2018",
                                    tags:["favorites"],
-                                   venue: "favorites",
-                                   playdate: "123118",
+                                   p1: "favorites",
+                                   p2: "123118",
                                    links:links)
         print("[crawler] adding Brians Favorites")
     }

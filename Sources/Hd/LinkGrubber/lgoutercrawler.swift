@@ -12,12 +12,15 @@ final class OuterCrawler {
     private var icrawler : InnerCrawler
     private var crawlStats : CrawlStats
     private var transformer:Transformer
+    private var pageMakerFunc:  MarkdownMakerSignature //  Audio(bandfacts: bandSiteParams).makeAudioListMarkdown
     
     init(roots:[RootStart],transformer:Transformer,
+         pageMakerFunc: @escaping MarkdownMakerSignature, // Audio(bandfacts: bandSiteParams).makeAudioListMarkdown,
          loggingLevel:LoggingLevel,
          returnsResults:@escaping ReturnsCrawlResults)
         throws {
             self.transformer = transformer
+            self.pageMakerFunc = pageMakerFunc
             self.crawlStats = CrawlStats(transformer:transformer)
             self.returnsCrawlResults = returnsResults
             let lk = ScrapingMachine(scraper: transformer.scraper)
@@ -31,7 +34,7 @@ final class OuterCrawler {
     func onepageworth(pr:ParseResults)->() {
         //each page we hit gets scraped and incorporated
         do {
-            try transformer.incorporateParseResults(pr: pr)
+            try transformer.incorporateParseResults(pr: pr,pageMakerFunc: Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown)
         }
         catch {
             print("couldnt scrape onpageworth \(error)")

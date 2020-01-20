@@ -9,23 +9,6 @@ import Publish
 import Plot
 
 
-typealias CrawlingSignature =  (String , @escaping (Int)->()) -> ()
-protocol   BandSiteProt {
-    var default_venue_acronym : String { get set }
-    var default_venue_description : String { get set }
-   var crawlerKeyTags:[String] { get set }
-  var pathToContentDir : String { get set }
-   var pathToResourcesDir: String { get set }
- var matchingURLPrefix : URL{ get set }
-}
-public struct BandSiteParams:BandSiteProt {
-    var default_venue_acronym : String
-    var default_venue_description : String
-   var crawlerKeyTags:[String]
-  var pathToContentDir : String
-   var pathToResourcesDir: String
- var matchingURLPrefix : URL
-}
 
 
 

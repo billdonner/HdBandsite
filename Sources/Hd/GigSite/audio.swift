@@ -76,13 +76,15 @@ struct Audio {
         return markdownmetadata() + "\(topdiv().render())"
     }
     
+    
+    
     // this variation uses venu and playdate to form a title
     func makeAudioListMarkdown(mode:PublishingMode,
                                url aurl: String,
                                title:String,
                                tags:[String],
-                               venue:String,
-                               playdate:String,
+                               p1 venue:String,
+                               p2 playdate:String,
                                links:[Fav] ) throws {
         
         
