@@ -1,15 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/bill/bills-best-2019/
 venue: favorites
-description: Your ingenuity and imagination will get results. 
+description: Genius is one percent inspiration and ninety-nine percent perspiration. 
 
-tags: riders,light,custom,bill,favorites,favorite
+tags: light,riders,custom,bill,favorites,favorite
 ---
 
 # bills-best-2019
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>Your ingenuity and imagination will get results.</i></h4><p>
+"/><h4><i>Genius is one percent inspiration and ninety-nine percent perspiration.</i></h4><p>
 </p></div></div>
 
 

@@ -1,13 +1,12 @@
 import Foundation
 func command_main() {
-    
-    func printUsage() {
+     func printUsage() {
         let processinfo = ProcessInfo()
         print(processinfo.processName)
         let path = ExportDirectoryURL.absoluteString
         let nam = FileManager.default.displayName(atPath: path)
         print(nam)
-         
+        
         let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
         
         print("\(executableName) 1.0.3 ")
@@ -19,38 +18,22 @@ func command_main() {
         print("\(executableName) -jv or -cv for vebose output")
     }
     
-    func exitBadCommand() {
-        print("""
-            {"invalid-command":\(CommandLine.arguments), "status":401}
-            """)
-        printUsage()
-        
-    }
- 
-    
-    let verbosity:LoggingLevel = .verbose
 
-
-    
     // -json and -csv go to adforum for now, -text goes to manifezz
     
     do {
-        
-        var configurl :URL?
-        guard CommandLine.arguments.count > 1 else  { exitBadCommand(); exit(0)  }
+        let bletch = { print("[crawler] bad command \(CommandLine.arguments)"  ) ; printUsage(); return; }
+        guard CommandLine.arguments.count > 1 else  { bletch(); exit(0)  }
         let arg1 =  CommandLine.arguments[1].lowercased()
-        let c = arg1.first
-        switch c {
-        case "m": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-medium.json")
-        case "l": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-full.json")
-        default: configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-small.json")
+        let c = String(arg1.first ?? "X")
+        
+        Hd.crawlerDispatch(c) {status in
+            switch status {
+            case 200:   print("[crawler] it was a perfect crawl ")
+            default:  bletch()
+            }
         }
-        guard let gurl = configurl else { exitBadCommand(); exit(0)  }
-        print("[crawler] executing \(gurl)")
-        let _ = Crawler(configurl: gurl, verbosity: verbosity) { status in // just runs
-            print("Crawler complete with status \(status)")
-            exit(0)
-        }
+        
     }
 }
 

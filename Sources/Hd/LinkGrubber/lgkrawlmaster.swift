@@ -15,9 +15,7 @@ final public class LinkGrubber
     
     private class KrawlStream : NSObject {
   
-       var config: Configable
-        // all of these variables are rquired by RunManager Protocol
-       
+       var config: Configable\
         var logLevel:LoggingLevel
         var transformer:Transformer
         var crawlStats:CrawlStats
@@ -79,7 +77,7 @@ final public class LinkGrubber
         }
     }
 
-    public  func grub(name:String,configURL: URL, opath:String,logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws {
+    public  func grub(name:String,configURL: URL, opath:String, specialFolderPaths: [String], logLevel:LoggingLevel, finally:@escaping ReturnsCrawlResults) throws {
      
         guard let fixedPath = URL(string:opath)?.deletingPathExtension().absoluteString
             else {  fatalError("cant fix outpath") }
@@ -87,13 +85,11 @@ final public class LinkGrubber
         let rm = KrawlStream(config:ConfigurationProcessor(),
                              transformer: Transformer(artist: name,
                                                       recordExporter:recordExporter,
+                                                      specialFolderPaths: specialFolderPaths,
                                 defaultArtUrl: "booly"),
                                 csvoutPath: LocalFilePath(fixedPath+".csv"),
                                 jsonoutPath: LocalFilePath(fixedPath+".json"),
                                 logLevel: logLevel )
         rm.startCrawling(  configURL:configURL,loggingLevel: logLevel,finally:finally )
     }
-    
-    
-    
 }

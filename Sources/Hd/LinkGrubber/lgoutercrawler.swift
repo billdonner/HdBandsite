@@ -9,7 +9,7 @@ import Foundation
 
 final class OuterCrawler {
     private var returnsCrawlResults:ReturnsCrawlResults
-    private  var icrawler : InnerCrawler
+    private var icrawler : InnerCrawler
     private var crawlStats : CrawlStats
     private var transformer:Transformer
     

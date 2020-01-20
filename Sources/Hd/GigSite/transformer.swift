@@ -80,12 +80,13 @@ final class Transformer:NSObject {
         }
     }// end of absorbLink
 
-    required  init(artist:String, recordExporter:RecordExporter,defaultArtUrl:String? = nil ) {
+    required  init(artist:String, recordExporter:RecordExporter, specialFolderPaths: [String],
+        defaultArtUrl:String? = nil ) {
         self.coverArtUrl = defaultArtUrl
         self.artist = artist
         self.recordExporter = recordExporter
         super.init()
-        cleanOuputs(outpath: Hd.pathToContentDir, specialFolderPaths: ["/favorites","/audiosessions"] )
+        cleanOuputs(outpath: Hd.pathToContentDir,specialFolderPaths: specialFolderPaths)
     }
     deinit  {
         recordExporter.addTrailerToExportStream()

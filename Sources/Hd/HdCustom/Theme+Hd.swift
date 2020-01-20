@@ -8,9 +8,9 @@ import Foundation
 import Publish
 import Plot
 
+
 extension Theme where Site == Hd {
-    /// The default "Foundation" theme that Publish ships with, a very
-    /// basic theme mostly implemented for demonstration purposes.
+    // a custom theme for bands
     static var hd: Self {
         Theme(
             htmlFactory: HdHTMLFactory(),
@@ -25,6 +25,22 @@ extension Hd {
      static let pathToContentDir =  "/Users/williamdonner/hd/Content"
      static let pathToResourcesDir = "/Users/williamdonner/hd"
      static let matchingURLPrefix =  URL(string:"https://billdonner.com/halfdead")!
+    
+    static func crawlerDispatch (_ c:String,finally:@escaping (Int)->()) {
+        var configurl :URL?
+        switch c {
+        case "m": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-medium.json")
+        case "l": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-full.json")
+        default: configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-small.json")
+        }
+        guard let gurl = configurl else { finally(404); return }
+        print("[crawler] executing \(gurl)")
+        let _ = Crawler(configurl: gurl,
+                        verbosity:  .none,
+                        specialFolderPaths: ["/favorites","/audiosessions"]) { status in // just runs
+                           finally(status)
+        }
+    }
 }
 
 
