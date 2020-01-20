@@ -26,6 +26,13 @@ This effectively paves over everthing that was there before, so be very careful.
 
 ## Lots to Do
 
-- css
-- make it pretty
--about to add to 
+The Publish system seems to only run in an osx environment.
+
+I tried to build a swiftui frontend but quickly realized that ShellOut wont work under non - osx platforms.
+
+The Website that Publish builds is a swift Package and cant add targets to that so I built a plain mac app and try to hoist all this code into that but it still doesnt really work
+
+So I am resolved to use this as is, right from here.
+
+
+

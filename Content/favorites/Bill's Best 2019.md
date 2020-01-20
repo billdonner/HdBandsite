@@ -1,15 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/bill/bills-best-2019/
 venue: favorites
-description: Some people never have anything except ideas, Go do it. 
+description: It takes guts to get out of the ruts. 
 
-tags: light,riders,custom,bill,favorites,favorite
+tags: riders,light,custom,bill,favorites,favorite
 ---
 
 # bills-best-2019
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>Some people never have anything except ideas, Go do it.</i></h4><p>
+"/><h4><i>It takes guts to get out of the ruts.</i></h4><p>
 </p></div></div>
 
 
