@@ -6,7 +6,9 @@
 //
 
 import Foundation
-import Publish 
+import Publish
+import LinkGrubber
+
 
 // this is the main "ctrawler program", used by both the mac and ios versions
 

@@ -38,6 +38,15 @@
         }
       },
       {
+        "package": "LinkGrubber",
+        "repositoryURL": "https://github.com/billdonner/LinkGrubber.git",
+        "state": {
+          "branch": null,
+          "revision": "06f913dc6927fab4c4e2f407696a327ee1802acb",
+          "version": "0.0.7"
+        }
+      },
+      {
         "package": "Plot",
         "repositoryURL": "https://github.com/johnsundell/plot.git",
         "state": {

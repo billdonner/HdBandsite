@@ -7,6 +7,7 @@
 
 import Foundation
 import Plot
+import LinkGrubber
 
 struct Audio {
     private var bandfacts:BandSiteParams
@@ -20,7 +21,7 @@ struct Audio {
     }
   private func buildAudioBlock(idx:Int,alink:Fav)->String {
         let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
-        if isAudioExtension(pext){
+    if LgFuncs.isAudioExtension(pext){
             let div = Node.div(
                 .h2("\(String(format:"%02d",idx+1))    \(alink.name)"),
                 .figure(
@@ -79,7 +80,7 @@ struct Audio {
     
     
     // this variation uses venu and playdate to form a title
-    func makeAudioListMarkdown(mode:PublishingMode,
+    func makeAudioListMarkdown(mode:Bool, // true means from Publish
                                url aurl: String,
                                title:String,
                                tags:[String],
@@ -91,7 +92,7 @@ struct Audio {
         func checkForBonusTags(name:String?)->String? {
             if let songName = name {
                 let shorter = songName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-                for tuneTag in  bandfacts.crawlerKeyTags {
+                for tuneTag in  bandfacts.crawlTags {
                     if shorter.hasPrefix(tuneTag) {
                         return tuneTag
                     }
@@ -120,9 +121,9 @@ struct Audio {
             
             var spec: String
             switch  mode {
-            case  .fromPublish :
+            case  true :
                 spec =  "\( bandfacts.pathToContentDir)/audiosessions/\(venue)\(playdate).md"
-            case  .fromWithin :
+            case false  :
                 spec =  "\( bandfacts.pathToContentDir)/favorites/\(title).md"
             }
             guard let u = URL(string:aurl) else { return }
@@ -138,12 +139,12 @@ struct Audio {
         }
     }
      private func generateAudioMarkdownPage(_ title:String,u:URL,venue:String ,playdate:String,tags:[String]=[],links:[Fav]=[],
-                                               mode:PublishingMode )->String {
+                                               mode:Bool )->String {
         var newtags = tags
         switch mode {
-        case .fromPublish:
+        case true:
             break
-        case .fromWithin:
+        case false :
             newtags.append("favorite")
         }
         
@@ -153,7 +154,7 @@ struct Audio {
     }
 
     /// make some tags  and banner from the alburm name
-   private func makeBannerAndTags(aurl:String,mode:PublishingMode)->BannerAndTags {
+   private func makeBannerAndTags(aurl:String,mode:Bool)->BannerAndTags {
         guard let u = URL(string:aurl) else { fatalError() }
         // take only the top two parts and use them as
         
@@ -172,12 +173,12 @@ struct Audio {
         
         var banner:String
         switch mode {
-        case .fromPublish:
+        case true:
             // if publish is generating, then use this
             tags.append( performanceKind )
             banner = parts[2] + " \(performanceKind) " + parts[3]
             
-        case .fromWithin:
+        case false:
         
             banner =  parts[3]
         }

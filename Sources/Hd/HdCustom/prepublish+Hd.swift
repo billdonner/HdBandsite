@@ -7,6 +7,7 @@
 
 import Foundation
 import Publish
+import LinkGrubber
 
 
 
@@ -26,7 +27,7 @@ struct PrePublishing{
             Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"favorite of all time"),
             Fav(name: "riders",url: "https://billdonner.com/foobly/riders.mp3",comment:"best of the year")
         ]
-        try Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown(mode:.fromWithin,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
+        try Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown(mode:false,  url:"grubber://mumble012/custom/bill/bills-best-2019/",
                                   title:"Bill's Best 2019",
                                   tags:["favorites"],
                                   p1: "favorites",
@@ -40,7 +41,7 @@ struct PrePublishing{
             Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"not exactly my taste"),
             Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"I like the drumming")
         ] 
-        try  Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown(mode:.fromWithin, url:"grubber://mumble012/custom/brian/brians-favorites-2018/",
+        try  Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown(mode:false, url:"grubber://mumble012/custom/brian/brians-favorites-2018/",
                                    title:"Brian's Favorites 2018",
                                    tags:["favorites"],
                                    p1: "favorites",
@@ -108,7 +109,7 @@ struct ImagesAndMarkdown {
                 }
             }
         } else
-            if isImageExtension(pext) {
+            if LgFuncs.isImageExtension(pext) {
                 // if its an image just accumulate them in a gallery
                 images.append(alink.url)
         }

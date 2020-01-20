@@ -226,7 +226,7 @@ extension HdHTMLFactory {
                     .h2("Who Are We?"),
                     .div(
                         .img(.src("/images/roseslogo.png"))),
-                    .span("We play in \(Hd.bandfacts.default_venue_description)") ,
+                    .span("We play in \(Hd.bandfacts.venueLong)") ,
                     .ul(
                         .li(.dl(
                             .dt("Anthony"),

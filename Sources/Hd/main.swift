@@ -1,14 +1,40 @@
 import Foundation
+import LinkGrubber
 
+typealias CrawlingSignature =  (String , @escaping (Int)->()) -> ()
+
+open   class BandSiteParams:BandSiteProt {
+   public var venueShort : String
+      public  var venueLong : String
+      public  var crawlTags:[String]
+     public   var pathToContentDir : String
+    public    var pathToResourcesDir: String
+      public  var matchingURLPrefix : URL
+    
+    public init(
+ venueShort : String = "",
+       venueLong : String  = "",
+      crawlTags:[String]  = [],
+      pathToContentDir : String = "",
+    pathToResourcesDir: String = "",
+     matchingURLPrefix : URL = URL(string:"")!
+    ){
+        self.venueShort = venueShort
+        self.venueLong = venueLong
+        self.crawlTags = crawlTags
+        self.pathToContentDir = pathToContentDir
+        self.pathToResourcesDir = pathToResourcesDir
+        self.matchingURLPrefix = matchingURLPrefix
+        
+    }
+    
+}
 
 func command_main(crawler:CrawlingSignature) {
      func printUsage() {
         let processinfo = ProcessInfo()
         print(processinfo.processName)
-        let path = ExportDirectoryURL.absoluteString
-        let nam = FileManager.default.displayName(atPath: path)
-        print(nam)
-        
+  
         let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
         
         print("\(executableName)")

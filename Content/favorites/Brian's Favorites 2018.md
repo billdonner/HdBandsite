@@ -1,7 +1,7 @@
 ---
 sourceurl: grubber://mumble012/custom/brian/brians-favorites-2018/
 venue: favorites
-description: If you wish to see the best in others, show the best of yourself. 
+description: Yesterday was a dare to struggle. Today is a dare to win. 
 
 tags: light,riders,custom,brian,favorites,favorite
 ---
@@ -9,7 +9,7 @@ tags: light,riders,custom,brian,favorites,favorite
 # brians-favorites-2018
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>If you wish to see the best in others, show the best of yourself.</i></h4><p>
+"/><h4><i>Yesterday was a dare to struggle. Today is a dare to win.</i></h4><p>
 </p></div></div>
 
 

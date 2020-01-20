@@ -1,15 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/bill/bills-best-2019/
 venue: favorites
-description: Many receive advice, only the wise profit from it. 
+description: Most people, once they graduate from the school of Hard Knocks, automatically enroll. 
 
-tags: riders,light,custom,bill,favorites,favorite
+tags: light,riders,custom,bill,favorites,favorite
 ---
 
 # bills-best-2019
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>Many receive advice, only the wise profit from it.</i></h4><p>
+"/><h4><i>Most people, once they graduate from the school of Hard Knocks, automatically enroll.</i></h4><p>
 </p></div></div>
 
 
