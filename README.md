@@ -1,8 +1,10 @@
 
 # The AboutHalfDead.com WebSite Content Lives Here
 
-![](images/grabnhand.png)
-
+ 
+<p align="center">
+<img src="https://billdonner.com/images/grabnhand.png" width="400" max-width="90%" alt="Publish" />
+</p>
 ## How It Works
 
 Here's the basic plan:
