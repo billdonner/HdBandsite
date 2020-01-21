@@ -22,6 +22,7 @@ extension Theme where Site == Hd {
 
 
 extension Hd {
+    
     static func publisher() ->Int {
         do {
         let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
@@ -29,7 +30,7 @@ extension Hd {
             return stepcount
         }
         catch {
-            print("[crwler] could not publish")
+            print("[crawler] could not publish")
             return 0
         }
     }
@@ -289,4 +290,90 @@ struct HdHTMLFactory: HTMLFactory {
         )
     }
     
+}
+
+extension Node where Context == HTML.BodyContext {
+    static func wrapper(_ nodes: Node...) -> Node {
+        .div(.class("wrapper"), .group(nodes))
+    }
+    
+    // this is the header for the whole site, customized
+    static func header<T: Website>(
+        for context: PublishingContext<T>,
+        selectedSection: T.SectionID?
+    ) -> Node {
+        let sectionIDs = T.SectionID.allCases
+        
+        return .header(
+            .wrapper(
+                .a(.class("site-name"), .href("/"), .text(context.site.name)),
+                .if(sectionIDs.count > 1,
+                    .nav(
+                        .ul(
+                            .li(.a(
+                                .href("/blog"),
+                                .text("Blog"))),
+                            .li(.a(
+                                .href("/tags"),
+                                .text("Tags"))),
+                            .li(.a(
+                                .href("/favorites"),
+                                .text("Favorites"))),
+                            .li(.a(
+                                .href("/about"),
+                                .text("About"))),
+                            .li(.a(
+                                .href("/audiosessions"),
+                                .text("Audio")))
+                            
+                        )
+                    )
+                )// if
+            )//wrapper
+        )
+    }
+    
+    static func itemList<T: Website>(for items: [Item<T>], on site: T) -> Node {
+        return .div(//.p(.text("itemlist preamble")),
+            .ul(
+                .class("item-list"),
+                .forEach(items) { item in
+                    .li(.article(
+                        .h1(.a(
+                            .href(item.path),
+                            .text(item.title)
+                            )),
+                        .p(.text(item.description)) ,
+                        .tagList(for: item, on: site)
+                        ))
+                }
+            )
+        )
+    }
+    
+    static func tagList<T: Website>(for item: Item<T>, on site: T) -> Node {
+        return .div(//.p(.text("taglist preamble")),
+            .ul(.class("tag-list"), .forEach(item.tags) { tag in
+                .li(.a(
+                    .href(site.path(for: tag)),
+                    .text(tag.string)
+                    ))
+                }
+            ))
+    }
+    
+    static func footer<T: Website>(for site: T) -> Node {
+        let now = "\(Date())".dropLast(9)
+        return .footer(
+            .p(
+                .text("Generated using "),
+                .a(
+                    .text("Publish"),  .href("https://github.com/johnsundell/publish")
+                ),
+                .text(" and "),
+                .a( .text("LinkGrubber"),  .href("https://github.com/billdonner/linkgrubber")
+                ),
+                .i(" updated \(now)")
+            ))
+    }
 }

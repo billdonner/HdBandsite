@@ -4,6 +4,7 @@ import LinkGrubber
 typealias CrawlingSignature =  (String , @escaping (Int)->()) -> ()
 
 
+
 func command_main(crawler:CrawlingSignature) {
      func printUsage() {
         let processinfo = ProcessInfo()
