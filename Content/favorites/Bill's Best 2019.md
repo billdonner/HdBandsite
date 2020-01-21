@@ -1,15 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/bill/bills-best-2019/
 venue: favorites
-description: Most people, once they graduate from the school of Hard Knocks, automatically enroll. 
+description: It is by those who have suffered that the world is most advanced. 
 
-tags: light,riders,custom,bill,favorites,favorite
+tags: riders,light,custom,bill,favorites,favorite
 ---
 
 # bills-best-2019
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>Most people, once they graduate from the school of Hard Knocks, automatically enroll.</i></h4><p>
+"/><h4><i>It is by those who have suffered that the world is most advanced.</i></h4><p>
 </p></div></div>
 
 

@@ -9,9 +9,70 @@ import Foundation
 import Plot
 import LinkGrubber
 
-struct Audio {
+
+fileprivate struct ImagesAndMarkdown {
+    let images: [String]
+    let markdown: String
+
+ static func generateImagesAndMarkdownFromRemoteDirectoryAssets(links:[Fav]) -> ImagesAndMarkdown {
+    var images: [String] = []
+    var pmdbuf = "\n"
+    for(_,alink) in links.enumerated() {
+        let pext = (alink.url.components(separatedBy: ".").last ?? "fail").lowercased()
+        if (pext=="md") {
+            // copy the bytes inline from remote md file
+            if let surl = URL(string:alink.url) {
+                do {
+                    pmdbuf +=   try String(contentsOf: surl) + "\n\n\n"
+                }
+                catch {
+                    print("[crawler] Couldnt read bytes from \(alink.url) \(error)")
+                }
+            }
+        } else
+            if LgFuncs.isImageExtension(pext) {
+                // if its an image just accumulate them in a gallery
+                images.append(alink.url)
+        }
+    }
+    if images.count == 0  {
+        images.append( "/images/abhdlogo300.png")
+    }
+    return ImagesAndMarkdown(images:images,markdown:pmdbuf)
+}
+
+}
+
+open   class BandSiteParams:BandSiteProt {
+   public var venueShort : String
+      public  var venueLong : String
+      public  var crawlTags:[String]
+     public   var pathToContentDir : String
+    public    var pathToResourcesDir: String
+      public  var matchingURLPrefix : URL
+    
+    public init(
+ venueShort : String = "",
+       venueLong : String  = "",
+      crawlTags:[String]  = [],
+      pathToContentDir : String = "",
+    pathToResourcesDir: String = "",
+     matchingURLPrefix : URL = URL(string:"")!
+    ){
+        self.venueShort = venueShort
+        self.venueLong = venueLong
+        self.crawlTags = crawlTags
+        self.pathToContentDir = pathToContentDir
+        self.pathToResourcesDir = pathToResourcesDir
+        self.matchingURLPrefix = matchingURLPrefix
+        
+    }
+    
+}
+
+open class Audio {
     private var bandfacts:BandSiteParams
-    init(bandfacts:BandSiteParams)
+    public init(bandfacts:BandSiteParams)
     {
         self.bandfacts = bandfacts
     }
@@ -187,3 +248,16 @@ struct Audio {
     }
 
 }// struct audio
+
+extension Node where Context: HTML.BodyContext {
+    /// Add a `<figure>` HTML element within the current context.
+    /// - parameter nodes: The element's attributes and child elements.
+    static func figure(_ nodes: Node<HTML.BodyContext>...) -> Node {
+        .element(named: "figure", nodes: nodes)
+    }
+    /// Add a `<figcaption>` HTML element within the current context.
+    /// - parameter nodes: The element's attributes and child elements.
+    static func figcaption(_ nodes: Node<HTML.BodyContext>...) -> Node {
+        .element(named: "figcaption", nodes: nodes)
+    }
+}

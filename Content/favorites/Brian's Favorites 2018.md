@@ -1,15 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/brian/brians-favorites-2018/
 venue: favorites
-description: Yesterday was a dare to struggle. Today is a dare to win. 
+description: Act boldly and unseen forces will come to your aid. 
 
-tags: light,riders,custom,brian,favorites,favorite
+tags: riders,light,custom,brian,favorites,favorite
 ---
 
 # brians-favorites-2018
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>Yesterday was a dare to struggle. Today is a dare to win.</i></h4><p>
+"/><h4><i>Act boldly and unseen forces will come to your aid.</i></h4><p>
 </p></div></div>
 
 

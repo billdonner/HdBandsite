@@ -10,8 +10,6 @@ import Publish
 import Plot
 import Kanna
 
-
-
 // This type acts as the configuration for your website.
 // On top of John Sundell's configuration, we have everything else that's needed for LinkGrubber, etc
 
@@ -41,14 +39,15 @@ struct Hd: Website {
     var language: Language { .english }
     var imagePath: Path? { "images/ABHDLogo.png" }
     var favicon: Favicon?  { Favicon(path: "images/favicon.png")}
- 
+    
     static let bandfacts = BandSiteParams(
         venueShort: "thorn",
-    venueLong: "Highline Studios, Thornwood, NY",
-    crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
-    pathToContentDir: "/Users/williamdonner/hd/Content",
-    pathToResourcesDir: "/Users/williamdonner/hd",
-    matchingURLPrefix: URL(string:"https://billdonner.com/halfdead")!)
+        venueLong: "Highline Studios, Thornwood, NY",
+        crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
+        pathToContentDir: "/Users/williamdonner/hd/Content",
+        pathToResourcesDir: "/Users/williamdonner/hd",
+        matchingURLPrefix: URL(string:"https://billdonner.com/halfdead")!
+    )
 }
 
 

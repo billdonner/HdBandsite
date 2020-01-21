@@ -6,24 +6,29 @@
 //
 
 import Foundation
-import Publish
+
 import LinkGrubber
 
 
-// this is the main "ctrawler program", used by both the mac and ios versions
+// this is the main "crawler program"
 
-struct Crawler {
-    
-    init( configurl: URL,  verbosity: LoggingLevel,     bandSiteParams:  BandSiteParams,  specialFolderPaths: [String],finally:@escaping (Int) -> ()) {
+open class AudioCrawler {
+
+  public  init( configurl: URL,  verbosity: LoggingLevel,
+          publishFunc f:@escaping ()->(Int) ,
+          bandSiteParams:  BandSiteParams,
+          specialFolderPaths: [String],
+          finally:@escaping (Int) -> ()) {
+        
         var status  = 200
+        
         func publishNow(_ crawlResults: CrawlerStatsBlock) {
             // at this point we've plunked files into the designated directory
             let start = Date()
             // generate the site with the Hd theme
             do {
                 let prepublishcount = try   PrePublishing.allPrePublishingSteps()
-                let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
-                try Hd().publish(withTheme: .hd, additionalSteps:steps)
+                let stepcount = f()
                 let published_counts = crawlResults.count1 + prepublishcount + stepcount
                 let elapsed = Date().timeIntervalSince(start) / Double(published_counts)
                 print("[crawler] published \(published_counts) pages,  \(String(format:"%5.2f",elapsed*1000)) ms per page")
@@ -35,7 +40,7 @@ struct Crawler {
         }
         
         do {
-            try  LinkGrubber(pageMakerFunc: Audio(bandfacts: Hd.bandfacts).makeAudioListMarkdown).grub (name: "BigData",
+            try  LinkGrubber(pageMakerFunc: Audio(bandfacts: bandSiteParams).makeAudioListMarkdown).grub (name: "BigData",
                                      configURL: configurl ,
                                      opath:bandSiteParams.pathToResourcesDir + "/bigdata.csv",
                                      
