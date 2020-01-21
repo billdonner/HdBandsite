@@ -8,7 +8,7 @@
 import Foundation
 import Publish
 import Plot
-import Kanna
+import GigSiteAudio
 
 // This type acts as the configuration for your website.
 // On top of John Sundell's configuration, we have everything else that's needed for LinkGrubber, etc

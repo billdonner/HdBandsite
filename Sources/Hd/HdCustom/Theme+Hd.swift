@@ -7,6 +7,8 @@
 import Foundation
 import Publish
 import Plot
+import GigSiteAudio
+
 
 extension Theme where Site == Hd {
     // a custom theme for bands
@@ -40,8 +42,10 @@ extension Hd {
         }
         guard let gurl = configurl else { finally(404); return }
         print("[crawler] executing \(gurl)")
+  
         let _ = AudioCrawler(configurl: gurl,
                         verbosity:  .none,
+                        prepublishFunc:PrePublishing.allPrePublishingSteps,
                         publishFunc: Hd.publisher,
                         bandSiteParams: Hd.bandfacts,
                         specialFolderPaths: ["/favorites","/audiosessions"]) { status in // just runs

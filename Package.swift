@@ -8,6 +8,7 @@ let package = Package(
         .executable(name: "Hd", targets: ["Hd"])
     ],
     dependencies: [
+          .package(url: "https://github.com/billdonner/GigSiteAudio.git", from: "0.0.1"),
         .package(url: "https://github.com/billdonner/LinkGrubber.git", from: "0.0.1"),
         .package(url: "https://github.com/johnsundell/publish.git", from: "0.1.0"),
         .package(url: "https://github.com/tid-kijyun/Kanna.git", from:"5.0.0")
@@ -15,7 +16,7 @@ let package = Package(
     targets: [
         .target(
             name: "Hd",
-            dependencies: ["Publish","Kanna","LinkGrubber"]
+            dependencies: ["Publish","Kanna","LinkGrubber","GigSiteAudio"]
         )
     ]
 )

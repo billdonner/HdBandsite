@@ -1,15 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/brian/brians-favorites-2018/
 venue: favorites
-description: Act boldly and unseen forces will come to your aid. 
+description: The heart has its reasons, which the reasons dos not know. 
 
-tags: riders,light,custom,brian,favorites,favorite
+tags: light,riders,custom,brian,favorites,favorite
 ---
 
 # brians-favorites-2018
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>Act boldly and unseen forces will come to your aid.</i></h4><p>
+"/><h4><i>The heart has its reasons, which the reasons dos not know.</i></h4><p>
 </p></div></div>
 
 

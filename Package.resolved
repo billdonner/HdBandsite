@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "GigSiteAudio",
+        "repositoryURL": "https://github.com/billdonner/GigSiteAudio.git",
+        "state": {
+          "branch": null,
+          "revision": "94d64ddd18610b8ba6badabc30ea9b2e54254203",
+          "version": "0.0.3"
+        }
+      },
+      {
         "package": "Ink",
         "repositoryURL": "https://github.com/johnsundell/ink.git",
         "state": {
