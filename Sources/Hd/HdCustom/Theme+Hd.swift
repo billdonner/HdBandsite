@@ -37,6 +37,7 @@ extension Hd {
     static func crawler (_ c:String,finally:@escaping (Int)->()) {
         var configurl :URL?
         switch c {
+                 case "9": configurl = URL(string: "https://billdonner.com/linkgrubber/billdonnersite.json")
         case "m": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-medium.json")
         case "l": configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-full.json")
         default: configurl = URL(string: "https://billdonner.com/linkgrubber/manifezz-small.json")
@@ -45,8 +46,7 @@ extension Hd {
         print("[crawler] executing \(gurl)")
   
         let _ = AudioCrawler(configurl: gurl,
-                        verbosity:  .none,
-                        prepublishFunc:PrePublishing.allPrePublishingSteps,
+                        verbosity:  .none,  prepublishFunc:PrePublishing.allPrePublishingSteps,
                         publishFunc: Hd.publisher,
                         bandSiteParams: Hd.bandfacts,
                         specialFolderPaths: ["/favorites","/audiosessions"]) { status in // just runs

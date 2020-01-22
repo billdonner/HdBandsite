@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/billdonner/GigSiteAudio.git",
         "state": {
           "branch": null,
-          "revision": "94d64ddd18610b8ba6badabc30ea9b2e54254203",
-          "version": "0.0.3"
+          "revision": "701eead31cc194a4ea1b03eea7fb9b734aa47e60",
+          "version": "0.0.4"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/billdonner/LinkGrubber.git",
         "state": {
           "branch": null,
-          "revision": "06f913dc6927fab4c4e2f407696a327ee1802acb",
-          "version": "0.0.7"
+          "revision": "dd1f937789f9dce11259b61ddc88690182e4a345",
+          "version": "0.0.8"
         }
       },
       {

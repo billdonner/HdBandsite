@@ -1,9 +1,8 @@
-
 # The AboutHalfDead.com WebSite Content Lives Here
 
- 
+
 <p align="center">
-<img src="https://billdonner.com/images/grabnhand.png" width="300" max-width="90%" alt="Publish" />
+<img src="https://billdonner.com/images/hdsite/HdSite1024x1024.png" width="300" max-width="90%" alt="Publish" />
 </p>
 
 ## How It Works

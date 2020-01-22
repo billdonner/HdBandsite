@@ -41,7 +41,7 @@ struct Hd: Website {
     var imagePath: Path? { "images/ABHDLogo.png" }
     var favicon: Favicon?  { Favicon(path: "images/favicon.png")}
     
-    static let bandfacts = BandSiteParams(
+    static let bandfacts = AudioSiteSpec(
         venueShort: "thorn",
         venueLong: "Highline Studios, Thornwood, NY",
         crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
@@ -164,6 +164,6 @@ extension PublishingContext where Site == Hd  {
         let items = sections.flatMap { $0.items }
         let x = items.sorted(
             by: order.makeASorter(forKeyPath: sortingKeyPath))
-        return x.dropLast(x.count-max)
+        return x.dropLast((x.count-max)>0 ? x.count-max : 0)
     }
 }
