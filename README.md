@@ -1,37 +1,35 @@
-# The AboutHalfDead.com WebSite Content Lives Here
+# The AboutHalfDead.com WebSite Publisher Lives Here
 
 
 <p align="center">
 <img src="https://billdonner.com/images/hdsite/HdSite1024x1024.png" width="300" max-width="90%" alt="Publish" />
 </p>
 
+#### Scan Music and Build A New Site
+
+This is a Swift Package that generates a specfic site for a working band, in this case AboutHalfDead.com
+
+- [gigaudiosite](https://github.com/billdonner/GigSiteAudio) builds markdown assets for any band
+- [linkgrubber](https://github.com/billdonner/LinkGrubber) scans remote sites for music files
+- [Publish](https://github.com/JohnSundell/Publish) static site generator in Swift
+
 ## How It Works
 
 Here's the basic plan:
 
-### After a Recording Session, The Music Files are Uploaded Via FTP
+### After a Recording Session Music Files are Uploaded Via FTP
 The Audio Engineer uploads them into http://AboutHalfDead.com/audio/YEAR/MM-DD-YY
-Custom images and text can also be placed in these directories to affect the visuals for the playback page of the session.
+Custom images and text can also be placed in these directories to affect the visuals for the playback page of the session. Specifications are at https://github.com/billdonner/GigSiteAudio
 
-### When Activated, The LinkGrubber Crawls Looking for Music and Other Assets
-All the resulting metadata is used to generated a set of Markdown files, one per Recording Session.
+###  This Program is Run To Generate A New Website
 
-### The Publish/Plot Packages by John Sundell Are Used to Generate A Static WebSite
-The Markdown files are Published using these Swift Packages. The result is a static website that can be deployed anywhere, or on localhost:8000
+The Website has all of the new audio bits.  This program only runs under Xcode. The website can be viewed locally under at http://localhost:8000
 
 ### The New Static Web Site is Deployed to the AboutHalfDead.com domain via FTP
-Once happy with the local version, the entire pile is uploaded back to the main domain.
-This effectively paves over everthing that was there before, so be very careful.
 
-## Lots to Do
+Once happy with the local version, the entire pile is uploaded back to the main domain. This effectively paves over everthing that was there before, so be very careful.
 
-The Publish system seems to only run in an osx environment.
 
-I tried to build a swiftui frontend but quickly realized that ShellOut wont work under non - osx platforms.
-
-The Website that Publish builds is a swift Package and cant add targets to that so I built a plain mac app and try to hoist all this code into that but it still doesnt really work
-
-So I am resolved to use this as is, right from here.
 
 
 
