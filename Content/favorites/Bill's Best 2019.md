@@ -1,7 +1,7 @@
 ---
 sourceurl: grubber://mumble012/custom/bill/bills-best-2019/
 venue: favorites
-description: A huge fortune at home is not as good as money in use. 
+description: You will always be successful in you professional career. 
 
 tags: light,riders,custom,bill,favorites,favorite
 ---
@@ -9,7 +9,7 @@ tags: light,riders,custom,bill,favorites,favorite
 # bills-best-2019
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>A huge fortune at home is not as good as money in use.</i></h4><p>
+"/><h4><i>You will always be successful in you professional career.</i></h4><p>
 </p></div></div>
 
 

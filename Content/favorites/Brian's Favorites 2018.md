@@ -1,15 +1,15 @@
 ---
 sourceurl: grubber://mumble012/custom/brian/brians-favorites-2018/
 venue: favorites
-description: Men do not fail... they give up trying. 
+description: Make everyday your best. You will improve yourself greatly. 
 
-tags: light,riders,custom,brian,favorites,favorite
+tags: riders,light,custom,brian,favorites,favorite
 ---
 
 # brians-favorites-2018
 
 <div><div><img src="/images/abhdlogo300.png" class="img300" alt="
-"/><h4><i>Men do not fail... they give up trying.</i></h4><p>
+"/><h4><i>Make everyday your best. You will improve yourself greatly.</i></h4><p>
 </p></div></div>
 
 
