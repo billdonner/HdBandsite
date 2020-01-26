@@ -23,7 +23,17 @@ extension Theme where Site == Hd {
     }
 }
 
+// custom html
+ protocol SOB {
+    static   func htmlForTestPage(for page: Page,context: PublishingContext<Hd>) -> HTML
+    static   func htmlForIndexPage(for index: Index,context:PublishingContext<Hd>) -> HTML
+    static   func htmlForMembersPage(for page: Page, context: PublishingContext<Hd>) -> HTML
+}
 
+public struct StandardBandSitePages : SOB {
+    // needs no more
+    
+}
 
 //MARK: - these are all wired to Hd
 
@@ -125,46 +135,8 @@ struct HdHTMLFactory: HTMLFactory {
 
     func makeIndexHTML(for index: Index,
                        context: PublishingContext<Hd>) throws -> HTML {
-        HTML(
-            .lang(context.site.language),
-            .head(for: index, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                .header(for: context, selectedSection: nil),
-                .wrapper(
-                    .h1(.text(index.title)),
-                    .p(
-                        .class("description"),
-                        .text("New Home for  About Half Dead")
-                    ),
-                    
-                    .h2("Recent Posts"),
-                    .itemList( for: context.someItems(max:5, sortedBy: \.date,
-                                                      order: .descending
-                        ),
-                               on: context.site
-                    )),
-                
-                .h4("Data Assets"),
-                .ul(
-                    
-                    .li(    .class("reftag"),
-                            .a(.href("/BigData/bigdata.csv"),
-                               .text("CSV for data anaylsis")) ),
-                    .li(    .class("reftag"),
-                            .a(.href("/BigData/bigdata.json"),
-                               .text("JSON for apps")) ),
-                    .li(    .class("reftag"),
-                            .a(
-                                .href("/sitemap.xml"),
-                                .text("Sitemap")) ),
-                    .li(    .class("reftag"),
-                            .a(.text("RSS feed"),
-                               .href("/feed.rss")))
-                ),
-                
-                .footer(for: context.site)
-            )
-        )
+        return StandardBandSitePages.htmlForIndexPage(for: index,context:context)
+       
     }
     
     
@@ -175,9 +147,9 @@ struct HdHTMLFactory: HTMLFactory {
         var result : HTML
         switch page.path {
             
-        case "/about":  result = htmlForMembersPage(for:page,context:context)
+        case "/about":  result = StandardBandSitePages.htmlForMembersPage(for:page,context:context)
             
-        case "/test" : result =  htmlForTestPage(for:page,context:context)
+        case "/test" : result =  StandardBandSitePages.htmlForTestPage(for:page,context:context)
             
         default: fatalError("cant makePageHTML for \(page) context:\(context.site.name)")
         }
