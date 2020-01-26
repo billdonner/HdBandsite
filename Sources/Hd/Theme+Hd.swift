@@ -11,47 +11,15 @@ import GigSiteAudio
 import LinkGrubber
 
 
+// these are pages that are built from swift code that is run before we call Publish...
+
 extension Theme where Site == Hd {
     // a custom theme for bands
     static var hd: Self {
         Theme(
             htmlFactory: HdHTMLFactory(),
-            resourcePaths: ["Resources/HdTheme/hdstyles.css"]
+            resourcePaths: bandfacts.resourcePaths
         )
-    }
-}
-
-
-extension Hd {
-    
-    static func publisher() ->Int {
-        do {
-        let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
-                   try Hd().publish(withTheme: .hd, additionalSteps:steps)
-            return stepcount
-        }
-        catch {
-            print("[crawler] could not publish")
-            return 0
-        }
-    }
-    static func crawler (_ c:String,finally:@escaping (Int)->()) {
-        var configurl :String
-        switch c {
-                 case "9": configurl =   "https://billdonner.com/linkgrubber/billdonnersite.json"
-        case "m": configurl = "https://billdonner.com/linkgrubber/manifezz-medium.json"
-        case "l": configurl =  "https://billdonner.com/linkgrubber/manifezz-full.json"
-        default: configurl =  "https://billdonner.com/linkgrubber/manifezz-small.json"
-        }
-        print("[crawler] executing \(configurl)")
-  
-        let _ = AudioCrawler(roots:[ RootStart(name:"foo",urlsgtr:configurl)],
-                        verbosity:  .none,  prepublishFunc:PrePublishing.allPrePublishingSteps,
-                        publishFunc: Hd.publisher,
-                        bandSiteParams: Hd.bandfacts,
-                        specialFolderPaths: ["/favorites","/audiosessions"]) { status in // just runs
-                           finally(status)
-        }
     }
 }
 
@@ -180,10 +148,10 @@ struct HdHTMLFactory: HTMLFactory {
                 .ul(
                     
                     .li(    .class("reftag"),
-                            .a(.href("/bigdata.csv"),
+                            .a(.href("/BigData/bigdata.csv"),
                                .text("CSV for data anaylsis")) ),
                     .li(    .class("reftag"),
-                            .a(.href("/bigdata.json"),
+                            .a(.href("/BigData/bigdata.json"),
                                .text("JSON for apps")) ),
                     .li(    .class("reftag"),
                             .a(
@@ -207,90 +175,15 @@ struct HdHTMLFactory: HTMLFactory {
         var result : HTML
         switch page.path {
             
-        case "/about":  result = HdHTMLFactory.htmlForMembersPage(for:page,context:context)
+        case "/about":  result = htmlForMembersPage(for:page,context:context)
             
-        case "/test" : result =  HdHTMLFactory.htmlForTestPage(for:page,context:context)
+        case "/test" : result =  htmlForTestPage(for:page,context:context)
             
         default: fatalError("cant makePageHTML for \(page) context:\(context.site.name)")
         }
         return result
     }
-    
-    static   func htmlForTestPage(for page: Page,
-                                  context: PublishingContext<Site>) -> HTML {
-        HTML(
-            .lang(context.site.language),
-            .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                .header(for: context, selectedSection: nil),
-                .wrapper(.h2(.text("TEST PAGE"))),
-                .footer(for: context.site)
-            )
-        )
-    }
-    
-    static   func htmlForMembersPage(for page: Page,
-                                     context: PublishingContext<Hd>) -> HTML {
-        HTML(
-            .lang(context.site.language),
-            .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-            .body(
-                .header(for: context, selectedSection: nil),
-                .wrapper(
-                    .h2("Who Are We?"),
-                    .div(
-                        .img(.src("/images/roseslogo.png"))),
-                    .span("We play in \(Hd.bandfacts.venueLong)") ,
-                    .ul(
-                        .li(.dl(
-                            .dt("Anthony"),
-                            .dd("Rhythm Guitar and ",.strong( "Vocals"))),
-                            .img(.src("/images/hd-anthony.jpg"))),
-                       .li(.dl(
-                                                  .dt("Bill"),
-                                                  .dd("Keyboards")),
-                                                  .img(.src("/images/hd-bill.jpg"))),
-                                              .li(.dl(
-                                                  .dt("Brian"),
-                                                  .dd("Drums ", .s("and Vocals"))),
-                                                          .img(.src("/images/hd-brian.jpg"))),
-                                              
-                                              .li(.dl(
-                                                  .dt("Mark"),
-                                                  .dd("Lead Guitar and ", .ins("Vocals"))),
-                                                      .img(.src("/images/hd-mark.jpg"))),
-                                          
-                                              .li(.dl(
-                                                  .dt("Marty"),
-                                                  .dd("Bass")),
-                                                  .img(.src("/images/hd-marty.jpg")))
-                                                  
-                    ),// ends ul
-                    .h2( "Hire Us"),
-                    .p("We Don't Play For Free"),
-                    .form(
-                        .action("mailto:bildonner@gmail.com"),
-                        
-                        .fieldset(
-                            .label(.for("name"), "Name"),
-                            .input(.name("name"), .type(.text), .autofocus(false), .required(true))
-                        ),
-                        .fieldset(
-                            .label(.for("email"), "Email"),
-                            .input(.name("email"), .type(.email), .autocomplete(true), .required(true))),
-                        .fieldset(
-                            .label(.for("comments"), "Comments"),
-                            .input(.name("comments"), .type(.text) )
-                        ),
-                        .input(.type(.submit), .value("Send")),
-                        .input(.type(.reset), .value("Clear"))
-                    )
-                    
-                ),
-                .footer(for: context.site)
-            )
-        )
-    }
+
     
 }
 
