@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "BandSite",
+        "repositoryURL": "https://github.com/billdonner/BandSite.git",
+        "state": {
+          "branch": null,
+          "revision": "4cf1c308ac790b96b5aeac8235d5539b70f40c72",
+          "version": "0.0.11"
+        }
+      },
+      {
         "package": "Codextended",
         "repositoryURL": "https://github.com/johnsundell/codextended.git",
         "state": {
@@ -24,8 +33,8 @@
         "repositoryURL": "https://github.com/billdonner/GigSiteAudio.git",
         "state": {
           "branch": null,
-          "revision": "9e371c977c3415fef38508db423b2e4349790ed2",
-          "version": "0.1.11"
+          "revision": "37ac631acc64a3664a3defb18796d9bf8e97ea4c",
+          "version": "0.1.12"
         }
       },
       {

@@ -3,9 +3,179 @@ import Publish
 import Plot
 import GigSiteAudio
 import LinkGrubber
-// standard BandSite Parameters
+import BandSite
 
- let bandfacts = AudioSiteSpec(
+struct Swatches {
+    
+    let topNavStuff = Node.ul (
+        .li(.a(
+            .href("/blog"),
+            .text("Blog"))),
+        .li(.a(
+            .href("/tags"),
+            .text("Tags"))),
+        .li(.a(
+            .href("/favorites"),
+            .text("Favorites"))),
+        .li(.a(
+            .href("/about"),
+            .text("About"))),
+        .li(.a(
+            .href("/audiosessions"),
+            .text("Audio")))
+    )
+    
+    let indexUpper = Node.div(
+        .h1(.text("About Half Dead Home")),
+        .p(
+            .class("description"),
+            .text("New Home for  About Half Dead")
+        ),
+        .h2("Recent Posts")
+    )
+    let indexLower = Node.div(
+        
+        .h4("Data Assets"),
+        .ul(
+            .li(    .class("reftag"),
+                    .a(.href("/BigData/bigdata.csv"),
+                       .text("CSV for data anaylsis")) ),
+            .li(    .class("reftag"),
+                    .a(.href("/BigData/bigdata.json"),
+                       .text("JSON for apps")) ),
+            .li(    .class("reftag"),
+                    .a(.href("/sitemap.xml"),
+                        .text("Sitemap")) ),
+            .li(    .class("reftag"),
+                    .a(.text("RSS feed"),
+                       .href("/feed.rss")))
+        )
+    )
+    
+    let memberPageFull = Node.div(
+        .h2("Who Are We?"),
+        
+        .img(.src("/images/roseslogo.png")),
+        .span("We play in Thornwood"),
+        .ul(
+            .li(.dl(
+                .dt("Anthony"),
+                .dd("Rhythm Guitar and ",.strong( "Vocals"))),
+                .img(.src("/images/hd-anthony.jpg"))),
+            
+            .li(.dl(
+                .dt("Bill"),
+                .dd("Keyboards")),
+                .img(.src("/images/hd-bill.jpg"))),
+            
+            .li(.dl(
+                .dt("Brian"),
+                .dd("Drums ", .s("and Vocals"))),
+                .img(.src("/images/hd-brian.jpg"))),
+            
+            .li(.dl(
+                .dt("Mark"),
+                .dd("Lead Guitar and ", .ins("Vocals"))),
+                .img(.src("/images/hd-mark.jpg"))),
+            
+            .li(.dl(
+                .dt("Marty"),
+                .dd("Bass")),
+                .img(.src("/images/hd-marty.jpg")))),
+        .h2( "Hire Us"),
+        .p("We Don't Play For Free"),
+        .form(
+            .action("mailto:bildonner@gmail.com"),
+            
+            .fieldset(
+                .label(.for("name"), "Name"),
+                .input(.name("name"), .type(.text), .autofocus(false), .required(true))
+            ),
+            .fieldset(
+                .label(.for("email"), "Email"),
+                .input(.name("email"), .type(.email), .autocomplete(true), .required(true))),
+            .fieldset(
+                .label(.for("comments"), "Comments"),
+                .input(.name("comments"), .type(.text) )
+            ),
+            .input(.type(.submit), .value("Send")),
+            .input(.type(.reset), .value("Clear"))
+        )
+    )
+    
+    let billsFavorite = Node.div(
+        .h2("Bill's Favorites 2019"),
+        .img(.src("/images/roseslogo.png")),
+        .span("We play in Thornwood"),
+        .ul(
+            .li(.dl(
+                .dt("Light My Fire"),
+                .dd("Nov 19" )),
+                .img(.src("/images/hd-anthony.jpg")),
+                .audio(.controls(true),
+                       .source(
+                    .src("https://billdonner.com/halfdead/2019/11-19-19/06%20-%20Light%20My%20Fire.MP3"),
+                    .type(.wav)))),
+            
+            .li(.dl(
+                .dt("Riders On The Storm"),
+                .dd("Keyboards")),
+                .img(.src("/images/hd-bill.jpg"))),
+            
+            .li(.dl(
+                .dt("In Memory Of Elizabeth Reed"),
+                .dd("Drums ", .s("and Vocals"))),
+                .img(.src("/images/hd-brian.jpg"))),
+            
+            .li(.dl(
+                .dt("China > Rider"),
+                .dd("Lead Guitar and ", .ins("Vocals"))),
+                .img(.src("/images/hd-mark.jpg"))),
+            
+            .li(.dl(
+                .dt("Friend Of The Devil"),
+                .dd("Bass")),
+                .img(.src("/images/hd-marty.jpg")))))
+    
+    let briansFavorite = Node.div(
+        .h2("Brian's Favorites 2019"),
+        .img(.src("/images/roseslogo.png")),
+        .span("No cookies here"),
+        .ul(
+            .li(.dl(
+                .dt("Light My Fire"),
+                .dd("Nov 19" )),
+                .img(.src("/images/hd-anthony.jpg")),
+                .audio(.controls(true),
+                       .source(
+                    .src("https://billdonner.com/halfdead/2019/11-19-19/06%20-%20Light%20My%20Fire.MP3"),
+                    .type(.wav)))),
+            
+            .li(.dl(
+                .dt("Riders On The Storm"),
+                .dd("Keyboards")),
+                .img(.src("/images/hd-bill.jpg"))),
+            
+            .li(.dl(
+                .dt("In Memory Of Elizabeth Reed"),
+                .dd("Drums ", .s("and Vocals"))),
+                .img(.src("/images/hd-brian.jpg"))),
+            
+            .li(.dl(
+                .dt("China > Rider"),
+                .dd("Lead Guitar and ", .ins("Vocals"))),
+                .img(.src("/images/hd-mark.jpg"))),
+            
+            .li(.dl(
+                .dt("Friend Of The Devil"),
+                .dd("Bass")),
+                .img(.src("/images/hd-marty.jpg")))))
+}// end of custom
+
+
+var swatches = Swatches()
+var
+bandfacts = AudioSiteSpec(
     venueShort: "thorn",
     venueLong: "Highline Studios, Thornwood, NY",
     crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
@@ -24,186 +194,76 @@ import LinkGrubber
     titleForBlog:"ABHD Blog",
     titleForMembersPage:"ABHD Members ",
     resourcePaths:   ["Resources/HdTheme/hdstyles.css"],
+    indexUpper: swatches.indexUpper,
+    indexLower:  swatches.indexLower,
+    memberPageFull: swatches.memberPageFull,
+    topNavStuff:     swatches.topNavStuff,
+    allFavorites: [swatches.billsFavorite,swatches.briansFavorite],
     imagePath:  Path("images/ABHDLogo.png") ,
     favicon:  Favicon(path: "images/favicon.png")
 )
 
-// places to test, or simply to use
-func standard_testing_roots(c:String)->String {
-    let rooturl:String
-switch c {
-case "s": rooturl =  "https://billdonner.com/halfdead/2019/01-07-19/"
-case "m": rooturl =  "https://billdonner.com/2019/"
-case "l": rooturl =  "https://billdonner.com/halfdead/"
-default:  rooturl =  "https://billdonner.com/halfdead/2019/01-07-19/"
-}
-    return rooturl
-}
 
 
 
-
-extension SOB {
-   static func htmlForTestPage(for page: Page,
-                              context: PublishingContext<Hd>) -> HTML {
-    HTML(
-        .lang(context.site.language),
-        .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-        .body(
-            .header(for: context, selectedSection: nil),
-            .wrapper(.h2(.text("TEST PAGE"))),
-            .footer(for: context.site)
-        )
-    )
-}
-
-   static  func htmlForIndexPage(for index: Index,context:PublishingContext<Hd>) -> HTML {
-    HTML(
-               .lang(context.site.language),
-               .head(for: index, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-               .body(
-                   .header(for: context, selectedSection: nil),
-                   .wrapper(
-                       .h1(.text(index.title)),
-                       .p(
-                           .class("description"),
-                           .text("New Home for  About Half Dead")
-                       ),
-                       
-                       .h2("Recent Posts"),
-                       .itemList( for: context.someItems(max:5, sortedBy: \.date,
-                                                         order: .descending
-                           ),
-                                  on: context.site
-                       )),
-                   
-                   .h4("Data Assets"),
-                   .ul(
-                       
-                       .li(    .class("reftag"),
-                               .a(.href("/BigData/bigdata.csv"),
-                                  .text("CSV for data anaylsis")) ),
-                       .li(    .class("reftag"),
-                               .a(.href("/BigData/bigdata.json"),
-                                  .text("JSON for apps")) ),
-                       .li(    .class("reftag"),
-                               .a(
-                                   .href("/sitemap.xml"),
-                                   .text("Sitemap")) ),
-                       .li(    .class("reftag"),
-                               .a(.text("RSS feed"),
-                                  .href("/feed.rss")))
-                   ),
-                   
-                   .footer(for: context.site)
-               )
-           )
-     
-}
-
-  static  func htmlForMembersPage(for page: Page,
-                                 context: PublishingContext<Hd>) -> HTML {
-    HTML(
-        .lang(context.site.language),
-        .head(for: page, on: context.site,stylesheetPaths:["/hdstyles.css"]),
-        .body(
-            .header(for: context, selectedSection: nil),
-            .wrapper(
-                .h2("Who Are We?"),
-                .div(
-                    .img(.src("/images/roseslogo.png"))),
-                .span("We play in \(bandfacts.venueLong)") ,
-                .ul(
-                    .li(.dl(
-                        .dt("Anthony"),
-                        .dd("Rhythm Guitar and ",.strong( "Vocals"))),
-                        .img(.src("/images/hd-anthony.jpg"))),
-                    .li(.dl(
-                        .dt("Bill"),
-                        .dd("Keyboards")),
-                        .img(.src("/images/hd-bill.jpg"))),
-                    .li(.dl(
-                        .dt("Brian"),
-                        .dd("Drums ", .s("and Vocals"))),
-                        .img(.src("/images/hd-brian.jpg"))),
-                    
-                    .li(.dl(
-                        .dt("Mark"),
-                        .dd("Lead Guitar and ", .ins("Vocals"))),
-                        .img(.src("/images/hd-mark.jpg"))),
-                    
-                    .li(.dl(
-                        .dt("Marty"),
-                        .dd("Bass")),
-                        .img(.src("/images/hd-marty.jpg")))
-                    
-                ),// ends ul
-                .h2( "Hire Us"),
-                .p("We Don't Play For Free"),
-                .form(
-                    .action("mailto:bildonner@gmail.com"),
-                    
-                    .fieldset(
-                        .label(.for("name"), "Name"),
-                        .input(.name("name"), .type(.text), .autofocus(false), .required(true))
-                    ),
-                    .fieldset(
-                        .label(.for("email"), "Email"),
-                        .input(.name("email"), .type(.email), .autocomplete(true), .required(true))),
-                    .fieldset(
-                        .label(.for("comments"), "Comments"),
-                        .input(.name("comments"), .type(.text) )
-                    ),
-                    .input(.type(.submit), .value("Send")),
-                    .input(.type(.reset), .value("Clear"))
-                )
-                
-            ),
-            .footer(for: context.site)
-        )
-    )
-}
-    
-}
-
-
-// custom pages for BandSite
-
+//// custom pages for BandSite
+// extension  BandSitePrePublish{
+//
+//}
 extension PublishingStep where Site == Hd {
+    static var allpagefuncs:[()throws->() ] = []
+}
+
+
+func command_main(crawler:CrawlingSignature,bandfacts:AudioSiteSpec) {
     
-    static var allpagefuncs:[()throws->() ] = []//[addBillsFavorites,addBriansFavorites]
-    
-    static func addBillsFavorites() throws {
-        let props = CustomPageProps(isInternalPage: true, urlstr: "grubber://mumble012/custom/bill/bills-best-2019/",
-                                              title: "Bill's Best 2019",
-                                              tags: ["favorites"])
-        let links = [
-            Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"favorite of all time"),
-            Fav(name: "riders",url: "https://billdonner.com/foobly/riders.mp3",comment:"best of the year")
-        ]
-        try BandSitePrePublish.addFavoritePage(links: links, props: props)
-        allpagefuncs.append(addBillsFavorites)
-        print("[crawler] adding Bills Favorites")
+    // places to test, or simply to use
+    func standard_testing_roots(c:String)->String {
+        let rooturl:String
+        switch c {
+        case "s": rooturl =  "https://billdonner.com/halfdead/2019/01-07-19/"
+        case "m": rooturl =  "https://billdonner.com/2019/"
+        case "l": rooturl =  "https://billdonner.com/halfdead/"
+        default:  rooturl =  "https://billdonner.com/halfdead/2019/01-07-19/"
+        }
+        return rooturl
     }
     
-    static func addBriansFavorites() throws {
-        let props = CustomPageProps(isInternalPage: true,urlstr: "grubber://mumble012/custom/brian/brians-favorites-2018/",
-                                              title: "Brians's Best 2019",
-                                              tags: ["favorites"])
+    
+    
+    func printUsage() {
+        let processinfo = ProcessInfo()
+        print(processinfo.processName)
+        let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
+        print("\(executableName)")
+        print("usage:")
+        print("\(executableName) s or m or l")
         
-        let links = [
-            Fav(name: "light my fire",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"not exactly my taste"),
-            Fav(name: "riders",url: "https://billdonner.com/foobly/lightmyfire.mp3",comment:"I like the drumming")
-        ]
-           try BandSitePrePublish.addFavoritePage(links: links, props: props)
-        allpagefuncs.append(addBriansFavorites)
-        print("[crawler] adding Brians Favorites")
+    }
+    // the main program starts right here really starts here
+    
+    do {
+        let bletch = { print("[crawler] bad command \(CommandLine.arguments)"  )
+            printUsage()
+            return
+        }
+        guard CommandLine.arguments.count > 1 else  { bletch(); exit(0)  }
+        let arg1 =  CommandLine.arguments[1].lowercased()
+        let incoming = String(arg1.first ?? "X")
+        let rooturl = standard_testing_roots(c:incoming)
+        let rs = [RootStart(name: incoming, urlstr: rooturl)]
+        Hd.setup(bandfacts)
+        print("[crawler] executing \(rooturl)")
+        crawler(rs,  { status in
+            switch status {
+            case 200:   print("[crawler] it was a perfect crawl ")
+            default:  bletch()
+            }
+        })
     }
 }
 
 
 // starts here
-command_main(crawler:Hd.audioCrawler)
 
-
-/////
+command_main(crawler:Hd.audioCrawler,bandfacts:bandfacts)
