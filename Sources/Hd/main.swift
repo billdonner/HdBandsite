@@ -1,10 +1,10 @@
 import Foundation
 import Publish
 import Plot
-import GigSiteAudio
-import LinkGrubber
 import BandSite
 
+
+//
 struct Swatches {
     
     let topNavStuff = Node.ul (
@@ -34,7 +34,6 @@ struct Swatches {
         .h2("Recent Posts")
     )
     let indexLower = Node.div(
-        
         .h4("Data Assets"),
         .ul(
             .li(    .class("reftag"),
@@ -54,7 +53,6 @@ struct Swatches {
     
     let memberPageFull = Node.div(
         .h2("Who Are We?"),
-        
         .img(.src("/images/roseslogo.png")),
         .span("We play in Thornwood"),
         .ul(
@@ -173,9 +171,11 @@ struct Swatches {
 }// end of custom
 
 
-var swatches = Swatches()
-var
-bandfacts = AudioSiteSpec(
+let swatches = Swatches()
+// starts here
+
+
+let bandfacts = BandSiteFacts(
     venueShort: "thorn",
     venueLong: "Highline Studios, Thornwood, NY",
     crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
@@ -202,68 +202,20 @@ bandfacts = AudioSiteSpec(
     imagePath:  Path("images/ABHDLogo.png") ,
     favicon:  Favicon(path: "images/favicon.png")
 )
-
-
-
-
-//// custom pages for BandSite
-// extension  BandSitePrePublish{
-//
-//}
-extension PublishingStep where Site == Hd {
-    static var allpagefuncs:[()throws->() ] = []
-}
-
-
-func command_main(crawler:CrawlingSignature,bandfacts:AudioSiteSpec) {
     
     // places to test, or simply to use
-    func standard_testing_roots(c:String)->String {
+    func command_rewriter(c:String)->String {
         let rooturl:String
         switch c {
         case "s": rooturl =  "https://billdonner.com/halfdead/2019/01-07-19/"
-        case "m": rooturl =  "https://billdonner.com/2019/"
+        case "m": rooturl =  "https://billdonner.com/halfdead/2019/"
         case "l": rooturl =  "https://billdonner.com/halfdead/"
         default:  rooturl =  "https://billdonner.com/halfdead/2019/01-07-19/"
         }
         return rooturl
     }
-    
-    
-    
-    func printUsage() {
-        let processinfo = ProcessInfo()
-        print(processinfo.processName)
-        let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
-        print("\(executableName)")
-        print("usage:")
-        print("\(executableName) s or m or l")
-        
-    }
-    // the main program starts right here really starts here
-    
-    do {
-        let bletch = { print("[crawler] bad command \(CommandLine.arguments)"  )
-            printUsage()
-            return
-        }
-        guard CommandLine.arguments.count > 1 else  { bletch(); exit(0)  }
-        let arg1 =  CommandLine.arguments[1].lowercased()
-        let incoming = String(arg1.first ?? "X")
-        let rooturl = standard_testing_roots(c:incoming)
-        let rs = [RootStart(name: incoming, urlstr: rooturl)]
-        Hd.setup(bandfacts)
-        print("[crawler] executing \(rooturl)")
-        crawler(rs,  { status in
-            switch status {
-            case 200:   print("[crawler] it was a perfect crawl ")
-            default:  bletch()
-            }
-        })
-    }
-}
 
+bandsite_command_main(bandfacts:bandfacts,rewriter:command_rewriter)
 
-// starts here
-
-command_main(crawler:Hd.audioCrawler,bandfacts:bandfacts)
+let stepcount = Hd.publisher()
+print("[crawler] Publish finished; steps:",stepcount)
