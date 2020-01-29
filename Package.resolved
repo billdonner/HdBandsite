@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/billdonner/BandSite.git",
         "state": {
           "branch": null,
-          "revision": "89b344d27575d99d6e876c687c68c972b1177e24",
-          "version": "0.0.24"
+          "revision": "77361e4b87a4831bcab7497805d2b293dac84b16",
+          "version": "0.0.28"
         }
       },
       {
@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/billdonner/LinkGrubber.git",
         "state": {
           "branch": null,
-          "revision": "f09ca4e8319bcd37e8b89b9b23b4717dc7dd7b04",
-          "version": "0.1.14"
+          "revision": "681f0771f8f82f687acbfa5ee902b48d9d16827b",
+          "version": "0.1.16"
         }
       },
       {

@@ -14,20 +14,18 @@ import LinkGrubber
 
 // Standard BandSite Stuff
 
+
+//public typealias CrawlingSignature =  ([RootStart] , @escaping (Int)->()) -> ()
+
 // This type acts as the configuration for your website.
 // On top of John Sundell's configuration, we have everything else that's needed for LinkGrubber, etc
 
 
-
 // open class
 public struct Hd: Website {
-     public static var bandfacts: BandSiteFacts!
+     //public static var bandfacts: BandSiteFacts!
     // public static var xlgFuncs: LgFuncs!
     
-    public static func setup(_ bf:BandSiteFacts){//}, lgFuncs lf:LgFuncs){
-        bandfacts = bf
-       // xlgFuncs = lf
-    }
 
     public enum SectionID: String, WebsiteSectionID {
         // Add the sections that you want your website to contain here:
@@ -47,60 +45,175 @@ public struct Hd: Website {
     
     // Update these properties to configure your website:
    public var url =  URL(string:bandfacts.url)!
-   public  var name =  bandfacts.name// + "\(Date())".dropLast(14)
-   public  var description =  bandfacts.description
-   public  var language =  bandfacts.language
-   public   var imagePath =   bandfacts.imagePath
-   public   var favicon =  bandfacts.favicon
+   public var name =  bandfacts.name// + "\(Date())".dropLast(14)
+   public var description =  bandfacts.description
+   public var language =  bandfacts.language
+   public var imagePath =   bandfacts.imagePath
+   public var favicon =  bandfacts.favicon
   
 }
 
 
-extension Hd {
-    public static func publisher() ->Int {
-        do {
-        let (steps,stepcount) = try PublishingStep<Hd>.allsteps()
-                   try Hd().publish(withTheme: .hd, additionalSteps:steps)
-            return stepcount
-        }
-        catch {
-            print("[crawler] could not publish \(error)")
-            return 0
-        }
-    }
-   static func bandSiteRunCrawler (_ roots:[RootStart],finally:@escaping (Int)->()) {
-
-        let pmf = AudioHTMLSupport(bandfacts: bandfacts,
-                          lgFuncs: lgFuncs ).audioListPageMakerFunc
-    
-        let _ = AudioCrawler(roots:roots,
-                        verbosity:  .none,
-                        lgFuncs: lgFuncs,
-                        pageMaker: pmf,
-                        bandSiteParams: bandfacts) { status in // just runs
-                            
-                            
-                        finally(status)
-        }
-    }
-}
-
 extension PublishingStep where Site == Hd {
-    static var madePageCount = 0
-    static func allsteps () throws -> ([PublishingStep<Hd>],Int) {
-        return ([try makeTestPageStep(), try makeMembersPageStep(),addSectionTitlesStep()],madePageCount)
+    static func allsteps () throws -> ([PublishingStep<Hd>]) {
+        return ([
+                 try makeFavoritePageStep(),
+                     try makeMembersPageStep(),
+                     try makeBillsPageStep(),
+                     try makeBriansPageStep(),
+                     addSectionTitlesStep()])
+        }
+
+        static func makePageStep (node:Node<HTML.BodyContext>, title:String,description:String,path:String ) throws -> Self {
+            let y = Content.Body(node:node )
+            let z = Content(title:title,description:description,body:y)
+            return PublishingStep<Hd>.addPage(Page(path:Path(path),  content: z ))
+        }
+        
+        static func makeMembersPageStep ( ) throws -> Self {
+            let memberPageFull = Node.div(
+                .h2("Who Are We?"),
+                .img(.src("/images/roseslogo.png")),
+                .span("We play in Thornwood"),
+                .ul(
+                    .li(.dl(
+                        .dt("Anthony"),
+                        .dd("Rhythm Guitar and ",.strong( "Vocals"))),
+                        .img(.src("/images/hd-anthony.jpg"))),
+                    
+                    .li(.dl(
+                        .dt("Bill"),
+                        .dd("Keyboards")),
+                        .img(.src("/images/hd-bill.jpg"))),
+                    
+                    .li(.dl(
+                        .dt("Brian"),
+                        .dd("Drums ", .s("and Vocals"))),
+                        .img(.src("/images/hd-brian.jpg"))),
+                    
+                    .li(.dl(
+                        .dt("Mark"),
+                        .dd("Lead Guitar and ", .ins("Vocals"))),
+                        .img(.src("/images/hd-mark.jpg"))),
+                    
+                    .li(.dl(
+                        .dt("Marty"),
+                        .dd("Bass")),
+                        .img(.src("/images/hd-marty.jpg")))),
+                .h2( "Hire Us"),
+                .p("We Don't Play For Free"),
+                .form(
+                    .action("mailto:bildonner@gmail.com"),
+                    
+                    .fieldset(
+                        .label(.for("name"), "Name"),
+                        .input(.name("name"), .type(.text), .autofocus(false), .required(true))
+                    ),
+                    .fieldset(
+                        .label(.for("email"), "Email"),
+                        .input(.name("email"), .type(.email), .autocomplete(true), .required(true))),
+                    .fieldset(
+                        .label(.for("comments"), "Comments"),
+                        .input(.name("comments"), .type(.text) )
+                    ),
+                    .input(.type(.submit), .value("Send")),
+                    .input(.type(.reset), .value("Clear"))
+                )
+            )
+          return  try makePageStep(node:memberPageFull ,title:"Member Page",description:"This is the members page", path:"/about")
+            
+        }
+        static func makeFavoritePageStep () throws -> Self {
+        let xyz = Node.div(
+            .h2("Band's Favorite Cuts"),
+            .ul(
+                .li(.a(.class("site-name"), .href("/favorites/bill"), .text("Bill's Favorites 2019"))),
+                
+                .li(.a(.class("site-name"), .href("/favorites/brian"), .text("Brian's Favorites 2019")))
+                
+                ),
+            .img(.src("/images/roseslogo.png")))
+        
+         return try makePageStep(node:xyz ,title: "Everyone's Favorites",description:"This is Everyone's Favorites page", path:"/favorites")
+       
+        
     }
-    static func makeTestPageStep ( ) throws -> Self {
-        madePageCount += 1
-        return PublishingStep<Hd>.addPage(Page(path:"/test",
-                                               content: Content(title:"test test", description:"this is just a test" )))
+    static func makeBillsPageStep ( ) throws -> Self {
+        let billsFavorite = Node.div(
+            .h2("Bill's Favorites 2019"),
+            .img(.src("/images/roseslogo.png")),
+            .span("We play in Thornwood"),
+            .ul(
+                .li(.dl(
+                    .dt("Light My Fire"),
+                    .dd("Nov 19" )),
+                    .img(.src("/images/hd-anthony.jpg")),
+                    .audio(.controls(true),
+                           .source(
+                        .src("https://billdonner.com/halfdead/2019/11-19-19/06%20-%20Light%20My%20Fire.MP3"),
+                        .type(.wav)))),
+                
+                .li(.dl(
+                    .dt("Riders On The Storm"),
+                    .dd("Keyboards")),
+                    .img(.src("/images/hd-bill.jpg"))),
+                
+                .li(.dl(
+                    .dt("In Memory Of Elizabeth Reed"),
+                    .dd("Drums ", .s("and Vocals"))),
+                    .img(.src("/images/hd-brian.jpg"))),
+                
+                .li(.dl(
+                    .dt("China > Rider"),
+                    .dd("Lead Guitar and ", .ins("Vocals"))),
+                    .img(.src("/images/hd-mark.jpg"))),
+                
+                .li(.dl(
+                    .dt("Friend Of The Devil"),
+                    .dd("Bass")),
+                    .img(.src("/images/hd-marty.jpg")))))
+        
+      return try makePageStep(node:billsFavorite ,title: "Bill's Page",description:"This is Bill's Favorites page", path:"/favorites/bill")
+       
     }
-    static func makeMembersPageStep ( ) throws -> Self {
-        madePageCount += 1
-        let x = Hd.bandfacts!
-        return PublishingStep<Hd>.addPage(Page(path:"/about",
-                                               content: Content(title:x.titleForMembersPage, description:x.description )))
-    }
+    static func makeBriansPageStep ( ) throws -> Self { 
+        let briansFavorite = Node.div(
+            .h2("Brian's Favorites 2019"),
+            .img(.src("/images/roseslogo.png")),
+            .span("No cookies here"),
+            .ul(
+                .li(.dl(
+                    .dt("Light My Fire"),
+                    .dd("Nov 19" )),
+                    .img(.src("/images/hd-anthony.jpg")),
+                    .audio(.controls(true),
+                           .source(
+                        .src("https://billdonner.com/halfdead/2019/11-19-19/06%20-%20Light%20My%20Fire.MP3"),
+                        .type(.wav)))),
+                
+                .li(.dl(
+                    .dt("Riders On The Storm"),
+                    .dd("Keyboards")),
+                    .img(.src("/images/hd-bill.jpg"))),
+                
+                .li(.dl(
+                    .dt("In Memory Of Elizabeth Reed"),
+                    .dd("Drums ", .s("and Vocals"))),
+                    .img(.src("/images/hd-brian.jpg"))),
+                
+                .li(.dl(
+                    .dt("China > Rider"),
+                    .dd("Lead Guitar and ", .ins("Vocals"))),
+                    .img(.src("/images/hd-mark.jpg"))),
+                
+                .li(.dl(
+                    .dt("Friend Of The Devil"),
+                    .dd("Bass")),
+                    .img(.src("/images/hd-marty.jpg")))))
+    return  try makePageStep(node:briansFavorite ,title: "Brian's Page",description:"This is Brian's Favorites page", path:"/favorites/brian")
+ 
+      }
+
     static func addSectionTitlesStep() -> Self {
         .step(named: "Default section titles") { context in
             context.mutateAllSections { section in
@@ -108,119 +221,15 @@ extension PublishingStep where Site == Hd {
                 
                 switch section.id {
                 case .audiosessions:
-                    section.title = Hd.bandfacts!.titleForAudioSessions
+                    section.title = "All The Audio"
                 case .favorites:
-                    section.title = Hd.bandfacts!.titleForFavoritesSection
+                    section.title = "Half Favorites"
                 case .about:
-                    section.title = Hd.bandfacts!.titleForMembersPage
+                    section.title = "Half About"
                 case .blog:
-                    section.title = Hd.bandfacts!.titleForBlog
+                    section.title = "Half Blog"
                 }
             }
         }
     }
 }
-
-
-
-public typealias IndexPageSig = (Index,PublishingContext<Hd>) throws -> HTML
-public typealias GeneralPageSig = (Page,PublishingContext<Hd>) throws -> HTML
-
-
-
-open class BandSiteFacts:BandSiteHTMLProt&FileSiteProt {
-    
-    public var artist : String
-    public var venueShort : String
-    public var venueLong : String
-    public var crawlTags:[String]
-    public var pathToContentDir : String
-    public var pathToResourcesDir : String
-    public var pathToOutputDir: String
-    public var matchingURLPrefix : String
-    public var specialFolderPaths: [String]
-    public var language : Language
-    public var url : String
-    public var name : String
-    public var shortname: String
-    public var titleForAudioSessions: String
-    public var titleForFavoritesSection: String
-    public var titleForBlog: String
-    public var titleForMembersPage: String
-    public var resourcePaths:Set<Path>
-    public var description : String
-    public var topNavStuff:Node<HTML.BodyContext>
-    public var indexUpper :Node<HTML.BodyContext>
-    public var indexLower:Node<HTML.BodyContext>
-    public var memberPageFull:Node<HTML.BodyContext>
-    public var allFavorites: [Node<HTML.BodyContext>]
-    public var imagePath : Path?
-    public var favicon: Favicon?
-    
-    public init(
-        artist : String = "",
-        venueShort : String = "",
-        venueLong : String  = "",
-        crawlTags:[String]  = [],
-        pathToContentDir : String = "",
-        pathToOutputDir : String = "",
-        pathToResourcesDir: String = "",
-        matchingURLPrefix :String = "",
-        specialFolderPaths :[String] = [],
-        language : Language = .english,
-        url : String = "",
-        name : String = "",
-        shortname : String = "",
-        description : String = "",
-        titleForAudioSessions: String = "",
-        titleForFavoritesSection: String = "",
-        titleForBlog: String = "",
-        titleForMembersPage: String = "",
-        resourcePaths: Set<Path> = [],
-        indexUpper: Node<HTML.BodyContext>,
-        indexLower: Node<HTML.BodyContext>,
-        memberPageFull: Node<HTML.BodyContext>,
-        topNavStuff:Node<HTML.BodyContext>,
-        allFavorites: [Node<HTML.BodyContext>],
-        
-        imagePath : Path? = nil,
-        favicon:Favicon? = nil
-    ){
-        self.artist = artist
-        self.venueShort = venueShort
-        self.venueLong = venueLong
-        self.crawlTags = crawlTags
-        self.pathToContentDir = pathToContentDir
-        self.pathToOutputDir = pathToOutputDir
-        self.pathToResourcesDir = pathToResourcesDir
-        self.matchingURLPrefix = matchingURLPrefix
-        self.specialFolderPaths = specialFolderPaths
-        self.language = language
-        self.url = url
-        self.name = name
-        self.shortname = shortname
-        self.titleForAudioSessions = titleForAudioSessions
-        self.titleForFavoritesSection = titleForFavoritesSection
-        self.titleForBlog = titleForBlog
-        self.titleForMembersPage = titleForMembersPage
-        self.resourcePaths = resourcePaths
-        self.description = description
-        self.indexUpper = indexUpper
-        self.indexLower = indexLower
-        self.memberPageFull = memberPageFull
-        self.topNavStuff = topNavStuff
-        self.allFavorites = allFavorites
-        self.imagePath = imagePath
-        self.favicon = favicon
-        //
-    }
-    
-}
-
-
-
-
-
-public typealias CrawlingSignature =  ([RootStart] , @escaping (Int)->()) -> ()
-
-
