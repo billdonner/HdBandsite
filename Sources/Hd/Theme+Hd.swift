@@ -26,9 +26,9 @@ extension Theme where Site == Hd {
         )
     }
     private struct BandsiteHTMLFactory: HTMLFactory {
-        public typealias Site = Hd
+       
         
-        public func makeSectionHTML(for section: Section<Site>,
+        func makeSectionHTML(for section: Section<Site>,
                                     context: PublishingContext<Site>) throws -> HTML {
             HTML(
                 .lang(context.site.language),
@@ -44,7 +44,7 @@ extension Theme where Site == Hd {
             )
         }
         
-        public func makeItemHTML(for item: Item<Site>,
+          func makeItemHTML(for item: Item<Site>,
                                  context: PublishingContext<Site>) throws -> HTML {
             HTML(
                 .lang(context.site.language),
@@ -67,7 +67,7 @@ extension Theme where Site == Hd {
             )
         }
         
-        public  func makeTagListHTML(for page: TagListPage,
+           func makeTagListHTML(for page: TagListPage,
                                      context: PublishingContext<Site>) throws -> HTML? {
             HTML(
                 .lang(context.site.language),
@@ -92,7 +92,7 @@ extension Theme where Site == Hd {
             )
         }
         
-        public  func makeTagDetailsHTML(for page: TagDetailsPage,
+           func makeTagDetailsHTML(for page: TagDetailsPage,
                                         context: PublishingContext<Site>) throws -> HTML? {
             HTML(
                 .lang(context.site.language),
@@ -123,8 +123,8 @@ extension Theme where Site == Hd {
             )
         }
         
-        public   func makeIndexHTML(for index: Index,
-                                    context: PublishingContext<Hd>) throws -> HTML {
+            func makeIndexHTML(for index: Index,
+                                    context: PublishingContext<Site>) throws -> HTML {
             
             let indexUpper = Node.div(
                  .h1(.text("About Half Dead Home")),
@@ -178,8 +178,8 @@ extension Theme where Site == Hd {
 
         
         
-        public   func makePageHTML(for page: Page,
-                                   context: PublishingContext<Hd>) throws -> HTML {
+            func makePageHTML(for page: Page,
+                                   context: PublishingContext<Site>) throws -> HTML {
           
                 return    HTML(
                                 .lang(context.site.language),
@@ -192,24 +192,7 @@ extension Theme where Site == Hd {
                                 )
                             )
             }
-            
-            
-            //page.body = Content.Body(node: result)
-            
-//            return  HTML(
-//                .lang(context.site.language),
-//                .head(for: page, on: context.site,
-//                                stylesheetPaths: ["/hdstyles.css"]),
-//                .body(
-//                    .header(for: context, selectedSection: nil),
-//                      .wrapper(.contentBody(Content.Body(node: result))),
-//                    .footer(for: context.site)
-//                )
-//            )
-        
     }
-    
-
 }
 extension Node where Context == HTML.BodyContext {
     static func wrapper(_ nodes: Node...) -> Node {
@@ -281,6 +264,7 @@ extension Node where Context == HTML.BodyContext {
     
     static func footer<T: Website>(for site: T) -> Node {
         let now = "\(Date())".dropLast(9)
+        ////let sourceurl = site.item.metadata
         return .footer(
             .p(
                 .text("Generated using "),
@@ -294,37 +278,5 @@ extension Node where Context == HTML.BodyContext {
             ))
     }
 }
-extension SortOrder {
-    func makeASorter<T, V: Comparable>(
-        forKeyPath keyPath: KeyPath<T, V>
-    ) -> (T, T) -> Bool {
-        switch self {
-        case .ascending:
-            return {
-                $0[keyPath: keyPath] < $1[keyPath: keyPath]
-            }
-        case .descending:
-            return {
-                $0[keyPath: keyPath] > $1[keyPath: keyPath]
-            }
-        }
-    }
-}
-extension PublishingContext where Site == Hd  {
-    /// Return someitems within this website, sorted by a given key path.
-    ///  - parameter max: Max Number of items to return
-    /// - parameter sortingKeyPath: The key path to sort the items by.
-    /// - parameter order: The order to use when sorting the items.
-    
-    
-    func someItems<T: Comparable>(max:Int,
-                                  sortedBy sortingKeyPath: KeyPath<Item<Site>, T>,
-                                  order: SortOrder = .ascending
-    ) -> [Item<Site>] {
-        let items = sections.flatMap { $0.items }
-        let x = items.sorted(
-            by: order.makeASorter(forKeyPath: sortingKeyPath))
-        return x.dropLast((x.count-max)>0 ? x.count-max : 0)
-    }
-}
+
 

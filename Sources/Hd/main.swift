@@ -11,16 +11,11 @@ import Plot
 import BandSite
 import LinkGrubber
 
-  func standardAudioCrawlFuncs() -> LgFuncs {
-     return LgFuncs(imageExtensions: ["jpg","jpeg","png"],
-                    audioExtensions: ["mp3","mpeg","wav"],
-                    markdownExtensions: ["md", "markdown", "txt", "text"],
-                    scrapeAndAbsorbFunc: LgFuncs.kannaScrapeAndAbsorb)
- }
+let LOGGING_LEVEL = LoggingLevel.none
 
 let dirpath = "/Users/williamdonner/hd"
 
-let bandfacts = BandSiteFacts(
+let bandfacts = BandInfo(
     venueShort: "thorn",
     venueLong: "Highline Studios, Thornwood, NY",
     crawlTags: ["china" ,"elizabeth" ,"whipping" ,"one more" ,"riders" ,"light"],
@@ -28,18 +23,41 @@ let bandfacts = BandSiteFacts(
     pathToOutputDir: dirpath + "/Resources/BigData",
     matchingURLPrefix:  "https://billdonner.com/halfdead" ,
     specialFolderPaths: ["/audiosessions","/favorites"],
-    language: Language.english,
-    url: "http://abouthalfdead.com",
-    name: "About Half Dead ",
     shortname: "ABHD",
-    description:"A Jamband Featuring Doors, Dead, ABB Long Form Performances",
-    resourcePaths:   ["Resources/HdTheme/hdstyles.css"],
-    imagePath:  Path("images/ABHDLogo.png") ,
-    favicon:  Favicon(path: "images/favicon.png")
+    resourcePaths:   ["Resources/HdTheme/hdstyles.css"]
+ 
 )
+  // This type acts as the configuration for your bandsite.
+  // On top of John Sundell's configuration, we have everything else that's needed for LinkGrubber, etc
+   
+public struct Hd: Website {
+
     
+      public enum SectionID: String, WebsiteSectionID {
+          // Add the sections that you want your website to contain here:
+          case about
+          case favorites
+          case audiosessions
+          case blog
+      }
+      
+      public  struct ItemMetadata: WebsiteItemMetadata {
+    
+          var sourceurl: String?
+      }
+      // Update these properties to configure your website:
+      public var url =  URL(string:"http://abouthalfdead.com")!
+      public var name =  "About Half Dead"
+      public var description =  "A Jamband Featuring Doors, Dead, ABB Long Form Performances"
+    public var language =      Language.english
+    //public var imagePath =   Path? {"images/ABHDLogo.png"}
+     public var imagePath: Path? {"images/ABHDLogo.png"}
+      public var favicon =  Favicon(path: Path( "images/favicon.png"))
+  }
+
+
     // places to test, or simply to use
-    func command_rewriter(c:String)->String {
+    func command_rewriter(c:String)->URL {
         let rooturl:String
         switch c {
         case "s": rooturl =  "https://billdonner.com/halfdead/2019/01-07-19/"
@@ -47,11 +65,14 @@ let bandfacts = BandSiteFacts(
         case "l": rooturl =  "https://billdonner.com/halfdead/"
         default:  rooturl =  "https://billdonner.com/halfdead/2019/01-07-19/"
         }
-        return rooturl
+        let url = URL(string:rooturl)
+        guard let nrl  = url else { print("bad roourl \(rooturl)"); exit(0)}
+        return nrl
     }
     
 // this will run for a bit while crawlinig the internect, it generates .MD files
-generateBandSite(bandfacts:bandfacts,rewriter:command_rewriter, lgFuncs: standardAudioCrawlFuncs())
+ 
+generateBandSite(bandinfo:bandfacts,rewriter:command_rewriter, lgFuncs: LgFuncs(), logLevel: LOGGING_LEVEL)
 
 // this publishes a new version of the static website based on the Publish and Plot spm
 let _ =  publishBandSite() // turn it over to John Sundell
