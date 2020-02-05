@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/billdonner/BandSite.git",
         "state": {
           "branch": null,
-          "revision": "dc946df6a7eefd561c12c17947739d8c3c71e859",
-          "version": "0.0.35"
+          "revision": "183b2923b7b9d9db55176f85aca46b5853dcf05c",
+          "version": "0.0.41"
         }
       },
       {
@@ -29,6 +29,15 @@
         }
       },
       {
+        "package": "HTMLExtractor",
+        "repositoryURL": "https://github.com/billdonner/HTMLExtractor.git",
+        "state": {
+          "branch": null,
+          "revision": "88e9f666ad66c35b0e86cf8dcc818e7ddfa356af",
+          "version": "0.1.6"
+        }
+      },
+      {
         "package": "Ink",
         "repositoryURL": "https://github.com/johnsundell/ink.git",
         "state": {
@@ -38,21 +47,12 @@
         }
       },
       {
-        "package": "Kanna",
-        "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
-        "state": {
-          "branch": null,
-          "revision": "9b8f73f8c8e145dc496565bbf878a709793e7ba3",
-          "version": "5.0.0"
-        }
-      },
-      {
         "package": "LinkGrubber",
         "repositoryURL": "https://github.com/billdonner/LinkGrubber.git",
         "state": {
           "branch": null,
-          "revision": "e800b7b4d3e4a0568bfc6de7b9bbc812757d39d1",
-          "version": "0.1.26"
+          "revision": "fdb44db469c2f4d8b702823daa64bca7c9cb70c0",
+          "version": "0.1.34"
         }
       },
       {

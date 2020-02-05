@@ -22,7 +22,7 @@ extension Theme where Site == Hd {
     static var hd: Self {
         Theme(
             htmlFactory: BandsiteHTMLFactory(),
-            resourcePaths: bandfacts.resourcePaths
+            resourcePaths: ["Resources/HdTheme/hdstyles.css"]
         )
     }
     private struct BandsiteHTMLFactory: HTMLFactory {
