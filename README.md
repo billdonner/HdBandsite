@@ -9,8 +9,8 @@ Amen
 
 This is a Swift Package that generates a specfic site for a working band, in this case AboutHalfDead.com
 
-- [gigaudiosite](https://github.com/billdonner/GigSiteAudio) builds markdown assets for any band
-- [linkgrubber](https://github.com/billdonner/LinkGrubber) scans remote sites for music files
+- [BandSite](https://github.com/billdonner/BandSite) builds markdown assets for any band
+- [LinkGrubber](https://github.com/billdonner/LinkGrubber) scans remote sites for music files
 - [Publish](https://github.com/JohnSundell/Publish) static site generator in Swift
 
 ## How It Works
